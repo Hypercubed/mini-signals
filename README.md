@@ -1,5 +1,5 @@
 # mini-signals
-events, fast
+signals, in JavaScript, fast
 
 # What?
 
