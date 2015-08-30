@@ -116,12 +116,16 @@ MiniSignals.prototype.add = function add(fn, context) {
 
   var listener = new EE(fn, context || this);
 
-  if (!this._listeners) this._listeners = listener;
-  else {
-    if (!this._listeners.fn) this._listeners.push(listener);
-    else this._listeners = [
-      this._listeners, listener
-    ];
+  if (!this._listeners) {
+    this._listeners = listener;
+  } else {
+    if (!this._listeners.fn) {
+      this._listeners.push(listener);
+    } else {
+      this._listeners = [
+        this._listeners, listener
+      ];
+    }
   }
 
   return this;
@@ -137,7 +141,7 @@ MiniSignals.prototype.add = function add(fn, context) {
 
 MiniSignals.prototype.removeListener = function removeListener(fn, context) {
 
-  if (!this._listeners) return this;
+  if (!this._listeners) {return this;}
 
   var listeners = this._listeners, events = [];
 
@@ -174,7 +178,7 @@ MiniSignals.prototype.removeListener = function removeListener(fn, context) {
  * @api public
  */
 MiniSignals.prototype.removeAllListeners = function removeAllListeners() {
-  if (!this._listeners) return this;
+  if (!this._listeners) {return this;}
 
   delete this._listeners;
 
@@ -187,6 +191,7 @@ MiniSignals.prototype.remove = MiniSignals.prototype.removeListener;
 //
 // Expose the module.
 //
+/* istanbul ignore else */
 if ('undefined' !== typeof module) {
   module.exports = MiniSignals;
 }

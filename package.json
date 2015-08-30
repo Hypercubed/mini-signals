@@ -4,7 +4,8 @@
   "description": "signals, in JavaScript, fast",
   "main": "mini-signals.js",
   "scripts": {
-    "test": "mocha mini-signals-spec.js"
+    "test": "mocha mini-signals-spec.js",
+    "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha -u exports -R spec mini-signals-spec.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,8 @@
   },
   "homepage": "https://github.com/Hypercubed/mini-signals",
   "devDependencies": {
-    "assume": "~1.2.6"
+    "assume": "~1.2.6",
+    "istanbul": "^0.3.19",
+    "mocha": "^2.2.5"
   }
 }

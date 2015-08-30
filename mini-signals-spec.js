@@ -19,7 +19,7 @@ describe('MiniSignals', function tests() {
     moop.listeners();
     meap.listeners();
 
-    moop.add(function () {
+    moop.add(/* istanbul ignore next */ function () {
       throw new Error('I should not emit');
     });
 
@@ -234,6 +234,7 @@ describe('MiniSignals', function tests() {
     it('returns an array of function', function () {
        var e = new MiniSignals();
 
+       /* istanbul ignore next */
        function foo() {}
 
        e.add(foo);
@@ -245,6 +246,7 @@ describe('MiniSignals', function tests() {
     it('is not vulnerable to modifications', function () {
       var e = new MiniSignals();
 
+      /* istanbul ignore next */
       function foo() {}
 
       e.add(foo);
@@ -258,6 +260,7 @@ describe('MiniSignals', function tests() {
     it('can return a boolean as indication if listeners exist', function () {
       var e = new MiniSignals();
 
+      /* istanbul ignore next */
       function foo() {}
 
       e.add(foo);
@@ -279,9 +282,10 @@ describe('MiniSignals', function tests() {
     it('should only remove the event with the specified function', function () {
       var e = new MiniSignals();
 
+      /* istanbul ignore next */
       function bar() {}
-      e.add(function () {});
-      e.add(function () {});
+      e.add(/* istanbul ignore next */ function () {});
+      e.add(/* istanbul ignore next */ function () {});
       e.add(bar);
 
       assume(e.listeners().length).equals(3);
@@ -291,16 +295,49 @@ describe('MiniSignals', function tests() {
 
     });
 
+    it('should remove all listeners if no function specified', function () {
+      var e = new MiniSignals();
+
+      /* istanbul ignore next */
+      function bar() {}
+      e.add(/* istanbul ignore next */ function () {});
+      e.add(/* istanbul ignore next */ function () {});
+      e.add(bar);
+
+      assume(e.listeners().length).equals(3);
+
+      assume(e.removeListener()).equals(e);
+      assume(e.listeners().length).equals(0);
+
+    });
+
+    it('should not thow an error if no listerners are set', function () {
+      var e = new MiniSignals();
+
+      /* istanbul ignore next */
+      function bar() {}
+
+      assume(e.listeners().length).equals(0);
+
+      assume(e.removeListener(bar)).equals(e);
+      assume(e.listeners().length).equals(0);
+
+      assume(e.removeListener()).equals(e);
+      assume(e.listeners().length).equals(0);
+    });
+
     it('should only remove listeners matching the correct context', function () {
       var e = new MiniSignals()
         , context = { foo: 'bar' };
 
+      /* istanbul ignore next */
       function foo() {}
+      /* istanbul ignore next */
       function bar() {}
       e.add(foo, context);
 
       assume(e.listeners().length).equals(1);
-      assume(e.removeListener(function () {}, context)).equals(e);
+      assume(e.removeListener(/* istanbul ignore next */ function () {}, context)).equals(e);
       assume(e.listeners().length).equals(1);
       assume(e.removeListener(foo, { baz: 'quux' })).equals(e);
       assume(e.listeners().length).equals(1);
@@ -329,10 +366,10 @@ describe('MiniSignals', function tests() {
     it('removes all events', function () {
       var e = new MiniSignals();
 
-      e.add(function () { throw new Error('oops'); });
-      e.add(function () { throw new Error('oops'); });
-      e.add(function () { throw new Error('oops'); });
-      e.add(function () { throw new Error('oops'); });
+      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
+      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
+      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
+      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
 
       assume(e.removeAllListeners()).equals(e);
       assume(e.listeners().length).equals(0);
