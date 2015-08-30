@@ -1,192 +1,170 @@
-'use strict';
-
-/**
- * Representation of a single MiniSignals function.
- *
- * @param {Function} fn Event handler to be called.
- * @param {Mixed} context Context for function execution.
- * @api private
- */
-function EE(fn, context) {
-  this.fn = fn;
-  this.context = context;
-}
-
-/**
- * Minimal MiniSignals interface that is molded against the js-signals
- * interface.
- *
- * @constructor
- * @api public
- */
-function MiniSignals() { /* Nothing to set */ }
-
-/**
- * Holds the assigned EventEmitters.
- *
- * @type {Object}
- * @private
- */
-MiniSignals.prototype._listeners = undefined;
-
-/**
- * Return a list of assigned event listeners.
- *
- * @param {Boolean} exists We only need to know if there are listeners.
- * @returns {Array|Boolean}
- * @api public
- */
-MiniSignals.prototype.listeners = function listeners(exists) {
-  var available = this._listeners;
-
-  if (exists) return !!available;
-  if (!available) return [];
-  if (available.fn) return [available.fn];
-
-  for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
-    ee[i] = available[i].fn;
-  }
-
-  return ee;
-};
-
-/**
- * Emit an event to all registered event listeners.
- *
- * @returns {Boolean} Indication if we've emitted an event.
- * @api public
- */
-MiniSignals.prototype.emit = function emit(a1, a2, a3, a4, a5) {
-
-  if (!this._listeners) return false;
-
-  var listeners = this._listeners,
-    len = arguments.length,
-    args,
-    i;
-
-  if ('function' === typeof listeners.fn) {
-    //if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-    switch (len) {
-      case 0: return listeners.fn.call(listeners.context), true;
-      case 1: return listeners.fn.call(listeners.context, a1), true;
-      case 2: return listeners.fn.call(listeners.context, a1, a2), true;
-      case 3: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-      case 4: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-    }
-
-    for (i = 0, args = new Array(len); i < len; i++) {
-      args[i] = arguments[i];
-    }
-
-    listeners.fn.apply(listeners.context, args);
+(function (global, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['exports', 'module'], factory);
+  } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+    factory(exports, module);
   } else {
-    var length = listeners.length, j;
+    var mod = {
+      exports: {}
+    };
+    factory(mod.exports, mod);
+    global.miniSignals = mod.exports;
+  }
+})(this, function (exports, module) {
+  'use strict';
 
-    for (i = 0; i < length; i++) {
-      //if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-      switch (len) {
-        case 0: listeners[i].fn.call(listeners[i].context); break;
-        case 1: listeners[i].fn.call(listeners[i].context, a1); break;
-        case 2: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-        default:
-          if (!args) for (j = 0, args = new Array(len); j < len; j++) {
-            args[j] = arguments[j];
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var EE = function EE(fn, context) {
+    _classCallCheck(this, EE);
+
+    this.fn = fn;
+    this.context = context;
+  };
+
+  var MiniSignals = (function () {
+    function MiniSignals() {
+      _classCallCheck(this, MiniSignals);
+
+      this._listeners = undefined;
+    }
+
+    _createClass(MiniSignals, [{
+      key: 'listeners',
+      value: function listeners(exists) {
+        var available = this._listeners;
+
+        if (exists) return !!available;
+        if (!available) return [];
+        if (available.fn) return [available.fn];
+
+        for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
+          ee[i] = available[i].fn;
+        }
+
+        return ee;
+      }
+    }, {
+      key: 'emit',
+      value: function emit(a1, a2, a3, a4, a5) {
+
+        if (!this._listeners) return false;
+
+        var listeners = this._listeners,
+            len = arguments.length,
+            args,
+            i;
+
+        if ('function' === typeof listeners.fn) {
+
+          switch (len) {
+            case 0:
+              return (listeners.fn.call(listeners.context), true);
+            case 1:
+              return (listeners.fn.call(listeners.context, a1), true);
+            case 2:
+              return (listeners.fn.call(listeners.context, a1, a2), true);
+            case 3:
+              return (listeners.fn.call(listeners.context, a1, a2, a3), true);
+            case 4:
+              return (listeners.fn.call(listeners.context, a1, a2, a3, a4), true);
+            case 5:
+              return (listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true);
           }
 
-          listeners[i].fn.apply(listeners[i].context, args);
-      }
-    }
-  }
+          for (i = 0, args = new Array(len); i < len; i++) {
+            args[i] = arguments[i];
+          }
 
-  return true;
-};
+          listeners.fn.apply(listeners.context, args);
+        } else {
+          var length = listeners.length,
+              j;
 
-/**
- * Register a new EventListener.
- *
- * @param {Functon} fn Callback function.
- * @param {Mixed} context The context of the function.
- * @api public
- */
-MiniSignals.prototype.add = function add(fn, context) {
+          for (i = 0; i < length; i++) {
 
-  var listener = new EE(fn, context || this);
+            switch (len) {
+              case 0:
+                listeners[i].fn.call(listeners[i].context);break;
+              case 1:
+                listeners[i].fn.call(listeners[i].context, a1);break;
+              case 2:
+                listeners[i].fn.call(listeners[i].context, a1, a2);break;
+              default:
+                if (!args) for (j = 0, args = new Array(len); j < len; j++) {
+                  args[j] = arguments[j];
+                }
 
-  if (!this._listeners) this._listeners = listener;
-  else {
-    if (!this._listeners.fn) this._listeners.push(listener);
-    else this._listeners = [
-      this._listeners, listener
-    ];
-  }
-
-  return this;
-};
-
-/**
- * Remove event listeners.
- *
- * @param {Function} fn The listener that we need to find.
- * @param {Mixed} context Only remove listeners matching this context.
- * @api public
- */
-
-MiniSignals.prototype.removeListener = function removeListener(fn, context) {
-
-  if (!this._listeners) return this;
-
-  var listeners = this._listeners, events = [];
-
-  if (fn) {
-    if (listeners.fn) {
-      if (listeners.fn !== fn || (context && listeners.context !== context)) {
-        events.push(listeners);
-      }
-    } else {
-      for (var i = 0, length = listeners.length; i < length; i++) {
-        if (listeners[i].fn !== fn || (context && listeners[i].context !== context)) {
-          events.push(listeners[i]);
+                listeners[i].fn.apply(listeners[i].context, args);
+            }
+          }
         }
+
+        return true;
       }
-    }
-  }
+    }, {
+      key: 'add',
+      value: function add(fn, context) {
 
-  //
-  // Reset the array, or remove it completely if we have no more listeners.
-  //
-  if (events.length) {
-    this._listeners = (events.length === 1) ? events[0] : events;
-  } else {
-    delete this._listeners;
-  }
+        var listener = new EE(fn, context || this);
 
-  return this;
-};
+        if (!this._listeners) this._listeners = listener;else {
+          if (!this._listeners.fn) {
+            this._listeners.push(listener);
+          } else this._listeners = [this._listeners, listener];
+        }
 
-/**
- * Remove all listeners or only the listeners.
- *
- * @param {String} event The event want to remove all listeners for.
- * @api public
- */
-MiniSignals.prototype.removeAllListeners = function removeAllListeners() {
-  if (!this._listeners) return this;
+        return this;
+      }
+    }, {
+      key: 'removeListener',
+      value: function removeListener(fn, context) {
 
-  delete this._listeners;
+        if (!this._listeners) return this;
 
-  return this;
-};
+        var listeners = this._listeners,
+            events = [];
 
-MiniSignals.prototype.dispatch = MiniSignals.prototype.emit;
-MiniSignals.prototype.remove = MiniSignals.prototype.removeListener;
+        if (fn) {
+          if (listeners.fn) {
+            if (listeners.fn !== fn || context && listeners.context !== context) {
+              events.push(listeners);
+            }
+          } else {
+            for (var i = 0, length = listeners.length; i < length; i++) {
+              if (listeners[i].fn !== fn || context && listeners[i].context !== context) {
+                events.push(listeners[i]);
+              }
+            }
+          }
+        }
 
-//
-// Expose the module.
-//
-if ('undefined' !== typeof module) {
+        if (events.length) {
+          this._listeners = events.length === 1 ? events[0] : events;
+        } else {
+          delete this._listeners;
+        }
+
+        return this;
+      }
+    }, {
+      key: 'removeAllListeners',
+      value: function removeAllListeners() {
+        if (!this._listeners) return this;
+
+        delete this._listeners;
+
+        return this;
+      }
+    }]);
+
+    return MiniSignals;
+  })();
+
+  MiniSignals.prototype.dispatch = MiniSignals.prototype.emit;
+  MiniSignals.prototype.remove = MiniSignals.prototype.removeListener;
+
   module.exports = MiniSignals;
-}
+});

@@ -1,7 +1,7 @@
 describe('MiniSignals', function tests() {
   'use strict';
 
-  var MiniSignals = require('./mini-signals'),
+  var MiniSignals = require('../mini-signals'),
     assume = require('assume');
 
   it('inherits when used with require(util).inherits', function () {
