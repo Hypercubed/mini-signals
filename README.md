@@ -13,6 +13,10 @@ There are several advantages to signals over event emiettrs (see [Comparison bet
 
 This implementation is based on the fast [EventEmitter3](https://github.com/primus/eventemitter3) code base.
 
+# Proof?
+
+[EventsSpeedTests](https://github.com/Hypercubed/EventsSpeedTests)
+
 # License
 
 MIT
