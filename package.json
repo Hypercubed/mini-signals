@@ -4,8 +4,12 @@
   "description": "signals, in JavaScript, fast",
   "main": "mini-signals.js",
   "scripts": {
-    "test": "mocha src/mini-signals-spec.js",
-    "build": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments"
+    "test": "npm run mocha",
+    "build": "npm run babel && npm run uglify",
+    "babel": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments",
+    "uglify": "uglifyjs mini-signals.js -o mini-signals.min.js",
+    "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register",
+    "mocha": "_mocha --compilers js:babel/register"
   },
   "repository": {
     "type": "git",
@@ -24,7 +28,12 @@
   "homepage": "https://github.com/Hypercubed/mini-signals",
   "devDependencies": {
     "assume": "~1.2.6",
-    "mocha": "^2.2.5",
-    "babel": "^5.8.23"
+    "babel": "^5.8.23",
+    "istanbul": "^0.3.19",
+    "mocha": "^2.2.5"
+  },
+  "jspm": {
+    "format": "es6",
+    "main": "src/mini-signals"
   }
 }

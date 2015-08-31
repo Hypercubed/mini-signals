@@ -24,8 +24,6 @@ class EE {
 class MiniSignals {
 
   constructor() {
-    /* Nothing to set */
-
     /**
     * Holds the assigned EventEmitters.
     *
