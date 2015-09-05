@@ -7,30 +7,20 @@
  * @param {Mixed} context Context for function execution.
  * @api private
  */
-class EE {
-  constructor(fn, context) {
-    this.fn = fn;
-    this.context = context;
-  }
+function Node(fn, context) {
+  this.fn = fn;
+  this.context = context;
+  this.next = this.prev = null;
 }
 
 /**
- * Minimal MiniSignals interface that is molded against the js-signals
+ * Minimal MiniSignals interface modeled against the js-signals
  * interface.
- *
- * @constructor
- * @api public
  */
 class MiniSignals {
 
   constructor() {
-    /**
-    * Holds the assigned EventEmitters.
-    *
-    * @type {Object}
-    * @private
-    */
-    this._listeners = undefined;
+    this._head = this._tail = undefined;
   }
 
   /**
@@ -41,14 +31,16 @@ class MiniSignals {
   * @api public
   */
   listeners(exists) {
-    var available = this._listeners;
+    var node = this._head;
 
-    if (exists) return !!available;
-    if (!available) return [];
-    if (available.fn) return [available.fn];
+    if (exists) { return !!node; }
+    if (!node) { return []; }
 
-    for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
-      ee[i] = available[i].fn;
+    var i = 0, ee = new Array();
+
+    while (node) {
+      ee.push(node.fn);
+      node = node.next;
     }
 
     return ee;
@@ -60,50 +52,48 @@ class MiniSignals {
   * @returns {Boolean} Indication if we've emitted an event.
   * @api public
   */
-  emit(a1, a2, a3, a4, a5) {
+  /* dispatch(a1, a2, a3, a4, a5) {  // optimized form
+    var node = this._head;
 
-    if (!this._listeners) return false;
+    if (!node) { return false; }
 
-    var listeners = this._listeners,
-      len = arguments.length,
-      args,
-      i;
+    var len = arguments.length, args, i = -1;
 
-    if ('function' === typeof listeners.fn) {
-      //if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
+    while (node) {
 
       switch (len) {
-        case 0: return listeners.fn.call(listeners.context), true;
-        case 1: return listeners.fn.call(listeners.context, a1), true;
-        case 2: return listeners.fn.call(listeners.context, a1, a2), true;
-        case 3: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-        case 4: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-        case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-      }
+        case 0: node.fn.call(node.context); break;
+        case 1: node.fn.call(node.context, a1); break;
+        case 2: node.fn.call(node.context, a1, a2); break;
+        case 3: node.fn.call(node.context, a1, a2, a3); break;
+        case 4: node.fn.call(node.context, a1, a2, a3, a4); break;
+        case 5: node.fn.call(node.context, a1, a2, a3, a4, a5); break;
+        default:
 
-      for (i = 0, args = new Array(len); i < len; i++) {
-        args[i] = arguments[i];
-      }
-
-      listeners.fn.apply(listeners.context, args);
-    } else {
-      var length = listeners.length, j;
-
-      for (i = 0; i < length; i++) {
-        //if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-        switch (len) {
-          case 0: listeners[i].fn.call(listeners[i].context); break;
-          case 1: listeners[i].fn.call(listeners[i].context, a1); break;
-          case 2: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-          default:
-            if (!args) for (j = 0, args = new Array(len); j < len; j++) {
-              args[j] = arguments[j];
+          if (i === -1) {
+            args = new Array(len);
+            while (++i < len) {
+              args[i] = arguments[i];
             }
+          }
 
-            listeners[i].fn.apply(listeners[i].context, args);
-        }
+          node.fn.apply(node.context, args);
       }
+
+      node = node.next;
+    }
+
+    return true;
+  }; */
+
+  dispatch() {
+    var node = this._head;
+
+    if (!node) { return false; }
+
+    while (node) {
+      node.fn.apply(node.context, arguments);
+      node = node.next;
     }
 
     return true;
@@ -118,14 +108,15 @@ class MiniSignals {
   */
   add(fn, context) {
 
-    var listener = new EE(fn, context || this);
+    var node = new Node(fn, context || this);
 
-    if (!this._listeners) this._listeners = listener;
-    else {
-      if (!this._listeners.fn) { this._listeners.push(listener); }
-      else this._listeners = [
-        this._listeners, listener
-      ];
+    if (!this._head) {
+      this._head = node;
+      this._tail = node;
+    } else {
+      this._tail.next = node;
+      node.prev = this._tail;
+      this._tail = node;
     }
 
     return this;
@@ -138,56 +129,56 @@ class MiniSignals {
   * @param {Mixed} context Only remove listeners matching this context.
   * @api public
   */
-  removeListener(fn, context) {
+  remove(fn, context) {
+    var node = this._head, next;
+    if (!node) { return this; }
+    if (!fn) { return this.removeAll(); }  // maybe change this
 
-    if (!this._listeners) return this;
+    while (node) {
+      next = node.next;
 
-    var listeners = this._listeners, events = [];
-
-    if (fn) {
-      if (listeners.fn) {
-        if (listeners.fn !== fn || (context && listeners.context !== context)) {
-          events.push(listeners);
-        }
-      } else {
-        for (var i = 0, length = listeners.length; i < length; i++) {
-          if (listeners[i].fn !== fn || (context && listeners[i].context !== context)) {
-            events.push(listeners[i]);
+      if (node.fn === fn && (!context || node.context === context)) {
+        if (node === this._head)  {  // first node
+          this._head = node.next;
+          if (!this._head){
+            this._tail = null;
+          } else {
+            this._head.prev = null;
           }
+        } else if (node === this._tail) {  // last node
+          this._tail = node.prev;
+          this._tail.next = null;
+        } else {  // middle
+          node.prev.next = node.next;
+          node.next.prev = node.prev;
         }
+        node.next = node.prev = null;
       }
-    }
 
-    //
-    // Reset the array, or remove it completely if we have no more listeners.
-    //
-    if (events.length) {
-      this._listeners = (events.length === 1) ? events[0] : events;
-    } else {
-      delete this._listeners;
+      node = next;
     }
 
     return this;
   };
 
   /**
-  * Remove all listeners or only the listeners.
+  * Remove all listeners.
   *
-  * @param {String} event The event want to remove all listeners for.
   * @api public
   */
-  removeAllListeners() {
-    if (!this._listeners) return this;
+  removeAll() {
+    var node = this._head, next;
+    if (!node) { return this; }
 
-    delete this._listeners;
-
+    while (node) {
+      next = node.next;
+      node.next = node.prev = null;
+      node = next;
+    }
+    this._head = this._tail = null;
     return this;
   };
 }
-
-// aliases
-MiniSignals.prototype.dispatch = MiniSignals.prototype.emit;
-MiniSignals.prototype.remove = MiniSignals.prototype.removeListener;
 
 //
 // Expose the module.

@@ -50,10 +50,10 @@ require('./suite')('emit')
     ee3.emit('foo', 'bar', 'baz', 'boom');
   })
   .add('Latest', function() {
-    miniSignal.emit();
-    miniSignal.emit('bar');
-    miniSignal.emit('bar', 'baz');
-    miniSignal.emit('bar', 'baz', 'boom');
+    miniSignal.dispatch();
+    miniSignal.dispatch('bar');
+    miniSignal.dispatch('bar', 'baz');
+    miniSignal.dispatch('bar', 'baz', 'boom');
   })
   .add('@es6', function() {
     miniSignal_es6.emit();
