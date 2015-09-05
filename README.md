@@ -1,22 +1,44 @@
 # mini-signals
 signals, in JavaScript, fast
 
-# What?
+## Description
 
-Custom event/messaging system for JavaScript inspired by [js-signals](https://github.com/millermedeiros/js-signals) based on [EventEmitter3](https://github.com/primus/eventemitter3) code base.
+Custom event/messaging system for JavaScript inspired by [js-signals](https://github.com/millermedeiros/js-signals) originally based on [EventEmitter3](https://github.com/primus/eventemitter3) code base.
 
-# Why?
+There are several advantages to signals over event-emitters (see [Comparison between different Observer Pattern implementations](https://github.com/millermedeiros/js-signals/wiki/Comparison-between-different-Observer-Pattern-implementations)).  However, the current implementation of [js-signals](https://github.com/millermedeiros/js-signals) is (arguably) slow compared to other implementations (see [EventsSpeedTests](https://github.com/Hypercubed/EventsSpeedTests)).  `mini-signals` is a fast, minimal emitter, that is mostly API compatible with[js-signals](https://github.com/millermedeiros/js-signals).
 
-There are several advantages to signals over event emitters (see [Comparison between different Observer Pattern implementations](https://github.com/millermedeiros/js-signals/wiki/Comparison-between-different-Observer-Pattern-implementations)).  However, the current implementation of [js-signals](https://github.com/millermedeiros/js-signals) is (arguably) slow compared to [EventEmitter3](https://github.com/primus/eventemitter3).
+## Install
 
-# How?
+### npm:
 
-This implementation is based on the fast [EventEmitter3](https://github.com/primus/eventemitter3) code base.
+```
+npm install mini-signals
+```
 
-# Proof?
+### jspm:
 
-[EventsSpeedTests](https://github.com/Hypercubed/EventsSpeedTests)
+```
+jspm install mini-signals=github:Hypercubed/mini-signals
+```
 
-# License
+## Example Usage
 
-MIT
+```
+var Signal = require('mini-signals');
+var mySignal = new Signal();
+
+mySignal.add(onSignal);           //add listener
+mySignal.dispatch('foo', 'bar');  //dispatch signal passing custom parameters
+mySignal.remove(onStarted);       //remove a single listener
+
+function onSignal(foo, bar) {
+  /* */
+}
+```
+
+
+## License
+
+Copyright (c) 2015 Jayson Harshbarger
+
+MIT License

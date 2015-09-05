@@ -1,7 +1,7 @@
 describe('MiniSignals', function tests() {
   'use strict';
 
-  var MiniSignals = require('./mini-signals'),
+  var MiniSignals = require('../src/mini-signals'),
     assume = require('assume');
 
   it('inherits when used with require(util).inherits', function () {
@@ -20,46 +20,19 @@ describe('MiniSignals', function tests() {
     meap.listeners();
 
     moop.add(/* istanbul ignore next */ function () {
-      throw new Error('I should not emit');
+      throw new Error('I should not dispatch');
     });
 
-    meap.emit('rawr');
-    meap.removeAllListeners();
+    meap.dispatch('rawr');
+    meap.removeAll();
   });
 
-  /* if ('undefined' !== typeof Symbol) it('works with ES6 symbols', function (next) {
-    var e = new MiniSignals()
-      , event = Symbol('cows')
-      , unknown = Symbol('moo');
-
-    e.on(event, function (arg) {
-      assume(e.listeners(unknown).length).equals(0);
-      assume(arg).equals('bar');
-
-      e.once(unknown, function (onced) {
-        assume(e.listeners(unknown).length).equals(0);
-        assume(onced).equals('foo');
-        next();
-      });
-
-      assume(e.listeners(event).length).equals(1);
-      assume(e.listeners(unknown).length).equals(1);
-
-      e.removeListener(event);
-      assume(e.listeners(event).length).equals(0);
-      assume(e.emit(unknown, 'foo')).equals(true);
-    });
-
-    assume(e.emit(unknown, 'bar')).equals(false);
-    assume(e.emit(event, 'bar')).equals(true);
-  }); */
-
-  describe('MiniSignals#emit', function () {
-    it('should return false when there are not events to emit', function () {
+  describe('MiniSignals#dispatch', function () {
+    it('should return false when there are not events to dispatch', function () {
       var e = new MiniSignals();
 
-      assume(e.emit('foo')).equals(false);
-      assume(e.emit('bar')).equals(false);
+      assume(e.dispatch('foo')).equals(false);
+      assume(e.dispatch('bar')).equals(false);
     });
 
     it('emits with context', function (done) {
@@ -73,7 +46,7 @@ describe('MiniSignals', function tests() {
         done();
       }, context);
 
-      e.emit('bar');
+      e.dispatch('bar');
     });
 
     it('emits with context, multiple arguments (force apply)', function (done) {
@@ -87,10 +60,10 @@ describe('MiniSignals', function tests() {
         done();
       }, context);
 
-      e.emit('bar', 1,2,3,4,5,6,7,8,9,0);
+      e.dispatch('bar', 1,2,3,4,5,6,7,8,9,0);
     });
 
-    it('can emit the function with multiple arguments', function () {
+    it('can dispatch the function with multiple arguments', function () {
 
       for(var i = 0; i < 100; i++) {
         var e = new MiniSignals();
@@ -103,12 +76,12 @@ describe('MiniSignals', function tests() {
             assume(arguments.length).equals(args.length);
           });
 
-          e.emit.apply(e, args);
+          e.dispatch.apply(e, args);
         })(i);
       }
     });
 
-    it('can emit the function with multiple arguments, multiple listeners', function () {
+    it('can dispatch the function with multiple arguments, multiple listeners', function () {
 
 
       for(var i = 0; i < 100; i++) {
@@ -134,7 +107,7 @@ describe('MiniSignals', function tests() {
             assume(arguments.length).equals(args.length);
           });
 
-          e.emit.apply(e, args);
+          e.dispatch.apply(e, args);
         })(i);
       }
     });
@@ -152,7 +125,7 @@ describe('MiniSignals', function tests() {
         assume(bar).equals('bar');
       }, { bar: 'baz' });
 
-      e.emit('bar');
+      e.dispatch('bar');
     });
 
     it('emits with different contexts', function () {
@@ -168,24 +141,24 @@ describe('MiniSignals', function tests() {
       e.add(writer, 'bar');
       e.add(writer, 'banana');
 
-      e.emit();
+      e.dispatch();
       assume(pattern).equals('foobazbarbanana');
     });
 
-    it('should return true when there are events to emit', function (done) {
+    it('should return true when there are events to dispatch', function (done) {
       var e = new MiniSignals();
 
       e.add(function () {
         process.nextTick(done);
       });
 
-      assume(e.emit()).equals(true);
+      assume(e.dispatch()).equals(true);
     });
 
-    it('should return false when there are no events to emit', function () {
+    it('should return false when there are no events to dispatch', function () {
       var e = new MiniSignals();
 
-      assume(e.emit()).equals(false);
+      assume(e.dispatch()).equals(false);
     });
 
     it('receives the emitted events', function (done) {
@@ -201,7 +174,7 @@ describe('MiniSignals', function tests() {
         done();
       });
 
-      e.emit('foo', e, new Date());
+      e.dispatch('foo', e, new Date());
     });
 
     it('emits to all event listeners', function () {
@@ -216,7 +189,7 @@ describe('MiniSignals', function tests() {
         pattern.push('foo2');
       });
 
-      e.emit();
+      e.dispatch();
 
       assume(pattern.join(';')).equals('foo1;foo2');
     });
@@ -224,6 +197,19 @@ describe('MiniSignals', function tests() {
   });
 
   describe('MiniSignals#listeners', function () {
+
+    /* istanbul ignore next */
+    function foo() {}
+
+    /* istanbul ignore next */
+    function bar() {}
+
+    /* istanbul ignore next */
+    function a() {}
+
+    /* istanbul ignore next */
+    function b() {}
+
     it('returns an empty array if no listeners are specified', function () {
       var e = new MiniSignals();
 
@@ -234,20 +220,15 @@ describe('MiniSignals', function tests() {
     it('returns an array of function', function () {
        var e = new MiniSignals();
 
-       /* istanbul ignore next */
-       function foo() {}
-
+       e.add(foo);
        e.add(foo);
        assume(e.listeners()).is.a('array');
-       assume(e.listeners().length).equals(1);
-       assume(e.listeners()).deep.equals([foo]);
+       assume(e.listeners().length).equals(2);
+       assume(e.listeners()).deep.equals([foo,foo]);
     });
 
     it('is not vulnerable to modifications', function () {
       var e = new MiniSignals();
-
-      /* istanbul ignore next */
-      function foo() {}
 
       e.add(foo);
 
@@ -260,9 +241,6 @@ describe('MiniSignals', function tests() {
     it('can return a boolean as indication if listeners exist', function () {
       var e = new MiniSignals();
 
-      /* istanbul ignore next */
-      function foo() {}
-
       e.add(foo);
       e.add(foo);
       e.add(foo);
@@ -272,25 +250,70 @@ describe('MiniSignals', function tests() {
 
       assume(e.listeners(true)).equals(true);
 
-      e.removeAllListeners();
+      e.removeAll();
 
       assume(e.listeners(true)).equals(false);
     });
   });
 
-  describe('MiniSignals#removeListener', function () {
+  describe('MiniSignals#remove', function () {
+
+    /* istanbul ignore next */
+    function foo() {}
+
+    /* istanbul ignore next */
+    function bar() {}
+
+    /* istanbul ignore next */
+    function a() {}
+
+    /* istanbul ignore next */
+    function b() {}
+
     it('should only remove the event with the specified function', function () {
       var e = new MiniSignals();
 
-      /* istanbul ignore next */
-      function bar() {}
-      e.add(/* istanbul ignore next */ function () {});
-      e.add(/* istanbul ignore next */ function () {});
+      e.add(a);
+      e.add(b);
       e.add(bar);
 
       assume(e.listeners().length).equals(3);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b','bar']);
 
-      assume(e.removeListener(bar)).equals(e);
+      assume(e.remove(bar)).equals(e);
+      assume(e.listeners().length).equals(2);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
+
+    });
+
+    it('should remove from front', function () {
+      var e = new MiniSignals();
+
+      e.add(bar);
+      e.add(a);
+      e.add(b);
+
+      assume(e.listeners().length).equals(3);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['bar','a','b']);
+
+      assume(e.remove(bar)).equals(e);
+      assume(e.listeners().length).equals(2);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
+
+    });
+
+    it('should remove from middle', function () {
+      var e = new MiniSignals();
+
+      e.add(a);
+      e.add(bar);
+      e.add(b);
+
+      assume(e.listeners().length).equals(3);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','bar','b']);
+
+      assume(e.remove(bar)).equals(e);
+      assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
       assume(e.listeners().length).equals(2);
 
     });
@@ -298,15 +321,12 @@ describe('MiniSignals', function tests() {
     it('should remove all listeners if no function specified', function () {
       var e = new MiniSignals();
 
-      /* istanbul ignore next */
-      function bar() {}
-      e.add(/* istanbul ignore next */ function () {});
-      e.add(/* istanbul ignore next */ function () {});
+      e.add(a);
+      e.add(b);
       e.add(bar);
 
       assume(e.listeners().length).equals(3);
-
-      assume(e.removeListener()).equals(e);
+      assume(e.remove()).equals(e);
       assume(e.listeners().length).equals(0);
 
     });
@@ -314,15 +334,12 @@ describe('MiniSignals', function tests() {
     it('should not thow an error if no listerners are set', function () {
       var e = new MiniSignals();
 
-      /* istanbul ignore next */
-      function bar() {}
-
       assume(e.listeners().length).equals(0);
 
-      assume(e.removeListener(bar)).equals(e);
+      assume(e.remove(bar)).equals(e);
       assume(e.listeners().length).equals(0);
 
-      assume(e.removeListener()).equals(e);
+      assume(e.remove()).equals(e);
       assume(e.listeners().length).equals(0);
     });
 
@@ -330,51 +347,61 @@ describe('MiniSignals', function tests() {
       var e = new MiniSignals()
         , context = { foo: 'bar' };
 
-      /* istanbul ignore next */
-      function foo() {}
-      /* istanbul ignore next */
-      function bar() {}
       e.add(foo, context);
 
       assume(e.listeners().length).equals(1);
-      assume(e.removeListener(/* istanbul ignore next */ function () {}, context)).equals(e);
+      assume(e.remove(a, context)).equals(e);
       assume(e.listeners().length).equals(1);
-      assume(e.removeListener(foo, { baz: 'quux' })).equals(e);
+      assume(e.remove(foo, { baz: 'quux' })).equals(e);
       assume(e.listeners().length).equals(1);
-      assume(e.removeListener(foo, context)).equals(e);
+      assume(e.remove(foo, context)).equals(e);
       assume(e.listeners().length).equals(0);
 
       e.add(foo, context);
       e.add(bar);
 
       assume(e.listeners().length).equals(2);
-      assume(e.removeListener(foo, { baz: 'quux' })).equals(e);
+      assume(e.remove(foo, { baz: 'quux' })).equals(e);
       assume(e.listeners().length).equals(2);
-      assume(e.removeListener(foo, context)).equals(e);
+      assume(e.remove(foo, context)).equals(e);
       assume(e.listeners().length).equals(1);
       assume(e.listeners()[0]).equals(bar);
 
       e.add(foo, context);
 
       assume(e.listeners().length).equals(2);
-      assume(e.removeAllListeners()).equals(e);
+      assume(e.removeAll()).equals(e);
       assume(e.listeners().length).equals(0);
     });
   });
 
-  describe('MiniSignals#removeAllListeners', function () {
+  describe('MiniSignals#removeAll', function () {
     it('removes all events', function () {
       var e = new MiniSignals();
 
-      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
-      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
-      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
-      e.add(/* istanbul ignore next */ function () { throw new Error('oops'); });
+      /* istanbul ignore next */
+      function oops() { throw new Error('oops'); }
 
-      assume(e.removeAllListeners()).equals(e);
+      e.add(oops);
+      e.add(oops);
+      e.add(oops);
+      e.add(oops);
+
+      assume(e.listeners().length).equals(4);
+
+      assume(e.removeAll()).equals(e);
       assume(e.listeners().length).equals(0);
 
-      assume(e.emit()).equals(false);
+      assume(e.dispatch()).equals(false);
+    });
+
+    it('should not thow an error if no listerners are set', function () {
+      var e = new MiniSignals();
+
+      assume(e.removeAll()).equals(e);
+      assume(e.listeners().length).equals(0);
+
+      assume(e.dispatch()).equals(false);
     });
 
   });
