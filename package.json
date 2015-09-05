@@ -34,7 +34,8 @@
     "istanbul": "^0.3.19",
     "mocha": "^2.2.5",
     "benchmark": "^1.0.0",
-    "eventemitter3": "^1.1.1"
+    "eventemitter3": "^1.1.1",
+    "signals": "^1.0.0"
   },
   "jspm": {
     "format": "es6",
