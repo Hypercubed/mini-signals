@@ -150,3 +150,4 @@ class MiniSignals {
 // Expose the module.
 //
 export default MiniSignals;
+//export var __useDefault = true;  // see https://github.com/systemjs/systemjs/issues/304

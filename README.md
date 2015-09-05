@@ -29,7 +29,7 @@ var mySignal = new Signal();
 
 mySignal.add(onSignal);           //add listener
 mySignal.dispatch('foo', 'bar');  //dispatch signal passing custom parameters
-mySignal.remove(onStarted);       //remove a single listener
+mySignal.remove(onSignal);        //remove a single listener
 
 function onSignal(foo, bar) {
   /* */
