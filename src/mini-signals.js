@@ -52,40 +52,6 @@ class MiniSignals {
   * @returns {Boolean} Indication if we've emitted an event.
   * @api public
   */
-  /* dispatch(a1, a2, a3, a4, a5) {  // optimized form
-    var node = this._head;
-
-    if (!node) { return false; }
-
-    var len = arguments.length, args, i = -1;
-
-    while (node) {
-
-      switch (len) {
-        case 0: node.fn.call(node.context); break;
-        case 1: node.fn.call(node.context, a1); break;
-        case 2: node.fn.call(node.context, a1, a2); break;
-        case 3: node.fn.call(node.context, a1, a2, a3); break;
-        case 4: node.fn.call(node.context, a1, a2, a3, a4); break;
-        case 5: node.fn.call(node.context, a1, a2, a3, a4, a5); break;
-        default:
-
-          if (i === -1) {
-            args = new Array(len);
-            while (++i < len) {
-              args[i] = arguments[i];
-            }
-          }
-
-          node.fn.apply(node.context, args);
-      }
-
-      node = node.next;
-    }
-
-    return true;
-  }; */
-
   dispatch() {
     var node = this._head;
 
