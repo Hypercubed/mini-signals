@@ -37,9 +37,5 @@
     "benchmark": "^1.0.0",
     "eventemitter3": "^1.1.1",
     "signals": "^1.0.0"
-  },
-  "jspm": {
-    "format": "es6",
-    "main": "src/mini-signals"
   }
 }

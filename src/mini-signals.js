@@ -17,7 +17,7 @@ function Node(fn, context) {
  * Minimal MiniSignals interface modeled against the js-signals
  * interface.
  */
-class MiniSignals {
+export default class MiniSignals {
 
   constructor() {
     this._head = this._tail = undefined;
@@ -53,7 +53,7 @@ class MiniSignals {
   * @api public
   */
   dispatch() {
-    var node = this._head;
+    var node = this._head, next;
 
     if (!node) { return false; }
 
@@ -96,12 +96,11 @@ class MiniSignals {
   * @api public
   */
   remove(fn, context) {
-    var node = this._head, next;
+    var node = this._head;
     if (!node) { return this; }
     if (!fn) { return this.removeAll(); }  // maybe change this
 
     while (node) {
-      next = node.next;
 
       if (node.fn === fn && (!context || node.context === context)) {
         if (node === this._head)  {  // first node
@@ -118,10 +117,9 @@ class MiniSignals {
           node.prev.next = node.next;
           node.next.prev = node.prev;
         }
-        node.next = node.prev = null;
       }
 
-      node = next;
+      node = node.next;
     }
 
     return this;
@@ -133,21 +131,10 @@ class MiniSignals {
   * @api public
   */
   removeAll() {
-    var node = this._head, next;
+    var node = this._head;
     if (!node) { return this; }
 
-    while (node) {
-      next = node.next;
-      node.next = node.prev = null;
-      node = next;
-    }
     this._head = this._tail = null;
     return this;
   };
 }
-
-//
-// Expose the module.
-//
-export default MiniSignals;
-//export var __useDefault = true;  // see https://github.com/systemjs/systemjs/issues/304

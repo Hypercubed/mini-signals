@@ -194,6 +194,31 @@ describe('MiniSignals', function tests() {
       assume(pattern.join(';')).equals('foo1;foo2');
     });
 
+    it('emits to all event listeners', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo3');
+    });
+
   });
 
   describe('MiniSignals#listeners', function () {
@@ -372,6 +397,140 @@ describe('MiniSignals', function tests() {
       assume(e.listeners().length).equals(2);
       assume(e.removeAll()).equals(e);
       assume(e.listeners().length).equals(0);
+    });
+
+    it('emits to all event listeners after removing', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.remove(foo2);
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo3');
+    });
+
+    it('can remove previous node in dispatch', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+        e.remove(foo1);
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo3;foo2;foo3');
+    });
+
+    it('can remove next node in dispatch', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+        e.remove(foo3);
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo1;foo2');  // will remove node this dispatch (might be unexpected)
+    });
+
+    it('can remove node in dispatch', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+        e.remove(foo3);
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo1;foo2');  // will remove node this dispatch (might be unexpected)
+    });
+
+    it('can remove current node in dispatch', function () {
+      var e = new MiniSignals()
+        , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+        e.remove(foo2);
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.add(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo3;foo1;foo3');
     });
   });
 

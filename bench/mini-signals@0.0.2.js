@@ -55,8 +55,7 @@
     }, {
       key: "dispatch",
       value: function dispatch() {
-        var node = this._head,
-            next;
+        var node = this._head;
 
         if (!node) {
           return false;
@@ -89,7 +88,8 @@
     }, {
       key: "remove",
       value: function remove(fn, context) {
-        var node = this._head;
+        var node = this._head,
+            next;
         if (!node) {
           return this;
         }
@@ -98,6 +98,7 @@
         }
 
         while (node) {
+          next = node.next;
 
           if (node.fn === fn && (!context || node.context === context)) {
             if (node === this._head) {
@@ -114,9 +115,10 @@
               node.prev.next = node.next;
               node.next.prev = node.prev;
             }
+            node.next = node.prev = null;
           }
 
-          node = node.next;
+          node = next;
         }
 
         return this;
@@ -124,11 +126,17 @@
     }, {
       key: "removeAll",
       value: function removeAll() {
-        var node = this._head;
+        var node = this._head,
+            next;
         if (!node) {
           return this;
         }
 
+        while (node) {
+          next = node.next;
+          node.next = node.prev = null;
+          node = next;
+        }
         this._head = this._tail = null;
         return this;
       }
