@@ -7,10 +7,11 @@
  * @param {Mixed} context Context for function execution.
  * @api private
  */
-function Node(fn, context) {
+function Node(fn, context, once = false) {
   this.fn = fn;
   this.context = context;
   this.next = this.prev = null;
+  this.once = once;
 }
 
 /**
@@ -44,7 +45,7 @@ export default class MiniSignals {
     }
 
     return ee;
-  };
+  }
 
   /**
   * Emit an event to all registered event listeners.
@@ -59,11 +60,12 @@ export default class MiniSignals {
 
     while (node) {
       node.fn.apply(node.context, arguments);
+      if (node.once) { this._removeNode(node); }
       node = node.next;
     }
 
     return true;
-  };
+  }
 
   /**
   * Register a new EventListener.
@@ -73,9 +75,16 @@ export default class MiniSignals {
   * @api public
   */
   add(fn, context) {
+    var node = new Node(fn, context || this, false);
+    return this._addNode(node);
+  }
 
-    var node = new Node(fn, context || this);
+  addOnce(fn, context) {
+    var node = new Node(fn, context || this, true);
+    return this._addNode(node);
+  }
 
+  _addNode(node) {
     if (!this._head) {
       this._head = node;
       this._tail = node;
@@ -84,9 +93,8 @@ export default class MiniSignals {
       node.prev = this._tail;
       this._tail = node;
     }
-
     return this;
-  };
+  }
 
   /**
   * Remove event listeners.
@@ -103,27 +111,31 @@ export default class MiniSignals {
     while (node) {
 
       if (node.fn === fn && (!context || node.context === context)) {
-        if (node === this._head)  {  // first node
-          this._head = node.next;
-          if (!this._head){
-            this._tail = null;
-          } else {
-            this._head.prev = null;
-          }
-        } else if (node === this._tail) {  // last node
-          this._tail = node.prev;
-          this._tail.next = null;
-        } else {  // middle
-          node.prev.next = node.next;
-          node.next.prev = node.prev;
-        }
+        this._removeNode(node);
       }
 
       node = node.next;
     }
 
     return this;
-  };
+  }
+
+  _removeNode(node) {
+    if (node === this._head)  {  // first node
+      this._head = node.next;
+      if (!this._head){
+        this._tail = null;
+      } else {
+        this._head.prev = null;
+      }
+    } else if (node === this._tail) {  // last node
+      this._tail = node.prev;
+      this._tail.next = null;
+    } else {  // middle
+      node.prev.next = node.next;
+      node.next.prev = node.prev;
+    }
+  }
 
   /**
   * Remove all listeners.
@@ -136,5 +148,5 @@ export default class MiniSignals {
 
     this._head = this._tail = null;
     return this;
-  };
+  }
 }

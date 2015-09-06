@@ -219,6 +219,32 @@ describe('MiniSignals', function tests() {
       assume(pattern.join(';')).equals('foo1;foo2;foo3');
     });
 
+    it('emits to all event listeners, removes addOnce', function () {
+      var e = new MiniSignals()
+      , pattern = [];
+
+      function foo1() {
+        pattern.push('foo1');
+      }
+
+      function foo2() {
+        pattern.push('foo2');
+      }
+
+      function foo3() {
+        pattern.push('foo3');
+      }
+
+      e.add(foo1);
+      e.addOnce(foo2);
+      e.add(foo3);
+
+      e.dispatch();
+      e.dispatch();
+
+      assume(pattern.join(';')).equals('foo1;foo2;foo3;foo1;foo3');
+    });
+
   });
 
   describe('MiniSignals#listeners', function () {
