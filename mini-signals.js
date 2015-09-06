@@ -18,9 +18,12 @@
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
   function Node(fn, context) {
+    var once = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
     this.fn = fn;
     this.context = context;
     this.next = this.prev = null;
+    this.once = once;
   }
 
   var MiniSignals = (function () {
@@ -59,6 +62,9 @@
 
         while (node) {
           node.fn.apply(node.context, arguments);
+          if (node.once) {
+            this._removeNode(node);
+          }
           node = node.next;
         }
 
@@ -67,9 +73,18 @@
     }, {
       key: "add",
       value: function add(fn, context) {
-
         var node = new Node(fn, context || this);
-
+        return this._addNode(node);
+      }
+    }, {
+      key: "addOnce",
+      value: function addOnce(fn, context) {
+        var node = new Node(fn, context || this, true);
+        return this._addNode(node);
+      }
+    }, {
+      key: "_addNode",
+      value: function _addNode(node) {
         if (!this._head) {
           this._head = node;
           this._tail = node;
@@ -78,7 +93,6 @@
           node.prev = this._tail;
           this._tail = node;
         }
-
         return this;
       }
     }, {

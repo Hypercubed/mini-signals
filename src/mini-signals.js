@@ -75,7 +75,7 @@ export default class MiniSignals {
   * @api public
   */
   add(fn, context) {
-    var node = new Node(fn, context || this, false);
+    var node = new Node(fn, context || this);
     return this._addNode(node);
   }
 
