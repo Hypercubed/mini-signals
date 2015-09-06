@@ -84,14 +84,11 @@
     }, {
       key: "remove",
       value: function remove(fn, context) {
-        var node = this._head;
-        if (!node) {
-          return this;
-        }
         if (!fn) {
           return this.removeAll();
         }
 
+        var node = this._head;
         while (node) {
 
           if (node.fn === fn && (!context || node.context === context)) {
