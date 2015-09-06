@@ -34,10 +34,10 @@ export default class MiniSignals {
   listeners(exists) {
     var node = this._head;
 
-    if (exists) { return !!node; }
-    if (!node) { return []; }
 
-    var i = 0, ee = new Array();
+    if (exists) { return !!node; }
+
+    var ee = [];
 
     while (node) {
       ee.push(node.fn);
@@ -54,7 +54,7 @@ export default class MiniSignals {
   * @api public
   */
   dispatch() {
-    var node = this._head, next;
+    var node = this._head;
 
     if (!node) { return false; }
 
