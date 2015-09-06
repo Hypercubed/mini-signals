@@ -38,12 +38,8 @@
         if (exists) {
           return !!node;
         }
-        if (!node) {
-          return [];
-        }
 
-        var i = 0,
-            ee = new Array();
+        var ee = [];
 
         while (node) {
           ee.push(node.fn);
@@ -55,8 +51,7 @@
     }, {
       key: "dispatch",
       value: function dispatch() {
-        var node = this._head,
-            next;
+        var node = this._head;
 
         if (!node) {
           return false;
@@ -100,26 +95,31 @@
         while (node) {
 
           if (node.fn === fn && (!context || node.context === context)) {
-            if (node === this._head) {
-              this._head = node.next;
-              if (!this._head) {
-                this._tail = null;
-              } else {
-                this._head.prev = null;
-              }
-            } else if (node === this._tail) {
-              this._tail = node.prev;
-              this._tail.next = null;
-            } else {
-              node.prev.next = node.next;
-              node.next.prev = node.prev;
-            }
+            this._removeNode(node);
           }
 
           node = node.next;
         }
 
         return this;
+      }
+    }, {
+      key: "_removeNode",
+      value: function _removeNode(node) {
+        if (node === this._head) {
+          this._head = node.next;
+          if (!this._head) {
+            this._tail = null;
+          } else {
+            this._head.prev = null;
+          }
+        } else if (node === this._tail) {
+          this._tail = node.prev;
+          this._tail.next = null;
+        } else {
+          node.prev.next = node.next;
+          node.next.prev = node.prev;
+        }
       }
     }, {
       key: "removeAll",

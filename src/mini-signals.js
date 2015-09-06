@@ -33,10 +33,10 @@ export default class MiniSignals {
   listeners(exists) {
     var node = this._head;
 
-    if (exists) { return !!node; }
-    if (!node) { return []; }
 
-    var i = 0, ee = new Array();
+    if (exists) { return !!node; }
+
+    var ee = [];
 
     while (node) {
       ee.push(node.fn);
@@ -53,7 +53,7 @@ export default class MiniSignals {
   * @api public
   */
   dispatch() {
-    var node = this._head, next;
+    var node = this._head;
 
     if (!node) { return false; }
 
@@ -63,7 +63,7 @@ export default class MiniSignals {
     }
 
     return true;
-  };
+  }
 
   /**
   * Register a new EventListener.
@@ -86,7 +86,7 @@ export default class MiniSignals {
     }
 
     return this;
-  };
+  }
 
   /**
   * Remove event listeners.
@@ -103,27 +103,31 @@ export default class MiniSignals {
     while (node) {
 
       if (node.fn === fn && (!context || node.context === context)) {
-        if (node === this._head)  {  // first node
-          this._head = node.next;
-          if (!this._head){
-            this._tail = null;
-          } else {
-            this._head.prev = null;
-          }
-        } else if (node === this._tail) {  // last node
-          this._tail = node.prev;
-          this._tail.next = null;
-        } else {  // middle
-          node.prev.next = node.next;
-          node.next.prev = node.prev;
-        }
+        this._removeNode(node);
       }
 
       node = node.next;
     }
 
     return this;
-  };
+  }
+
+  _removeNode(node) {
+    if (node === this._head)  {  // first node
+      this._head = node.next;
+      if (!this._head){
+        this._tail = null;
+      } else {
+        this._head.prev = null;
+      }
+    } else if (node === this._tail) {  // last node
+      this._tail = node.prev;
+      this._tail.next = null;
+    } else {  // middle
+      node.prev.next = node.next;
+      node.next.prev = node.prev;
+    }
+  }
 
   /**
   * Remove all listeners.
@@ -136,5 +140,5 @@ export default class MiniSignals {
 
     this._head = this._tail = null;
     return this;
-  };
+  }
 }
