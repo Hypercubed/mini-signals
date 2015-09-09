@@ -169,8 +169,7 @@ describe('MiniSignals', function tests() {
     });
 
     it('emits to all event listeners', function () {
-      var e = new MiniSignals()
-        , pattern = [];
+      var e = new MiniSignals(), pattern = [];
 
       e.add(function () {
         pattern.push('foo1');
@@ -186,8 +185,7 @@ describe('MiniSignals', function tests() {
     });
 
     it('emits to all event listeners', function () {
-      var e = new MiniSignals()
-        , pattern = [];
+      var e = new MiniSignals(), pattern = [];
 
       function foo1() {
         pattern.push('foo1');
@@ -210,9 +208,8 @@ describe('MiniSignals', function tests() {
       assume(pattern.join(';')).equals('foo1;foo2;foo3');
     });
 
-    it('emits to all event listeners, removes addOnce', function () {
-      var e = new MiniSignals()
-      , pattern = [];
+    it('emits to all event listeners, removes once', function () {
+      var e = new MiniSignals(), pattern = [];
 
       function foo1() {
         pattern.push('foo1');
@@ -227,7 +224,7 @@ describe('MiniSignals', function tests() {
       }
 
       e.add(foo1);
-      e.addOnce(foo2);
+      e.once(foo2);
       e.add(foo3);
 
       e.dispatch();
@@ -298,7 +295,7 @@ describe('MiniSignals', function tests() {
     });
   });
 
-  describe('MiniSignalsBinding#cancel', function () {
+  describe('MiniSignalsBinding#detach', function () {
 
     /* istanbul ignore next */
     function foo() {
@@ -323,7 +320,8 @@ describe('MiniSignals', function tests() {
     var e, pattern;
 
     beforeEach(function() {
-      e = new MiniSignals(), pattern = [];
+      e = new MiniSignals();
+      pattern = [];
     });
 
     it('should only remove the event with the specified function', function () {
@@ -335,7 +333,7 @@ describe('MiniSignals', function tests() {
       assume(e.listeners().length).equals(3);
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b','bar']);
 
-      _bar.cancel();
+      _bar.detach();
       assume(e.listeners().length).equals(2);
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
 
@@ -350,7 +348,7 @@ describe('MiniSignals', function tests() {
       assume(e.listeners().length).equals(3);
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['bar','a','b']);
 
-      _bar.cancel();
+      _bar.detach();
       assume(e.listeners().length).equals(2);
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
 
@@ -365,7 +363,7 @@ describe('MiniSignals', function tests() {
       assume(e.listeners().length).equals(3);
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','bar','b']);
 
-      _bar.cancel();
+      _bar.detach();
       assume(e.listeners().map(function(fn) { return fn.name; })).eqls(['a','b']);
       assume(e.listeners().length).equals(2);
 
@@ -377,7 +375,7 @@ describe('MiniSignals', function tests() {
       var _foo = e.add(foo);
       e.add(b);
 
-      _foo.cancel()
+      _foo.detach();
       e.dispatch();
 
       assume(pattern.join(';')).equals('a;b');
@@ -396,7 +394,7 @@ describe('MiniSignals', function tests() {
 
       function foo2() {
         pattern.push('foo2');
-        _foo.cancel();
+        _foo.detach();
       }
 
     });
@@ -414,7 +412,7 @@ describe('MiniSignals', function tests() {
 
       function foo2() {
         pattern.push('foo2');
-        _foo.cancel();
+        _foo.detach();
       }
 
     });
@@ -432,7 +430,7 @@ describe('MiniSignals', function tests() {
 
       function foo2() {
         pattern.push('foo2');
-        _foo.cancel();
+        _foo.detach();
       }
     });
 
@@ -449,7 +447,7 @@ describe('MiniSignals', function tests() {
 
       function foo2() {
         pattern.push('foo2');
-        _foo.cancel();
+        _foo.detach();
       }
     });
   });

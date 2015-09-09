@@ -12,7 +12,7 @@ function Node(fn, context, once = false) {
   this.context = context;
   this.next = this.prev = null;
   this.once = once;
-  this.cancel = noop
+  this.detach = noop
 }
 
 function noop() {}
@@ -62,7 +62,7 @@ export default class MiniSignals {
 
     while (node) {
       node.fn.apply(node.context, arguments);
-      if (node.once) { node.cancel(); }
+      if (node.once) { node.detach(); }
       node = node.next;
     }
 
@@ -81,7 +81,7 @@ export default class MiniSignals {
     return this._addNode(node);
   }
 
-  addOnce(fn, context) {
+  once(fn, context) {
     var node = new Node(fn, context || this, true);
     return this._addNode(node);
   }
@@ -97,7 +97,7 @@ export default class MiniSignals {
     }
 
     var self = this;
-    node.cancel = (function() {
+    node.detach = (function() {
       if (this === self._head)  {  // first node
         self._head = this.next;
         if (!self._head){
@@ -114,7 +114,7 @@ export default class MiniSignals {
       }
       this.fn = null;
       this.context = null;
-      this.cancel = noop
+      this.detach = noop;
     }).bind(node);
 
     return node;

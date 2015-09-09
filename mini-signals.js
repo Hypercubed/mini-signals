@@ -24,7 +24,10 @@
     this.context = context;
     this.next = this.prev = null;
     this.once = once;
+    this.detach = noop;
   }
+
+  function noop() {}
 
   var MiniSignals = (function () {
     function MiniSignals() {
@@ -63,7 +66,7 @@
         while (node) {
           node.fn.apply(node.context, arguments);
           if (node.once) {
-            this._removeNode(node);
+            node.detach();
           }
           node = node.next;
         }
@@ -77,8 +80,8 @@
         return this._addNode(node);
       }
     }, {
-      key: "addOnce",
-      value: function addOnce(fn, context) {
+      key: "once",
+      value: function once(fn, context) {
         var node = new Node(fn, context || this, true);
         return this._addNode(node);
       }
@@ -93,44 +96,29 @@
           node.prev = this._tail;
           this._tail = node;
         }
-        return this;
-      }
-    }, {
-      key: "remove",
-      value: function remove(fn, context) {
-        if (!fn) {
-          return this.removeAll();
-        }
 
-        var node = this._head;
-        while (node) {
-
-          if (node.fn === fn && (!context || node.context === context)) {
-            this._removeNode(node);
-          }
-
-          node = node.next;
-        }
-
-        return this;
-      }
-    }, {
-      key: "_removeNode",
-      value: function _removeNode(node) {
-        if (node === this._head) {
-          this._head = node.next;
-          if (!this._head) {
-            this._tail = null;
+        var self = this;
+        node.detach = (function () {
+          if (this === self._head) {
+            self._head = this.next;
+            if (!self._head) {
+              self._tail = null;
+            } else {
+              self._head.prev = null;
+            }
+          } else if (this === self._tail) {
+            self._tail = node.prev;
+            self._tail.next = null;
           } else {
-            this._head.prev = null;
+            this.prev.next = this.next;
+            this.next.prev = this.prev;
           }
-        } else if (node === this._tail) {
-          this._tail = node.prev;
-          this._tail.next = null;
-        } else {
-          node.prev.next = node.next;
-          node.next.prev = node.prev;
-        }
+          this.fn = null;
+          this.context = null;
+          this.detach = noop;
+        }).bind(node);
+
+        return node;
       }
     }, {
       key: "removeAll",
