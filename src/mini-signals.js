@@ -12,7 +12,10 @@ function Node(fn, context, once = false) {
   this.context = context;
   this.next = this.prev = null;
   this.once = once;
+  this.cancel = noop
 }
+
+function noop() {}
 
 /**
  * Minimal MiniSignals interface modeled against the js-signals
@@ -33,7 +36,6 @@ export default class MiniSignals {
   */
   listeners(exists) {
     var node = this._head;
-
 
     if (exists) { return !!node; }
 
@@ -60,7 +62,7 @@ export default class MiniSignals {
 
     while (node) {
       node.fn.apply(node.context, arguments);
-      if (node.once) { this._removeNode(node); }
+      if (node.once) { node.cancel(); }
       node = node.next;
     }
 
@@ -93,7 +95,29 @@ export default class MiniSignals {
       node.prev = this._tail;
       this._tail = node;
     }
-    return this;
+
+    var self = this;
+    node.cancel = (function() {
+      if (this === self._head)  {  // first node
+        self._head = this.next;
+        if (!self._head){
+          self._tail = null;
+        } else {
+          self._head.prev = null;
+        }
+      } else if (this === self._tail) {  // last node
+        self._tail = node.prev;
+        self._tail.next = null;
+      } else {  // middle
+        this.prev.next = this.next;
+        this.next.prev = this.prev;
+      }
+      this.fn = null;
+      this.context = null;
+      this.cancel = noop
+    }).bind(node);
+
+    return node;
   }
 
   /**
@@ -102,7 +126,7 @@ export default class MiniSignals {
   * @param {Function} fn The listener that we need to find.
   * @param {Mixed} context Only remove listeners matching this context.
   * @api public
-  */
+
   remove(fn, context) {
     if (!fn) { return this.removeAll(); }  // maybe change this
 
@@ -120,6 +144,7 @@ export default class MiniSignals {
   }
 
   _removeNode(node) {
+    if (node.detached) { return; }  // maybe error
     if (node === this._head)  {  // first node
       this._head = node.next;
       if (!this._head){
@@ -134,7 +159,8 @@ export default class MiniSignals {
       node.prev.next = node.next;
       node.next.prev = node.prev;
     }
-  }
+    node.detached = true;
+  } */
 
   /**
   * Remove all listeners.
