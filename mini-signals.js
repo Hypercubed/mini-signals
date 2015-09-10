@@ -20,14 +20,11 @@
   function Node(fn, context) {
     var once = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-    this.fn = fn;
-    this.context = context;
-    this.next = this.prev = null;
-    this.once = once;
-    this.detach = noop;
+    this._fn = fn;
+    this._context = context;
+    this._next = this._prev = null;
+    this._once = once;
   }
-
-  function noop() {}
 
   var MiniSignals = (function () {
     function MiniSignals() {
@@ -48,8 +45,8 @@
         var ee = [];
 
         while (node) {
-          ee.push(node.fn);
-          node = node.next;
+          ee.push(node._fn);
+          node = node._next;
         }
 
         return ee;
@@ -64,11 +61,11 @@
         }
 
         while (node) {
-          node.fn.apply(node.context, arguments);
-          if (node.once) {
-            node.detach();
+          node._fn.apply(node._context, arguments);
+          if (node._once) {
+            this.detach(node);
           }
-          node = node.next;
+          node = node._next;
         }
 
         return true;
@@ -92,33 +89,59 @@
           this._head = node;
           this._tail = node;
         } else {
-          this._tail.next = node;
-          node.prev = this._tail;
+          this._tail._next = node;
+          node._prev = this._tail;
           this._tail = node;
         }
 
         var self = this;
         node.detach = (function () {
-          if (this === self._head) {
-            self._head = this.next;
-            if (!self._head) {
-              self._tail = null;
-            } else {
-              self._head.prev = null;
-            }
-          } else if (this === self._tail) {
-            self._tail = node.prev;
-            self._tail.next = null;
-          } else {
-            this.prev.next = this.next;
-            this.next.prev = this.prev;
-          }
-          this.fn = null;
-          this.context = null;
-          this.detach = noop;
+          self.detach(this);
         }).bind(node);
 
         return node;
+      }
+    }, {
+      key: "remove",
+      value: function remove(fn, context) {
+        if (!fn) {
+          return this.removeAll();
+        }
+
+        var node = this._head;
+        while (node) {
+
+          if (node._fn === fn && (!context || node._context === context)) {
+            this.detach(node);
+          }
+
+          node = node._next;
+        }
+
+        return this;
+      }
+    }, {
+      key: "detach",
+      value: function detach(node) {
+        if (!node._fn) {
+          return;
+        }
+        if (node === this._head) {
+          this._head = node._next;
+          if (!this._head) {
+            this._tail = null;
+          } else {
+            this._head._prev = null;
+          }
+        } else if (node === this._tail) {
+          this._tail = node._prev;
+          this._tail._next = null;
+        } else {
+          node._prev._next = node._next;
+          node._next._prev = node._prev;
+        }
+        node._fn = null;
+        node._context = null;
       }
     }, {
       key: "removeAll",

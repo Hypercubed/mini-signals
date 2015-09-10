@@ -12,10 +12,7 @@ function Node(fn, context, once = false) {
   this._context = context;
   this._next = this._prev = null;
   this._once = once;
-  this.detach = noop
 }
-
-function noop() {}
 
 /**
  * Minimal MiniSignals interface modeled against the js-signals
@@ -62,7 +59,7 @@ export default class MiniSignals {
 
     while (node) {
       node._fn.apply(node._context, arguments);
-      if (node._once) { node.detach(); }
+      if (node._once) { this.detach(node); }
       node = node._next;
     }
 
@@ -98,23 +95,7 @@ export default class MiniSignals {
 
     var self = this;
     node.detach = (function() {
-      if (this === self._head)  {  // first node
-        self._head = this._next;
-        if (!self._head){
-          self._tail = null;
-        } else {
-          self._head._prev = null;
-        }
-      } else if (this === self._tail) {  // last node
-        self._tail = node._prev;
-        self._tail._next = null;
-      } else {  // middle
-        this._prev._next = this._next;
-        this._next._prev = this._prev;
-      }
-      this._fn = null;
-      this._context = null;
-      this.detach = noop;
+      self.detach(this);
     }).bind(node);
 
     return node;
@@ -133,13 +114,38 @@ export default class MiniSignals {
     while (node) {
 
       if (node._fn === fn && (!context || node._context === context)) {
-        node.detach();
+        this.detach(node);
       }
 
       node = node._next;
     }
 
     return this;
+  }
+
+  /**
+  * Remove binding object.  (may be deprecated)
+  *
+  * @param {Node} node The binding node that will be removed.
+  * @api public */
+  detach(node) {
+    if (!node._fn) { return; }
+    if (node === this._head)  {  // first node
+      this._head = node._next;
+      if (!this._head){
+        this._tail = null;
+      } else {
+        this._head._prev = null;
+      }
+    } else if (node === this._tail) {  // last node
+      this._tail = node._prev;
+      this._tail._next = null;
+    } else {  // middle
+      node._prev._next = node._next;
+      node._next._prev = node._prev;
+    }
+    node._fn = null;
+    node._context = null;
   }
 
 

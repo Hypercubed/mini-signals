@@ -2,7 +2,8 @@ describe('MiniSignals', function tests() {
   'use strict';
 
   var MiniSignals = require('../src/mini-signals'),
-    assume = require('assume');
+    assume = require('assume'),
+    assert = require('assert');
 
   it('inherits when used with require(util).inherits', function () {
     function Beast() {
@@ -295,7 +296,7 @@ describe('MiniSignals', function tests() {
     });
   });
 
-  describe('MiniSignalsBinding#detach', function () {
+  describe('MiniSignalsBinding##detach', function () {
 
     /* istanbul ignore next */
     function foo() {
@@ -482,6 +483,41 @@ describe('MiniSignals', function tests() {
       assume(e.listeners().length).equals(0);
 
       assume(e.dispatch()).equals(false);
+    });
+
+  });
+
+  describe('Readme Examples', function () {
+
+    it('Example Usage', function () {
+      var mySignal = new MiniSignals();
+
+      var binding = mySignal.add(onSignal);   //add listener
+      mySignal.dispatch('foo', 'bar');        //dispatch signal passing custom parameters
+      binding.detach();                       //remove a single listener
+
+      function onSignal(foo, bar) {
+        assert(foo === 'foo');
+        assert(bar === 'bar');
+      }
+    });
+
+    it('Another Example', function () {
+
+      var myObject = {
+        foo: 'bar',
+        updated: new MiniSignals()
+      }
+
+      myObject.updated.add(onUpdated, myObject);   //add listener with context
+
+      myObject.foo = 'baz';
+      myObject.updated.dispatch();                 //dispatch signal
+
+      function onUpdated() {
+        assert(this === myObject);
+        assert(this.foo === 'baz');
+      }
     });
 
   });

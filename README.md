@@ -34,7 +34,29 @@ mySignal.dispatch('foo', 'bar');        //dispatch signal passing custom paramet
 binding.detach();                       //remove a single listener
 
 function onSignal(foo, bar) {
-  /* */
+  assert(foo === 'foo');
+  assert(bar === 'bar');
+}
+```
+
+## Another Example
+
+```
+var Signal = require('mini-signals');
+
+var myObject = {
+  foo: 'bar',
+  updated: new Signal()
+}
+
+myObject.updated.add(onUpdated, myObject);   //add listener with context
+
+myObject.foo = 'baz';
+myObject.updated.dispatch();                 //dispatch signal
+
+function onUpdated() {
+  assert(this === myObject);
+  assert(this.foo === 'baz');
 }
 ```
 
