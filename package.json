@@ -11,7 +11,7 @@
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register",
     "mocha": "_mocha --compilers js:babel/register",
     "bench": "node ./bench/emit.js",
-    "go": "npm run mocha && npm run babel && npm run bench"
+    "prepublish": "npm run mocha && npm run babel"
   },
   "repository": {
     "type": "git",
