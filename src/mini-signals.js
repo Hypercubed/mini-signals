@@ -8,10 +8,10 @@
  * @api private
  */
 function Node(fn, context, once = false) {
-  this.fn = fn;
-  this.context = context;
-  this.next = this.prev = null;
-  this.once = once;
+  this._fn = fn;
+  this._context = context;
+  this._next = this._prev = null;
+  this._once = once;
   this.detach = noop
 }
 
@@ -42,8 +42,8 @@ export default class MiniSignals {
     var ee = [];
 
     while (node) {
-      ee.push(node.fn);
-      node = node.next;
+      ee.push(node._fn);
+      node = node._next;
     }
 
     return ee;
@@ -61,9 +61,9 @@ export default class MiniSignals {
     if (!node) { return false; }
 
     while (node) {
-      node.fn.apply(node.context, arguments);
-      if (node.once) { node.detach(); }
-      node = node.next;
+      node._fn.apply(node._context, arguments);
+      if (node._once) { node.detach(); }
+      node = node._next;
     }
 
     return true;
@@ -91,29 +91,29 @@ export default class MiniSignals {
       this._head = node;
       this._tail = node;
     } else {
-      this._tail.next = node;
-      node.prev = this._tail;
+      this._tail._next = node;
+      node._prev = this._tail;
       this._tail = node;
     }
 
     var self = this;
     node.detach = (function() {
       if (this === self._head)  {  // first node
-        self._head = this.next;
+        self._head = this._next;
         if (!self._head){
           self._tail = null;
         } else {
-          self._head.prev = null;
+          self._head._prev = null;
         }
       } else if (this === self._tail) {  // last node
-        self._tail = node.prev;
-        self._tail.next = null;
+        self._tail = node._prev;
+        self._tail._next = null;
       } else {  // middle
-        this.prev.next = this.next;
-        this.next.prev = this.prev;
+        this._prev._next = this._next;
+        this._next._prev = this._prev;
       }
-      this.fn = null;
-      this.context = null;
+      this._fn = null;
+      this._context = null;
       this.detach = noop;
     }).bind(node);
 
@@ -132,11 +132,11 @@ export default class MiniSignals {
     var node = this._head;
     while (node) {
 
-      if (node.fn === fn && (!context || node.context === context)) {
+      if (node._fn === fn && (!context || node._context === context)) {
         node.detach();
       }
 
-      node = node.next;
+      node = node._next;
     }
 
     return this;
