@@ -121,12 +121,11 @@ export default class MiniSignals {
   }
 
   /**
-  * Remove event listeners.
+  * Remove event listeners.  (may be deprecated)
   *
   * @param {Function} fn The listener that we need to find.
   * @param {Mixed} context Only remove listeners matching this context.
-  * @api public
-
+  * @api public */
   remove(fn, context) {
     if (!fn) { return this.removeAll(); }  // maybe change this
 
@@ -134,7 +133,7 @@ export default class MiniSignals {
     while (node) {
 
       if (node.fn === fn && (!context || node.context === context)) {
-        this._removeNode(node);
+        node.detach();
       }
 
       node = node.next;
@@ -143,24 +142,6 @@ export default class MiniSignals {
     return this;
   }
 
-  _removeNode(node) {
-    if (node.detached) { return; }  // maybe error
-    if (node === this._head)  {  // first node
-      this._head = node.next;
-      if (!this._head){
-        this._tail = null;
-      } else {
-        this._head.prev = null;
-      }
-    } else if (node === this._tail) {  // last node
-      this._tail = node.prev;
-      this._tail.next = null;
-    } else {  // middle
-      node.prev.next = node.next;
-      node.next.prev = node.prev;
-    }
-    node.detached = true;
-  } */
 
   /**
   * Remove all listeners.
