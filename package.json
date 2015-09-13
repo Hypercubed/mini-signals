@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "signals, in JavaScript, fast",
   "main": "mini-signals.js",
   "scripts": {
