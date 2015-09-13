@@ -7,7 +7,7 @@
  * @param {Mixed} context Context for function execution.
  * @api private
  */
-function Node(fn, context, once = false) {
+function MiniSignalBinding(fn, context, once = false) {
   this._fn = fn;
   this._context = context;
   this._next = this._prev = null;
@@ -52,12 +52,24 @@ export default class MiniSignals {
   * @returns {Boolean} Indication if we've emitted an event.
   * @api public
   */
-  dispatch() {
+  dispatch(a) {
     var node = this._head;
 
     if (!node) { return false; }
 
     while (node) {
+
+      /* switch (arguments.length) {
+        case 0:
+          node._fn.call(node._context);
+          break;
+        case 1:
+          node._fn.call(node._context, a);
+          break;
+        default:
+          node._fn.apply(node._context, arguments);
+      } */
+
       node._fn.apply(node._context, arguments);
       if (node._once) { this.detach(node); }
       node = node._next;
@@ -67,23 +79,38 @@ export default class MiniSignals {
   }
 
   /**
-  * Register a new EventListener.
+  * Register a new listener.
   *
   * @param {Functon} fn Callback function.
   * @param {Mixed} context The context of the function.
+  * @return {SignalBinding} An Object representing the binding between the Signal and listener.
   * @api public
   */
   add(fn, context) {
-    var node = new Node(fn, context || this);
-    return this._addNode(node);
+    if (typeof fn !== 'function') {
+      throw new Error( 'MiniSignals#add(): First arg must be a Function.' );
+    }
+    var node = new MiniSignalBinding(fn, context || this);
+    return this._addMiniSignalBinding(node);
   }
 
+  /**
+   * Register a new listener that will be executed only once.
+   *
+   * @param {Functon} fn Callback function.
+   * @param {Mixed} context The context of the function.
+   * @return {MiniSignalBinding} An Object representing the binding between the Signal and listener.
+   * @api public
+   */
   once(fn, context) {
-    var node = new Node(fn, context || this, true);
-    return this._addNode(node);
+    if (typeof fn !== 'function') {
+      throw new Error( 'MiniSignals#once(): First arg must be a Function.' );
+    }
+    var node = new MiniSignalBinding(fn, context || this, true);
+    return this._addMiniSignalBinding(node);
   }
 
-  _addNode(node) {
+  _addMiniSignalBinding(node) {
     if (!this._head) {
       this._head = node;
       this._tail = node;
@@ -104,11 +131,15 @@ export default class MiniSignals {
   /**
   * Remove event listeners.  (may be deprecated)
   *
-  * @param {Function} fn The listener that we need to find.
+  * @param {Mixed} fn The listener that we need to find or the MiniSignalBinding to remove.
   * @param {Mixed} context Only remove listeners matching this context.
   * @api public */
   remove(fn, context) {
     if (!fn) { return this.removeAll(); }  // maybe change this
+    if (fn instanceof MiniSignalBinding) { return this.detach(fn); }
+    if (typeof fn !== 'function') {
+      throw new Error( 'MiniSignals#remove(): First arg must be a Function.' );
+    }
 
     var node = this._head;
     while (node) {
@@ -126,9 +157,12 @@ export default class MiniSignals {
   /**
   * Remove binding object.  (may be deprecated)
   *
-  * @param {Node} node The binding node that will be removed.
+  * @param {MiniSignalBinding} node The binding node that will be removed.
   * @api public */
   detach(node) {
+    if (!(node instanceof MiniSignalBinding)) {
+      throw new Error( 'MiniSignals#detach(): First arg must be a MiniSignalBinding object.' );
+    }
     if (!node._fn) { return; }
     if (node === this._head)  {  // first node
       this._head = node._next;
@@ -147,7 +181,6 @@ export default class MiniSignals {
     node._fn = null;
     node._context = null;
   }
-
 
   /**
   * Remove all listeners.
