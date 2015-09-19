@@ -71,7 +71,7 @@
       }
     }, {
       key: 'dispatch',
-      value: function dispatch(a) {
+      value: function dispatch() {
         var node = this._head;
 
         if (!node) {

@@ -5,13 +5,14 @@
   "main": "mini-signals.js",
   "scripts": {
     "test": "npm run mocha",
+    "lint": "eslint src/mini-signals.js",
     "build": "npm test && npm run babel && npm run uglify",
     "babel": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments --module-id=MiniSignal",
     "uglify": "uglifyjs mini-signals.js -o mini-signals.min.js",
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register",
     "mocha": "_mocha --compilers js:babel/register",
     "bench": "node ./bench/emit.js",
-    "prepublish": "npm run mocha && npm run babel && npm run uglify"
+    "prepublish": "npm run lint && npm run mocha && npm run babel && npm run uglify"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "assume": "~1.2.6",
     "babel": "^5.8.23",
     "benchmark": "^1.0.0",
+    "eslint": "^1.5.0",
     "eventemitter3": "^1.1.1",
     "istanbul": "^0.3.19",
     "mocha": "^2.2.5",

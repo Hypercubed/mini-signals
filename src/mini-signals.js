@@ -74,7 +74,7 @@ export default class MiniSignals {
   * @returns {Boolean} Indication if we've emitted an event.
   * @api public
   */
-  dispatch(a) {
+  dispatch() {
     var node = this._head;
 
     if (!node) { return false; }

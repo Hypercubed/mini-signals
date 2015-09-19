@@ -1,3 +1,5 @@
+/*jshint -W040 */
+
 describe('MiniSignals', function tests() {
   'use strict';
 
@@ -77,32 +79,30 @@ describe('MiniSignals', function tests() {
       assume(e.dispatch('bar')).equals(false);
     });
 
-    it('emits with context', function (done) {
+    it('emits with context', function () {
       e.add(function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
-
-        done();
+        assume(arguments).has.length(1);
       }, context);
 
       e.dispatch('bar');
     });
 
-    it('emits with context, multiple arguments (force apply)', function (done) {
+    it('emits with context, multiple arguments (force apply)', function () {
       e.add(function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
-
-        done();
+        assume(arguments).has.length(11);
       }, context);
 
       e.dispatch('bar', 1,2,3,4,5,6,7,8,9,0);
     });
 
     it('can dispatch the function with multiple arguments', function () {
-
-      for(var i = 0; i < 100; i++) {
+      for(var i = 0; i < 100; i++) {  /*jshint -W083 */
         e = new MiniSignals();
+        /*jshint -W083 */
         (function (j) {
           for (var i = 0, args = []; i < j; i++) {
             args.push(j);
@@ -114,6 +114,7 @@ describe('MiniSignals', function tests() {
 
           e.dispatch.apply(e, args);
         })(i);
+        /*jshint +W083 */
       }
     });
 
@@ -121,6 +122,7 @@ describe('MiniSignals', function tests() {
 
       for(var i = 0; i < 100; i++) {
         e = new MiniSignals();
+        /*jshint -W083 */
         (function (j) {
           for (var i = 0, args = []; i < j; i++) {
             args.push(j);
@@ -144,6 +146,7 @@ describe('MiniSignals', function tests() {
 
           e.dispatch.apply(e, args);
         })(i);
+        /*jshint +W083 */
       }
     });
 
@@ -191,7 +194,7 @@ describe('MiniSignals', function tests() {
         assume(b).equals(e);
         assume(c).is.instanceOf(Date);
         assume(undef).equals(undefined);
-        assume(arguments.length).equals(3);
+        assume(arguments).has.length(3);
 
         done();
       });
@@ -727,17 +730,44 @@ describe('MiniSignals', function tests() {
       var myObject = {
         foo: 'bar',
         updated: new MiniSignals()
-      }
+      };
 
-      myObject.updated.add(onUpdated, myObject);   //add listener with context
+      myObject.updated.add(function onUpdated() {
+        assert(this === myObject);
+        assert(this.foo === 'baz');
+      }, myObject);   //add listener with context
 
       myObject.foo = 'baz';
       myObject.updated.dispatch();                 //dispatch signal
 
-      function onUpdated() {
-        assert(this === myObject);
-        assert(this.foo === 'baz');
-      }
+    });
+
+    it('Function#bind example', function () {
+
+      var mySignal = new MiniSignals();
+
+      mySignal.add((function (bar) {
+        assume(arguments).has.length(1);
+        assume(bar).equals('bar');
+        assume(this).equals(context);
+      }).bind(context));
+
+      mySignal.dispatch('bar');
+
+    });
+
+    it('Function#bind example with parameters', function () {
+
+      var mySignal = new MiniSignals();
+
+      mySignal.add((function (bar) {
+        assume(arguments).has.length(1);
+        assume(bar).equals('bar');
+        assume(this).equals(context);
+      }).bind(context, 'bar'));
+
+      mySignal.dispatch();
+
     });
 
   });
