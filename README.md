@@ -50,8 +50,6 @@ function onSignal(foo, bar) {
 ## Another Example
 
 ```
-var Signal = require('mini-signals');
-
 var myObject = {
   foo: 'bar',
   updated: new MiniSignal()
