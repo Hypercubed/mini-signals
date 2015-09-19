@@ -1,6 +1,6 @@
 (function (global, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['exports', 'module'], factory);
+    define('MiniSignal', ['exports', 'module'], factory);
   } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
     factory(exports, module);
   } else {
@@ -8,7 +8,7 @@
       exports: {}
     };
     factory(mod.exports, mod);
-    global.miniSignals = mod.exports;
+    global.MiniSignal = mod.exports;
   }
 })(this, function (exports, module) {
   'use strict';
@@ -46,6 +46,24 @@
 
         while (node) {
           ee.push(node._fn);
+          node = node._next;
+        }
+
+        return ee;
+      }
+    }, {
+      key: 'handlers',
+      value: function handlers(exists) {
+        var node = this._head;
+
+        if (exists) {
+          return !!node;
+        }
+
+        var ee = [];
+
+        while (node) {
+          ee.push(node);
           node = node._next;
         }
 
@@ -176,4 +194,6 @@
   })();
 
   module.exports = MiniSignals;
+
+  MiniSignals.MiniSignalBinding = MiniSignalBinding;
 });

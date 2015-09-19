@@ -47,6 +47,28 @@ export default class MiniSignals {
   }
 
   /**
+  * Return a list of assigned event handels.
+  *
+  * @param {Boolean} exists We only need to know if there are handlers.
+  * @returns {Array|Boolean}
+  * @api public
+  */
+  handlers(exists) {
+    var node = this._head;
+
+    if (exists) { return !!node; }
+
+    var ee = [];
+
+    while (node) {
+      ee.push(node);
+      node = node._next;
+    }
+
+    return ee;
+  }
+
+  /**
   * Emit an event to all registered event listeners.
   *
   * @returns {Boolean} Indication if we've emitted an event.
@@ -195,3 +217,6 @@ export default class MiniSignals {
     return this;
   }
 }
+
+// Also export MiniSignalBinding class
+MiniSignals.MiniSignalBinding = MiniSignalBinding;

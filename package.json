@@ -6,12 +6,12 @@
   "scripts": {
     "test": "npm run mocha",
     "build": "npm test && npm run babel && npm run uglify",
-    "babel": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments",
+    "babel": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments --module-id=MiniSignal",
     "uglify": "uglifyjs mini-signals.js -o mini-signals.min.js",
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register",
     "mocha": "_mocha --compilers js:babel/register",
     "bench": "node ./bench/emit.js",
-    "prepublish": "npm run mocha && npm run babel"
+    "prepublish": "npm run mocha && npm run babel && npm run uglify"
   },
   "repository": {
     "type": "git",

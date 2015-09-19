@@ -266,6 +266,72 @@ describe('MiniSignals', function tests() {
 
   });
 
+  describe('MiniSignals#handlers', function () {
+
+    /* istanbul ignore next */
+    function foo() {}
+
+    /* istanbul ignore next */
+    function bar() {}
+
+    /* istanbul ignore next */
+    function a() {}
+
+    /* istanbul ignore next */
+    function b() {}
+
+    it('returns an empty array if no handlers are added', function () {
+      var e = new MiniSignals();
+
+      assume(e.handlers()).is.a('array');
+      assume(e.handlers().length).equals(0);
+    });
+
+    it('returns an array of MiniSignalBinding', function () {
+       var e = new MiniSignals();
+
+       e.add(foo);
+       e.add(foo);
+       assume(e.handlers()).is.a('array');
+       assume(e.handlers().length).equals(2);
+       e.handlers().forEach(function(h) {
+         assume(h).instanceOf(MiniSignals.MiniSignalBinding);
+       });
+    });
+
+    it('is not vulnerable to modifications', function () {
+      var e = new MiniSignals();
+
+      e.add(foo);
+      e.add(foo);
+
+      assume(e.handlers().length).equals(2);
+
+      e.handlers().length = 0;
+      assume(e.handlers().length).equals(2);
+      e.handlers().forEach(function(h) {
+        assume(h).instanceOf(MiniSignals.MiniSignalBinding);
+      });
+    });
+
+    it('can return a boolean as indication if handlers exist', function () {
+      var e = new MiniSignals();
+
+      e.add(foo);
+      e.add(foo);
+      e.add(foo);
+      e.add(foo);
+      e.add(foo);
+      e.add(foo);
+
+      assume(e.handlers(true)).equals(true);
+
+      e.removeAll();
+
+      assume(e.handlers(true)).equals(false);
+    });
+  });
+
   describe('MiniSignals#listeners', function () {
 
     /* istanbul ignore next */
