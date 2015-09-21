@@ -26,14 +26,14 @@
     this._once = once;
   }
 
-  var MiniSignals = (function () {
-    function MiniSignals() {
-      _classCallCheck(this, MiniSignals);
+  var MiniSignal = (function () {
+    function MiniSignal() {
+      _classCallCheck(this, MiniSignal);
 
       this._head = this._tail = undefined;
     }
 
-    _createClass(MiniSignals, [{
+    _createClass(MiniSignal, [{
       key: 'listeners',
       value: function listeners(exists) {
         var node = this._head;
@@ -190,10 +190,10 @@
       }
     }]);
 
-    return MiniSignals;
+    return MiniSignal;
   })();
 
-  module.exports = MiniSignals;
-
-  MiniSignals.MiniSignalBinding = MiniSignalBinding;
+  MiniSignal.MiniSignal = MiniSignal;
+  MiniSignal.MiniSignalBinding = MiniSignalBinding;
+  module.exports = MiniSignal;
 });

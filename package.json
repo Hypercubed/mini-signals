@@ -3,6 +3,10 @@
   "version": "0.0.6",
   "description": "signals, in JavaScript, fast",
   "main": "mini-signals.js",
+  "browser": "mini-signals.js",
+  "jspm": {
+    "main": "mini-signals.es6.js"
+  },
   "scripts": {
     "test": "npm run mocha",
     "lint": "eslint src/mini-signals.js",

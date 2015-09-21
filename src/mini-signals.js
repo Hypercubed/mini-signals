@@ -18,7 +18,7 @@ function MiniSignalBinding(fn, context, once = false) {
  * Minimal MiniSignals interface modeled against the js-signals
  * interface.
  */
-export default class MiniSignals {
+class MiniSignal {
 
   constructor() {
     this._head = this._tail = undefined;
@@ -219,4 +219,6 @@ export default class MiniSignals {
 }
 
 // Also export MiniSignalBinding class
-MiniSignals.MiniSignalBinding = MiniSignalBinding;
+MiniSignal.MiniSignal = MiniSignal;
+MiniSignal.MiniSignalBinding = MiniSignalBinding;
+export default MiniSignal;
