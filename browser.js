@@ -194,5 +194,7 @@
     return MiniSignal;
   })();
 
+  MiniSignal.MiniSignalBinding = MiniSignalBinding;
+
   module.exports = MiniSignal;
 });
