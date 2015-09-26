@@ -1,7 +1,8 @@
 describe('MiniSignalsBinding', function tests() {
   'use strict';
 
-  var MiniSignals = require('../src/mini-signals'),
+  var MiniSignal = require('../src/mini-signals').MiniSignal,
+    MiniSignalBinding = require('../src/mini-signals').MiniSignalBinding,
     assume = require('assume'),
     assert = require('assert');
 
@@ -30,7 +31,7 @@ describe('MiniSignalsBinding', function tests() {
     var e, pattern;
 
     beforeEach(function() {
-      e = new MiniSignals();
+      e = new MiniSignal();
       pattern = [];
     });
 

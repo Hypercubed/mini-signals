@@ -1,22 +1,24 @@
 {
   "name": "mini-signals",
-  "version": "0.0.7",
+  "version": "0.0.6",
   "description": "signals, in JavaScript, fast",
-  "main": "mini-signals.js",
-  "browser": "mini-signals.js",
+  "main": "index.js",
+  "jsnext:main": "src/mini-signals.js",
+  "browser": "browser.js",
   "jspm": {
-    "main": "mini-signals.es6.js"
+    "main": "index.js"
   },
   "scripts": {
     "test": "npm run mocha",
     "lint": "eslint src/mini-signals.js",
-    "build": "npm test && npm run babel && npm run uglify",
-    "babel": "babel src/mini-signals.js -m umd -o mini-signals.js --no-comments --module-id=MiniSignal",
-    "uglify": "uglifyjs mini-signals.js -o mini-signals.min.js",
+    "build": "npm run babel && npm run roll && npm run uglify",
+    "babel": "babel src/ -m umd -d lib -m common -s --no-comments",
+    "roll": "rollup index.es6.js | babel -m umd -o browser.js --module-id MiniSignal --no-comments",
+    "uglify": "uglifyjs browser.js -o browser.min.js",
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register",
-    "mocha": "_mocha --compilers js:babel/register",
-    "bench": "node ./bench/emit.js",
-    "prepublish": "npm run lint && npm run mocha && npm run babel && npm run uglify"
+    "mocha": "mocha --compilers js:babel/register",
+    "bench": "npm run build && node ./bench/emit.js",
+    "prepublish": "npm run build && npm test"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,7 @@
     "eventemitter3": "^1.1.1",
     "istanbul": "^0.3.19",
     "mocha": "^2.2.5",
+    "rollup": "^0.16.4",
     "signals": "^1.0.0",
     "uglifyjs": "^2.4.10"
   }

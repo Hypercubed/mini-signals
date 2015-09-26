@@ -1,13 +1,13 @@
 /*jshint -W097 */
 
 /**
- * Representation of a single MiniSignals function.
+ * Representation of a single MiniSignal function.
  *
  * @param {Function} fn Event handler to be called.
  * @param {Mixed} context Context for function execution.
  * @api private
  */
-function MiniSignalBinding(fn, context, once = false) {
+export function MiniSignalBinding(fn, context, once = false) {
   this._fn = fn;
   this._context = context;
   this._next = this._prev = null;
@@ -15,10 +15,10 @@ function MiniSignalBinding(fn, context, once = false) {
 }
 
 /**
- * Minimal MiniSignals interface modeled against the js-signals
+ * Minimal MiniSignal interface modeled against the js-signals
  * interface.
  */
-class MiniSignal {
+export class MiniSignal {
 
   constructor() {
     this._head = this._tail = undefined;
@@ -110,7 +110,7 @@ class MiniSignal {
   */
   add(fn, context) {
     if (typeof fn !== 'function') {
-      throw new Error( 'MiniSignals#add(): First arg must be a Function.' );
+      throw new Error( 'MiniSignal#add(): First arg must be a Function.' );
     }
     var node = new MiniSignalBinding(fn, context || this);
     return this._addMiniSignalBinding(node);
@@ -126,7 +126,7 @@ class MiniSignal {
    */
   once(fn, context) {
     if (typeof fn !== 'function') {
-      throw new Error( 'MiniSignals#once(): First arg must be a Function.' );
+      throw new Error( 'MiniSignal#once(): First arg must be a Function.' );
     }
     var node = new MiniSignalBinding(fn, context || this, true);
     return this._addMiniSignalBinding(node);
@@ -160,7 +160,7 @@ class MiniSignal {
     if (!fn) { return this.removeAll(); }  // maybe change this
     if (fn instanceof MiniSignalBinding) { return this.detach(fn); }
     if (typeof fn !== 'function') {
-      throw new Error( 'MiniSignals#remove(): First arg must be a Function.' );
+      throw new Error( 'MiniSignal#remove(): First arg must be a Function.' );
     }
 
     var node = this._head;
@@ -183,9 +183,9 @@ class MiniSignal {
   * @api public */
   detach(node) {
     if (!(node instanceof MiniSignalBinding)) {
-      throw new Error( 'MiniSignals#detach(): First arg must be a MiniSignalBinding object.' );
+      throw new Error( 'MiniSignal#detach(): First arg must be a MiniSignalBinding object.' );
     }
-    if (!node._fn) { return; }
+    if (!node._fn) { return this; }
     if (node === this._head)  {  // first node
       this._head = node._next;
       if (!this._head){
@@ -202,6 +202,7 @@ class MiniSignal {
     }
     node._fn = null;
     node._context = null;
+    return this;
   }
 
   /**
@@ -218,7 +219,4 @@ class MiniSignal {
   }
 }
 
-// Also export MiniSignalBinding class
-MiniSignal.MiniSignal = MiniSignal;
-MiniSignal.MiniSignalBinding = MiniSignalBinding;
 export default MiniSignal;
