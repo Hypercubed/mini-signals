@@ -7,11 +7,13 @@
  * @param {Mixed} context Context for function execution.
  * @api private
  */
-export function MiniSignalBinding(fn, context, once = false) {
-  this._fn = fn;
-  this._context = context;
-  this._next = this._prev = null;
-  this._once = once;
+
+export class MiniSignalBinding {
+  constructor(fn, once = false) {
+    this._fn = fn;
+    this._next = this._prev = null;
+    this._once = once;
+  }
 }
 
 /**
@@ -22,28 +24,6 @@ export class MiniSignal {
 
   constructor() {
     this._head = this._tail = undefined;
-  }
-
-  /**
-  * Return a list of assigned event listeners.
-  *
-  * @param {Boolean} exists We only need to know if there are listeners.
-  * @returns {Array|Boolean}
-  * @api public
-  */
-  listeners(exists) {
-    var node = this._head;
-
-    if (exists) { return !!node; }
-
-    var ee = [];
-
-    while (node) {
-      ee.push(node._fn);
-      node = node._next;
-    }
-
-    return ee;
   }
 
   /**
@@ -80,19 +60,7 @@ export class MiniSignal {
     if (!node) { return false; }
 
     while (node) {
-
-      /* switch (arguments.length) {
-        case 0:
-          node._fn.call(node._context);
-          break;
-        case 1:
-          node._fn.call(node._context, a);
-          break;
-        default:
-          node._fn.apply(node._context, arguments);
-      } */
-
-      node._fn.apply(node._context, arguments);
+      node._fn.apply(this, arguments);
       if (node._once) { this.detach(node); }
       node = node._next;
     }
@@ -108,11 +76,11 @@ export class MiniSignal {
   * @return {SignalBinding} An Object representing the binding between the Signal and listener.
   * @api public
   */
-  add(fn, context) {
+  add(fn) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#add(): First arg must be a Function.' );
     }
-    var node = new MiniSignalBinding(fn, context || this);
+    var node = new MiniSignalBinding(fn);
     return this._addMiniSignalBinding(node);
   }
 
@@ -124,11 +92,11 @@ export class MiniSignal {
    * @return {MiniSignalBinding} An Object representing the binding between the Signal and listener.
    * @api public
    */
-  once(fn, context) {
+  once(fn) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#once(): First arg must be a Function.' );
     }
-    var node = new MiniSignalBinding(fn, context || this, true);
+    var node = new MiniSignalBinding(fn, true);
     return this._addMiniSignalBinding(node);
   }
 
@@ -151,33 +119,7 @@ export class MiniSignal {
   }
 
   /**
-  * Remove event listeners.  (may be deprecated)
-  *
-  * @param {Mixed} fn The listener that we need to find or the MiniSignalBinding to remove.
-  * @param {Mixed} context Only remove listeners matching this context.
-  * @api public */
-  remove(fn, context) {
-    if (!fn) { return this.removeAll(); }  // maybe change this
-    if (fn instanceof MiniSignalBinding) { return this.detach(fn); }
-    if (typeof fn !== 'function') {
-      throw new Error( 'MiniSignal#remove(): First arg must be a Function.' );
-    }
-
-    var node = this._head;
-    while (node) {
-
-      if (node._fn === fn && (!context || node._context === context)) {
-        this.detach(node);
-      }
-
-      node = node._next;
-    }
-
-    return this;
-  }
-
-  /**
-  * Remove binding object.  (may be deprecated)
+  * Remove binding object.
   *
   * @param {MiniSignalBinding} node The binding node that will be removed.
   * @api public */

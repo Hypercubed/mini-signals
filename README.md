@@ -55,7 +55,7 @@ var myObject = {
   updated: new MiniSignal()
 }
 
-myObject.updated.add(onUpdated, myObject);   //add listener with context
+myObject.updated.add(onUpdated.bind(myObject));   //add listener with context
 
 myObject.foo = 'baz';
 myObject.updated.dispatch();                 //dispatch signal

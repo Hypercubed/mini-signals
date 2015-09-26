@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "0.0.8",
+  "version": "1.0.0-beta",
   "description": "signals, in JavaScript, fast",
   "main": "index.js",
   "jsnext:main": "src/mini-signals.js",
@@ -10,6 +10,7 @@
   },
   "scripts": {
     "test": "npm run mocha",
+    "test:fast": "mocha --compilers js:babel/register ./test/mini-signals-spec.js",
     "lint": "eslint src/mini-signals.js",
     "build": "npm run babel && npm run roll && npm run uglify",
     "babel": "babel src/ -m umd -d lib -m common -s --no-comments",

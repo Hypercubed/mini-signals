@@ -17,14 +17,15 @@
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function MiniSignalBinding(fn, context) {
-    var once = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+  var MiniSignalBinding = function MiniSignalBinding(fn) {
+    var once = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+    _classCallCheck(this, MiniSignalBinding);
 
     this._fn = fn;
-    this._context = context;
     this._next = this._prev = null;
     this._once = once;
-  }
+  };
 
   var MiniSignal = (function () {
     function MiniSignal() {
@@ -34,24 +35,6 @@
     }
 
     _createClass(MiniSignal, [{
-      key: 'listeners',
-      value: function listeners(exists) {
-        var node = this._head;
-
-        if (exists) {
-          return !!node;
-        }
-
-        var ee = [];
-
-        while (node) {
-          ee.push(node._fn);
-          node = node._next;
-        }
-
-        return ee;
-      }
-    }, {
       key: 'handlers',
       value: function handlers(exists) {
         var node = this._head;
@@ -79,8 +62,7 @@
         }
 
         while (node) {
-
-          node._fn.apply(node._context, arguments);
+          node._fn.apply(this, arguments);
           if (node._once) {
             this.detach(node);
           }
@@ -91,20 +73,20 @@
       }
     }, {
       key: 'add',
-      value: function add(fn, context) {
+      value: function add(fn) {
         if (typeof fn !== 'function') {
           throw new Error('MiniSignal#add(): First arg must be a Function.');
         }
-        var node = new MiniSignalBinding(fn, context || this);
+        var node = new MiniSignalBinding(fn);
         return this._addMiniSignalBinding(node);
       }
     }, {
       key: 'once',
-      value: function once(fn, context) {
+      value: function once(fn) {
         if (typeof fn !== 'function') {
           throw new Error('MiniSignal#once(): First arg must be a Function.');
         }
-        var node = new MiniSignalBinding(fn, context || this, true);
+        var node = new MiniSignalBinding(fn, true);
         return this._addMiniSignalBinding(node);
       }
     }, {
@@ -125,31 +107,6 @@
         }).bind(node);
 
         return node;
-      }
-    }, {
-      key: 'remove',
-      value: function remove(fn, context) {
-        if (!fn) {
-          return this.removeAll();
-        }
-        if (fn instanceof MiniSignalBinding) {
-          return this.detach(fn);
-        }
-        if (typeof fn !== 'function') {
-          throw new Error('MiniSignal#remove(): First arg must be a Function.');
-        }
-
-        var node = this._head;
-        while (node) {
-
-          if (node._fn === fn && (!context || node._context === context)) {
-            this.detach(node);
-          }
-
-          node = node._next;
-        }
-
-        return this;
       }
     }, {
       key: 'detach',
