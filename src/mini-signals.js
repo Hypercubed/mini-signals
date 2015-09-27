@@ -1,14 +1,14 @@
 /*jshint -W097 */
 
-/**
- * Representation of a single MiniSignal function.
- *
- * @param {Function} fn Event handler to be called.
- * @param {Mixed} context Context for function execution.
- * @api private
- */
-
 export class MiniSignalBinding {
+
+  /**
+  * MiniSignalBinding constructor.
+  * @constructs MiniSignalBinding
+  * @param {Function} fn Event handler to be called.
+  * @param {Boolean} [once=false] Should this listener be removed after dispatch
+  * @api private
+  */
   constructor(fn, once = false) {
     this._fn = fn;
     this._next = this._prev = null;
@@ -16,24 +16,25 @@ export class MiniSignalBinding {
   }
 }
 
-/**
- * Minimal MiniSignal interface modeled against the js-signals
- * interface.
- */
 export class MiniSignal {
 
+  /**
+  * MiniSignal constructor.
+  * @constructs MiniSignal
+  * @api public
+  */
   constructor() {
     this._head = this._tail = undefined;
   }
 
   /**
-  * Return a list of assigned event handels.
+  * Return an array of attached MiniSignalBinding.
   *
-  * @param {Boolean} exists We only need to know if there are handlers.
-  * @returns {Array|Boolean}
+  * @param {Boolean} [exists=false] We only need to know if there are handlers.
+  * @returns {MiniSignalBinding[]|Boolean} Array of attached MiniSignalBinding or Boolean if called with exists = true
   * @api public
   */
-  handlers(exists) {
+  handlers(exists = false) {
     var node = this._head;
 
     if (exists) { return !!node; }
@@ -49,7 +50,7 @@ export class MiniSignal {
   }
 
   /**
-  * Emit an event to all registered event listeners.
+  * Dispaches a signal to all registered listeners.
   *
   * @returns {Boolean} Indication if we've emitted an event.
   * @api public
@@ -71,9 +72,8 @@ export class MiniSignal {
   /**
   * Register a new listener.
   *
-  * @param {Functon} fn Callback function.
-  * @param {Mixed} context The context of the function.
-  * @return {SignalBinding} An Object representing the binding between the Signal and listener.
+  * @param {Function} fn Callback function.
+  * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
   add(fn) {
@@ -87,9 +87,8 @@ export class MiniSignal {
   /**
    * Register a new listener that will be executed only once.
    *
-   * @param {Functon} fn Callback function.
-   * @param {Mixed} context The context of the function.
-   * @return {MiniSignalBinding} An Object representing the binding between the Signal and listener.
+   * @param {Function} fn Callback function.
+   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
    * @api public
    */
   once(fn) {
@@ -122,6 +121,7 @@ export class MiniSignal {
   * Remove binding object.
   *
   * @param {MiniSignalBinding} node The binding node that will be removed.
+  * @returns {MiniSignal} The instance on which this method was called.
   * @api public */
   detach(node) {
     if (!(node instanceof MiniSignalBinding)) {
@@ -148,8 +148,9 @@ export class MiniSignal {
   }
 
   /**
-  * Remove all listeners.
+  * Detach all listeners.
   *
+  * @returns {MiniSignal} The instance on which this method was called.
   * @api public
   */
   detachAll() {

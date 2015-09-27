@@ -19,7 +19,8 @@
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register ./test/mini-signals-*.js",
     "mocha": "mocha --compilers js:babel/register",
     "bench": "npm run build && node ./bench/emit.js",
-    "prepublish": "npm run build && npm test"
+    "prepublish": "npm run build && npm test",
+    "jsdoc2md": "jsdoc-parse ./src/mini-signals.js | dmd > api.md"
   },
   "repository": {
     "type": "git",
@@ -40,9 +41,11 @@
     "assume": "~1.2.6",
     "babel": "^5.8.23",
     "benchmark": "^1.0.0",
+    "dmd": "^1.2.0",
     "eslint": "^1.5.0",
     "eventemitter3": "^1.1.1",
     "istanbul": "^0.3.19",
+    "jsdoc-parse": "^1.1.0",
     "mocha": "^2.2.5",
     "rollup": "^0.16.4",
     "signals": "^1.0.0",
