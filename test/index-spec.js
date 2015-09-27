@@ -5,14 +5,13 @@ describe('MiniSignal', function tests() {
 
   var MiniSignal = require('../').MiniSignal,
     MiniSignalBinding = require('../').MiniSignalBinding,
-    assume = require('assume'),
-    assert = require('assert');
+    assume = require('assume');
 
   describe('MiniSignal', function () {
 
-    function writer() {
-      pattern += this;
-    }
+    //function writer() {
+    //  pattern += this;
+    //}
 
     var e, context, pattern;
 
