@@ -66,7 +66,6 @@ function onUpdated() {
 }
 ```
 
-
 ## License
 
 Copyright (c) 2015 Jayson Harshbarger

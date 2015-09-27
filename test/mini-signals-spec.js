@@ -28,7 +28,7 @@ describe('MiniSignal', function tests() {
     });
 
     meap.dispatch('rawr');
-    meap.removeAll();
+    meap.detachAll();
   });
 
   describe('MiniSignal#once', function () {
@@ -330,7 +330,7 @@ describe('MiniSignal', function tests() {
 
       assume(e.handlers(true)).equals(true);
 
-      e.removeAll();
+      e.detachAll();
 
       assume(e.handlers(true)).equals(false);
     });
@@ -502,7 +502,7 @@ describe('MiniSignal', function tests() {
     });
   });
 
-  describe('MiniSignal#removeAll', function () {
+  describe('MiniSignal#detachAll', function () {
     /* istanbul ignore next */
     function oops() { throw new Error('oops'); }
 
@@ -521,14 +521,14 @@ describe('MiniSignal', function tests() {
 
       assume(e.handlers().length).equals(4);
 
-      assume(e.removeAll()).equals(e);
+      assume(e.detachAll()).equals(e);
       assume(e.handlers().length).equals(0);
 
       assume(e.dispatch()).equals(false);
     });
 
     it('should not thow an error if no listerners are set', function () {
-      assume(e.removeAll()).equals(e);
+      assume(e.detachAll()).equals(e);
       assume(e.handlers().length).equals(0);
 
       assume(e.dispatch()).equals(false);

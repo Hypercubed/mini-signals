@@ -152,7 +152,7 @@ export class MiniSignal {
   *
   * @api public
   */
-  removeAll() {
+  detachAll() {
     var node = this._head;
     if (!node) { return this; }
 

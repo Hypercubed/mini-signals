@@ -35,18 +35,21 @@ describe('MiniSignalsBinding', function tests() {
       pattern = [];
     });
 
-    it('should only remove the event with the specified function', function () {
+    it('should only remove the specific listener', function () {
 
       e.add(a);
       e.add(b);
       var _bar = e.add(bar);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b','bar']);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('a;b;bar');
+      pattern = [];
 
       _bar.detach();
       assume(e.handlers().length).equals(2);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('a;b');
 
     });
 
@@ -57,11 +60,14 @@ describe('MiniSignalsBinding', function tests() {
       e.add(b);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['bar','a','b']);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('bar;a;b');
+      pattern = [];
 
       _bar.detach();
       assume(e.handlers().length).equals(2);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('a;b');
 
     });
 
@@ -72,11 +78,13 @@ describe('MiniSignalsBinding', function tests() {
       e.add(b);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','bar','b']);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('a;bar;b');
+      pattern = [];
 
       _bar.detach();
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
-      assume(e.handlers().length).equals(2);
+      e.dispatch();
+      assume(pattern.join(';')).eqls('a;b');
 
     });
 

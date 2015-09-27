@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "1.0.0-beta",
+  "version": "1.0.0",
   "description": "signals, in JavaScript, fast",
   "main": "index.js",
   "jsnext:main": "src/mini-signals.js",
