@@ -275,15 +275,6 @@ describe('MiniSignal', function tests() {
     /* istanbul ignore next */
     function foo() {}
 
-    /* istanbul ignore next */
-    function bar() {}
-
-    /* istanbul ignore next */
-    function a() {}
-
-    /* istanbul ignore next */
-    function b() {}
-
     it('returns an empty array if no handlers are added', function () {
       var e = new MiniSignal();
 
