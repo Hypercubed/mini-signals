@@ -36,7 +36,9 @@
 
     _createClass(MiniSignal, [{
       key: 'handlers',
-      value: function handlers(exists) {
+      value: function handlers() {
+        var exists = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
         var node = this._head;
 
         if (exists) {
@@ -136,8 +138,8 @@
         return this;
       }
     }, {
-      key: 'removeAll',
-      value: function removeAll() {
+      key: 'detachAll',
+      value: function detachAll() {
         var node = this._head;
         if (!node) {
           return this;
