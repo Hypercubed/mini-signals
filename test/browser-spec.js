@@ -5,14 +5,13 @@ describe('MiniSignal', function tests() {
 
   var MiniSignal = require('../browser'),
     MiniSignalBinding = require('../browser').MiniSignalBinding,
-    assume = require('assume'),
-    assert = require('assert');
+    assume = require('assume');
 
   describe('browser.js', function () {
 
-    function writer() {
-      pattern += this;
-    }
+    //function writer() {
+    //  pattern += this;
+    //}
 
     var e, context, pattern;
 
