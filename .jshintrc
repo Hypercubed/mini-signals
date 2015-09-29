@@ -1,4 +1,3 @@
 {
-    "esnext": true,
-    "no-global-strict": 1
+    "esnext": true
 }

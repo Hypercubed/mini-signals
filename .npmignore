@@ -1,5 +1,7 @@
 *
-!src
-!mini-signals.*
+!src/**
+!lib/**
+!index.*
+!browser.*
 !README.md
 !package.json

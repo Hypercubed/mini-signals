@@ -23,21 +23,48 @@ npm install mini-signals
 jspm install mini-signals=github:Hypercubed/mini-signals
 ```
 
-## Example Usage
+### bower:
 
 ```
-var Signal = require('mini-signals');
-var mySignal = new Signal();
+bower install mini-signals
+```
+
+## Example Usage
+
+***When not using a module loader the mini-signals constructor (`MiniSignal`) is global.***
+
+```
+var MiniSignal = require('mini-signals');
+var mySignal = new MiniSignal();
 
 var binding = mySignal.add(onSignal);   //add listener
 mySignal.dispatch('foo', 'bar');        //dispatch signal passing custom parameters
 binding.detach();                       //remove a single listener
 
 function onSignal(foo, bar) {
-  /* */
+  assert(foo === 'foo');
+  assert(bar === 'bar');
 }
 ```
 
+## Another Example
+
+```
+var myObject = {
+  foo: 'bar',
+  updated: new MiniSignal()
+}
+
+myObject.updated.add(onUpdated.bind(myObject));   //add listener with context
+
+myObject.foo = 'baz';
+myObject.updated.dispatch();                 //dispatch signal
+
+function onUpdated() {
+  assert(this === myObject);
+  assert(this.foo === 'baz');
+}
+```
 
 ## License
 
