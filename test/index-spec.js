@@ -7,7 +7,7 @@ describe('MiniSignal', function tests() {
     MiniSignalBinding = require('../').MiniSignalBinding,
     assume = require('assume');
 
-  describe('MiniSignal', function () {
+  describe('CommonJS', function () {
 
     //function writer() {
     //  pattern += this;
@@ -21,14 +21,9 @@ describe('MiniSignal', function tests() {
       pattern = '';
     });
 
-    it('should return false when there are not events to dispatch', function () {
+    it('should expose MiniSignal and MiniSignalBinding', function () {
       assume(MiniSignal).exists();
       assume(MiniSignalBinding).exists();
-    });
-
-    it('should return false when there are not events to dispatch', function () {
-      assume(e.dispatch('foo')).equals(false);
-      assume(e.dispatch('bar')).equals(false);
     });
 
     it('emits with context', function () {

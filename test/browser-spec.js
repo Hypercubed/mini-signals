@@ -26,11 +26,6 @@ describe('MiniSignal', function tests() {
       assume(MiniSignalBinding).exists();
     });
 
-    it('should return false when there are not events to dispatch', function () {
-      assume(e.dispatch('foo')).equals(false);
-      assume(e.dispatch('bar')).equals(false);
-    });
-
     it('emits with context', function () {
       e.add((function (bar) {
         assume(bar).equals('bar');
