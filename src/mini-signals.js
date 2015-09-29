@@ -1,8 +1,5 @@
 /*jshint -W097 */
 
-/**
- * MiniSignalBinding Class
- */
 export class MiniSignalBinding {
 
   /**
@@ -19,22 +16,18 @@ export class MiniSignalBinding {
   }
 }
 
-/**
- * MiniSignal Class
- *
- * @example
- * let mySignal = new MiniSignal();
- * let binding = mySignal.add(onSignal);
- * mySignal.dispatch('foo', 'bar');
- * mySignal.detach(binding);
- *
- */
 export class MiniSignal {
 
   /**
   * MiniSignal constructor.
   * @constructs MiniSignal
   * @api public
+  *
+  * @example
+  * let mySignal = new MiniSignal();
+  * let binding = mySignal.add(onSignal);
+  * mySignal.dispatch('foo', 'bar');
+  * mySignal.detach(binding);
   */
   constructor() {
     this._head = this._tail = undefined;
