@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Hypercubed/mini-signals.git"
+    "url": "https://github.com/Hypercubed/mini-signals.git"
   },
   "keywords": [
     "events",
