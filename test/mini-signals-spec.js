@@ -116,6 +116,25 @@ describe('MiniSignals', function tests() {
       }
     });
 
+    it('can dispatch many listeners', function () {
+
+      var N = 10000;
+      var sum = 0;
+
+      return function add(i) {
+        sum += i;
+      }
+
+      for(var i = 0; i <= N; i++) {
+        e.add(add.bind(this,i));
+      }
+
+      e.dispatch();
+
+      assume(sum).equals(N*(N+1)/2);
+
+    });
+
     it('emits with context, multiple listeners (force loop)', function () {
       e.add(function (bar) {
         assume(this).eqls({ foo: 'bar' });
