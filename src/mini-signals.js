@@ -16,6 +16,26 @@ export class MiniSignalBinding {
   }
 }
 
+/**
+* @private
+*/
+function _addMiniSignalBinding(self, node) {
+  if (!self._head) {
+    self._head = node;
+    self._tail = node;
+  } else {
+    self._tail._next = node;
+    node._prev = self._tail;
+    self._tail = node;
+  }
+
+  node.detach = (function() {
+    self.detach(this);
+  }).bind(node);
+
+  return node;
+}
+
 export class MiniSignal {
 
   /**
@@ -41,11 +61,11 @@ export class MiniSignal {
   * @api public
   */
   handlers(exists = false) {
-    var node = this._head;
+    let node = this._head;
 
     if (exists) { return !!node; }
 
-    var ee = [];
+    const ee = [];
 
     while (node) {
       ee.push(node);
@@ -62,7 +82,7 @@ export class MiniSignal {
   * @api public
   */
   dispatch() {
-    var node = this._head;
+    let node = this._head;
 
     if (!node) { return false; }
 
@@ -86,8 +106,7 @@ export class MiniSignal {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#add(): First arg must be a Function.' );
     }
-    var node = new MiniSignalBinding(fn);
-    return this._addMiniSignalBinding(node);
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn));
   }
 
   /**
@@ -101,29 +120,7 @@ export class MiniSignal {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#once(): First arg must be a Function.' );
     }
-    var node = new MiniSignalBinding(fn, true);
-    return this._addMiniSignalBinding(node);
-  }
-
-  /**
-   * @private
-   */
-  _addMiniSignalBinding(node) {
-    if (!this._head) {
-      this._head = node;
-      this._tail = node;
-    } else {
-      this._tail._next = node;
-      node._prev = this._tail;
-      this._tail = node;
-    }
-
-    var self = this;
-    node.detach = (function() {
-      self.detach(this);
-    }).bind(node);
-
-    return node;
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true));
   }
 
   /**
@@ -152,7 +149,6 @@ export class MiniSignal {
       node._next._prev = node._prev;
     }
     node._fn = null;
-    node._context = null;
     return this;
   }
 
@@ -163,9 +159,6 @@ export class MiniSignal {
   * @api public
   */
   detachAll() {
-    var node = this._head;
-    if (!node) { return this; }
-
     this._head = this._tail = null;
     return this;
   }

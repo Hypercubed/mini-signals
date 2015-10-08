@@ -1,9 +1,9 @@
+var MiniSignal = require('../src/'),
+  MiniSignalBinding = MiniSignal.MiniSignalBinding,
+  assume = require('assume');
+
 describe('MiniSignalsBinding', function tests() {
   'use strict';
-
-  var MiniSignal = require('../src/mini-signals').MiniSignal,
-    //MiniSignalBinding = require('../src/mini-signals').MiniSignalBinding,
-    assume = require('assume');
 
   describe('MiniSignalsBinding#detach', function () {
 

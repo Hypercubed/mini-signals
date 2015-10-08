@@ -1,11 +1,11 @@
 /*jshint -W040 */
 
+var MiniSignal = require('../'),
+  MiniSignalBinding = MiniSignal.MiniSignalBinding,
+  assume = require('assume');
+
 describe('MiniSignal', function tests() {
   'use strict';
-
-  var MiniSignal = require('../').MiniSignal,
-    MiniSignalBinding = require('../').MiniSignalBinding,
-    assume = require('assume');
 
   describe('CommonJS', function () {
 

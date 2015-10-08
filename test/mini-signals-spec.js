@@ -1,12 +1,12 @@
 /*jshint -W040 */
 
+var MiniSignal = require('../src/'),
+  MiniSignalBinding = MiniSignal.MiniSignalBinding,
+  assume = require('assume'),
+  assert = require('assert');
+
 describe('MiniSignal', function tests() {
   'use strict';
-
-  var MiniSignal = require('../src/mini-signals').MiniSignal,
-    MiniSignalBinding = require('../src/mini-signals').MiniSignalBinding,
-    assume = require('assume'),
-    assert = require('assert');
 
   it('inherits when used with require(util).inherits', function () {
     function Beast() {
