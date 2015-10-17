@@ -9,10 +9,11 @@ export class MiniSignalBinding {
   * @param {Boolean} [once=false] Should this listener be removed after dispatch
   * @api private
   */
-  constructor(fn, once = false) {
+  constructor(fn, once = false, ctx = null) {
     this._fn = fn;
     this._next = this._prev = null;
     this._once = once;
+    this._ctx = ctx;
   }
 }
 
@@ -87,7 +88,7 @@ export class MiniSignal {
     if (!node) { return false; }
 
     while (node) {
-      node._fn.apply(this, arguments);
+      node._fn.apply(node._ctx, arguments);
       if (node._once) { this.detach(node); }
       node = node._next;
     }
@@ -102,11 +103,11 @@ export class MiniSignal {
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  add(fn) {
+  add(fn, ctx) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#add(): First arg must be a Function.' );
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, ctx));
   }
 
   /**
@@ -116,11 +117,11 @@ export class MiniSignal {
    * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
    * @api public
    */
-  once(fn) {
+  once(fn, ctx) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#once(): First arg must be a Function.' );
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, ctx));
   }
 
   /**

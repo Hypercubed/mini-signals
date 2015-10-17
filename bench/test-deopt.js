@@ -4,7 +4,7 @@ var assert = require('assert');
 var myObject = new MyObject();
 
 myObject.started.add(startedDispatch);
-myObject.started.add(startedDispatch2);
+myObject.started.add(startedDispatch2, myObject);
 
 startedDispatch2.$ = 'Causes Bad value context for arguments value';
 
