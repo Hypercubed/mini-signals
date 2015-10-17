@@ -5,9 +5,10 @@
 */
 var EventEmitter3 = require('eventemitter3'),
   EventEmitter1 = require('events').EventEmitter,
-  MiniSignal = require('../index'),
+  MiniSignal = require('../src/index'),
   MiniSignal_0_0_1 = require('./mini-signals@0.0.1'),
   MiniSignal_0_0_2 = require('./mini-signals@0.0.2'),
+  MiniSignal_1_0_1 = require('./mini-signals@1.0.1'),
   Signal = require('signals');
 
 /**
@@ -18,6 +19,7 @@ var ee1 = new EventEmitter1(),
   miniSignal = new MiniSignal(),
   miniSignal_0_0_1 = new MiniSignal_0_0_1(),
   miniSignal_0_0_2 = new MiniSignal_0_0_2(),
+  miniSignal_1_0_1 = new MiniSignal_1_0_1(),
   signal = new Signal();
 
 
@@ -38,7 +40,7 @@ signal.add(handle); signal.add(handle2);
 miniSignal.add(handle); miniSignal.add(handle2);
 miniSignal_0_0_1.add(handle); miniSignal_0_0_1.add(handle2);
 miniSignal_0_0_2.add(handle); miniSignal_0_0_2.add(handle2);
-
+miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
 
 require('./suite')('emit')
   .add('Node EventEmitter', function() {
@@ -76,5 +78,11 @@ require('./suite')('emit')
     miniSignal_0_0_2.dispatch('bar');
     miniSignal_0_0_2.dispatch('bar', 'baz');
     miniSignal_0_0_2.dispatch('bar', 'baz', 'boom');
+  })
+  .add('\\@1.0.1', function() {
+    miniSignal_1_0_1.dispatch();
+    miniSignal_1_0_1.dispatch('bar');
+    miniSignal_1_0_1.dispatch('bar', 'baz');
+    miniSignal_1_0_1.dispatch('bar', 'baz', 'boom');
   })
   .run();

@@ -2,8 +2,9 @@
 
 _\( managed using [todo-md](https://github.com/Hypercubed/todo-md) \)_
 
-- [-] Fix issue with jspm (temp fix to use UMD)
-- [x] .add should throw an error if fn is not a function
-- [ ] throw an error or warning in `dispatch` if `!(this instanceOf MiniSignal)`?  Test this.
-- [x] jsdocs?
-- [x] eslint?
+- [-] Fix issue with jspm (temp fix to use CJS)
+- [x] throw an error or warning in `dispatch` if `!(this instanceOf MiniSignal)`?
+  - [ ] Test this.
+- [ ] MiniSignal#detach should ensure that the node is attached that instance.
+- [ ] Error if `detach` is called after `detachAll`. #5
+- [ ] "Not optimized: Bad value context for arguments value" #6
