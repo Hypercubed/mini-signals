@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run mocha",
     "test:fast": "mocha --compilers js:babel/register ./test/mini-signals-spec.js",
-    "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\"",
+    "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep -s \"disabled optimization\" || true",
     "lint": "eslint src/mini-signals.js",
     "build": "npm run rollup && npm run browserify && npm run uglify && npm run jsdoc2md",
     "rollup": "rollup ./src/index.js | babel -o ./lib/mini-signals.js --no-comments",
