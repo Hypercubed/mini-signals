@@ -9,12 +9,13 @@ export class MiniSignalBinding {
   * @param {Boolean} [once=false] Should this listener be removed after dispatch
   * @api private
   */
-  constructor(fn, once = false, ctx = null) {
+  constructor(fn, once = false, thisArg) {
     this._fn = fn;
     this._next = this._prev = null;
     this._once = once;
-    this._ctx = ctx;
+    this._thisArg = thisArg;
   }
+
 }
 
 /**
@@ -88,7 +89,7 @@ export class MiniSignal {
     if (!node) { return false; }
 
     while (node) {
-      node._fn.apply(node._ctx, arguments);
+      node._fn.apply(node._thisArg, arguments);
       if (node._once) { this.detach(node); }
       node = node._next;
     }
@@ -100,28 +101,30 @@ export class MiniSignal {
   * Register a new listener.
   *
   * @param {Function} fn Callback function.
+  * @param {Mixed} thisArg The context of the callback function.
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  add(fn, ctx) {
+  add(fn, thisArg) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#add(): First arg must be a Function.' );
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, ctx));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, thisArg));
   }
 
   /**
-   * Register a new listener that will be executed only once.
-   *
-   * @param {Function} fn Callback function.
-   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
-   * @api public
-   */
-  once(fn, ctx) {
+  * Register a new listener that will be executed only once.
+  *
+  * @param {Function} fn Callback function.
+  * @param {Mixed} thisArg The context of the callback function.
+  * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
+  * @api public
+  */
+  once(fn, thisArg) {
     if (typeof fn !== 'function') {
       throw new Error( 'MiniSignal#once(): First arg must be a Function.' );
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, ctx));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, thisArg));
   }
 
   /**

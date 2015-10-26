@@ -9,16 +9,15 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var MiniSignalBinding = function MiniSignalBinding(fn) {
-  var once = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-  var ctx = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+var MiniSignalBinding = function MiniSignalBinding(fn, once, thisArg) {
+  if (once === undefined) once = false;
 
   _classCallCheck(this, MiniSignalBinding);
 
   this._fn = fn;
   this._next = this._prev = null;
   this._once = once;
-  this._ctx = ctx;
+  this._thisArg = thisArg;
 };
 
 function _addMiniSignalBinding(self, node) {
@@ -75,7 +74,7 @@ var MiniSignal = (function () {
       }
 
       while (node) {
-        node._fn.apply(node._ctx, arguments);
+        node._fn.apply(node._thisArg, arguments);
         if (node._once) {
           this.detach(node);
         }
@@ -86,19 +85,19 @@ var MiniSignal = (function () {
     }
   }, {
     key: 'add',
-    value: function add(fn, ctx) {
+    value: function add(fn, thisArg) {
       if (typeof fn !== 'function') {
         throw new Error('MiniSignal#add(): First arg must be a Function.');
       }
-      return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, ctx));
+      return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, thisArg));
     }
   }, {
     key: 'once',
-    value: function once(fn, ctx) {
+    value: function once(fn, thisArg) {
       if (typeof fn !== 'function') {
         throw new Error('MiniSignal#once(): First arg must be a Function.');
       }
-      return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, ctx));
+      return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, thisArg));
     }
   }, {
     key: 'detach',

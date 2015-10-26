@@ -80,7 +80,7 @@ describe('MiniSignal', function tests() {
       assume(e.dispatch('bar')).equals(false);
     });
 
-    it('emits with context', function () {
+    it('emits with context when function is bound function', function () {
       e.add((function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
@@ -90,14 +90,14 @@ describe('MiniSignal', function tests() {
       e.dispatch('bar');
     });
 
-    it('emits with context, multiple arguments (force apply)', function () {
-      e.add((function (bar) {
+    it('emits with context when context is specified', function () {
+      e.add(function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
-        assume(arguments).has.length(11);
-      }).bind(context));
+        assume(arguments).has.length(1);
+      }, context);
 
-      e.dispatch('bar', 1,2,3,4,5,6,7,8,9,0);
+      e.dispatch('bar');
     });
 
     it('can dispatch the function with multiple arguments', function () {
@@ -174,21 +174,21 @@ describe('MiniSignal', function tests() {
       e.add((function (bar) {
         assume(this).eqls({ foo: 'bar' });
         assume(bar).equals('bar');
-      }).bind({ foo: 'bar' }));
+      }), { foo: 'bar' });
 
       e.add((function (bar) {
         assume(this).eqls({ bar: 'baz' });
         assume(bar).equals('bar');
-      }).bind({ bar: 'baz' }));
+      }), { bar: 'baz' });
 
       e.dispatch('bar');
     });
 
     it('emits with different contexts', function () {
-      e.add(writer.bind('foo'));
-      e.add(writer.bind('baz'));
-      e.add(writer.bind('bar'));
-      e.add(writer.bind('banana'));
+      e.add(writer,'foo');
+      e.add(writer,'baz');
+      e.add(writer,'bar');
+      e.add(writer,'banana');
 
       e.dispatch();
       assume(pattern).equals('foobazbarbanana');
@@ -568,7 +568,7 @@ describe('MiniSignal', function tests() {
         updated: new MiniSignal()
       };
 
-      myObject.updated.add(onUpdated.bind(myObject));   //add listener with context
+      myObject.updated.add(onUpdated, myObject);   //add listener with context
 
       myObject.foo = 'baz';
       myObject.updated.dispatch();                 //dispatch signal

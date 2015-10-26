@@ -28,8 +28,8 @@ MiniSignalBinding constructor.
   * [new MiniSignal()](#new_MiniSignal_new)
   * [.handlers([exists])](#MiniSignal+handlers) ⇒ <code>[Array.&lt;MiniSignalBinding&gt;](#MiniSignalBinding)</code> &#124; <code>Boolean</code>
   * [.dispatch()](#MiniSignal+dispatch) ⇒ <code>Boolean</code>
-  * [.add(fn)](#MiniSignal+add) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
-  * [.once(fn)](#MiniSignal+once) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+  * [.add(fn, thisArg)](#MiniSignal+add) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+  * [.once(fn, thisArg)](#MiniSignal+once) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
   * [.detach(node)](#MiniSignal+detach) ⇒ <code>[MiniSignal](#MiniSignal)</code>
   * [.detachAll()](#MiniSignal+detachAll) ⇒ <code>[MiniSignal](#MiniSignal)</code>
 
@@ -64,7 +64,7 @@ Dispaches a signal to all registered listeners.
 **Returns**: <code>Boolean</code> - Indication if we've emitted an event.  
 **Api**: public  
 <a name="MiniSignal+add"></a>
-### miniSignal.add(fn) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+### miniSignal.add(fn, thisArg) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
 Register a new listener.
 
 **Kind**: instance method of <code>[MiniSignal](#MiniSignal)</code>  
@@ -74,9 +74,10 @@ Register a new listener.
 | Param | Type | Description |
 | --- | --- | --- |
 | fn | <code>function</code> | Callback function. |
+| thisArg | <code>Mixed</code> | The context of the callback function. |
 
 <a name="MiniSignal+once"></a>
-### miniSignal.once(fn) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+### miniSignal.once(fn, thisArg) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
 Register a new listener that will be executed only once.
 
 **Kind**: instance method of <code>[MiniSignal](#MiniSignal)</code>  
@@ -86,6 +87,7 @@ Register a new listener that will be executed only once.
 | Param | Type | Description |
 | --- | --- | --- |
 | fn | <code>function</code> | Callback function. |
+| thisArg | <code>Mixed</code> | The context of the callback function. |
 
 <a name="MiniSignal+detach"></a>
 ### miniSignal.detach(node) ⇒ <code>[MiniSignal](#MiniSignal)</code>

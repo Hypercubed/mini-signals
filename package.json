@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "1.0.2",
+  "version": "1.1.0-pre",
   "description": "signals, in JavaScript, fast",
   "main": "lib/mini-signals.js",
   "jsnext:main": "src/mini-signals.js",
@@ -15,9 +15,10 @@
     "uglify": "uglifyjs browser.js -o browser.min.js",
     "coverage": "istanbul cover -- ./node_modules/mocha/bin/_mocha --compilers js:babel/register ./test/mini-signals-*.js",
     "mocha": "mocha --compilers js:babel/register",
-    "bench": "babel-node ./bench/emit.js",
+    "bench": "babel-node ./bench/emit.js && babel-node ./bench/emit-context.js",
     "_prepublish": "npm run build && npm test",
-    "jsdoc2md": "jsdoc-parse ./src/mini-signals.js | dmd > API.md"
+    "jsdoc2md": "jsdoc-parse ./src/mini-signals.js | dmd > API.md",
+    "version": "chg release -y && git add -A CHANGELOG.md"
   },
   "repository": {
     "type": "git",
