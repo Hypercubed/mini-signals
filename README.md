@@ -20,7 +20,7 @@ npm install mini-signals
 ### jspm:
 
 ```
-jspm install mini-signals=github:Hypercubed/mini-signals
+jspm install mini-signals=npm:mini-signals
 ```
 
 ### bower:
