@@ -66,7 +66,7 @@ export class MiniSignal {
   handlers(exists = false) {
     let node = this._head;
 
-    if (exists) { return !!node; }
+    if (exists) return !!node;
 
     const ee = [];
 
@@ -87,7 +87,7 @@ export class MiniSignal {
   dispatch() {
     let node = this._head;
 
-    if (!node) { return false; }
+    if (!node) return false;
 
     while (node) {
       node._fn.apply(node._thisArg, arguments);
@@ -102,7 +102,7 @@ export class MiniSignal {
   * Register a new listener.
   *
   * @param {Function} fn Callback function.
-  * @param {Mixed} thisArg The context of the callback function.
+  * @param {Mixed} [thisArg] The context of the callback function.
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
@@ -117,7 +117,7 @@ export class MiniSignal {
   * Register a new listener that will be executed only once.
   *
   * @param {Function} fn Callback function.
-  * @param {Mixed} thisArg The context of the callback function.
+  * @param {Mixed} [thisArg] The context of the callback function.
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */

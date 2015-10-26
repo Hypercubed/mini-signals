@@ -46,7 +46,7 @@ miniSignal_0_0_1.add(handle.bind(ctx)); miniSignal_0_0_1.add(handle2);
 miniSignal_0_0_2.add(handle.bind(ctx)); miniSignal_0_0_2.add(handle2);
 miniSignal_1_0_1.add(handle.bind(ctx)); miniSignal_1_0_1.add(handle2);
 
-require('./suite')('emit')
+require('./suite')('emit-context')
   .add('Node EventEmitter', function() {
     ee1.emit('foo');
     ee1.emit('foo', 'bar');

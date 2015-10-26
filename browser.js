@@ -51,9 +51,7 @@ var MiniSignal = (function () {
 
       var node = this._head;
 
-      if (exists) {
-        return !!node;
-      }
+      if (exists) return !!node;
 
       var ee = [];
 
@@ -69,9 +67,7 @@ var MiniSignal = (function () {
     value: function dispatch() {
       var node = this._head;
 
-      if (!node) {
-        return false;
-      }
+      if (!node) return false;
 
       while (node) {
         node._fn.apply(node._thisArg, arguments);
