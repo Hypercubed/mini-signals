@@ -7,7 +7,7 @@ export class MiniSignalBinding {
   * @constructs MiniSignalBinding
   * @param {Function} fn Event handler to be called.
   * @param {Boolean} [once=false] Should this listener be removed after dispatch
-  * @param {Mixed} thisArg The context of the callback function.
+  * @param {Mixed} [thisArg] The context of the callback function.
   * @api private
   */
   constructor(fn, once = false, thisArg) {

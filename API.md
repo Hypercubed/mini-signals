@@ -10,7 +10,7 @@
 **Kind**: global class  
 **Api**: private  
 <a name="new_MiniSignalBinding_new"></a>
-### new MiniSignalBinding(fn, [once], thisArg)
+### new MiniSignalBinding(fn, [once], [thisArg])
 MiniSignalBinding constructor.
 
 
@@ -18,7 +18,7 @@ MiniSignalBinding constructor.
 | --- | --- | --- | --- |
 | fn | <code>function</code> |  | Event handler to be called. |
 | [once] | <code>Boolean</code> | <code>false</code> | Should this listener be removed after dispatch |
-| thisArg | <code>Mixed</code> |  | The context of the callback function. |
+| [thisArg] | <code>Mixed</code> |  | The context of the callback function. |
 
 <a name="MiniSignal"></a>
 ## MiniSignal
