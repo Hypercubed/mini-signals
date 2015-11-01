@@ -28,6 +28,7 @@ MiniSignalBinding constructor.
 * [MiniSignal](#MiniSignal)
   * [new MiniSignal()](#new_MiniSignal_new)
   * [.handlers([exists])](#MiniSignal+handlers) ⇒ <code>[Array.&lt;MiniSignalBinding&gt;](#MiniSignalBinding)</code> &#124; <code>Boolean</code>
+  * [.has(node)](#MiniSignal+has) ⇒ <code>Boolean</code>
   * [.dispatch()](#MiniSignal+dispatch) ⇒ <code>Boolean</code>
   * [.add(fn, [thisArg])](#MiniSignal+add) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
   * [.once(fn, [thisArg])](#MiniSignal+once) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
@@ -56,6 +57,18 @@ Return an array of attached MiniSignalBinding.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [exists] | <code>Boolean</code> | <code>false</code> | We only need to know if there are handlers. |
+
+<a name="MiniSignal+has"></a>
+### miniSignal.has(node) ⇒ <code>Boolean</code>
+Return true if node is a MiniSignalBinding attached to this MiniSignal
+
+**Kind**: instance method of <code>[MiniSignal](#MiniSignal)</code>  
+**Returns**: <code>Boolean</code> - True if node is attache to mini-signal  
+**Api**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| node | <code>[MiniSignalBinding](#MiniSignalBinding)</code> | Node to check. |
 
 <a name="MiniSignal+dispatch"></a>
 ### miniSignal.dispatch() ⇒ <code>Boolean</code>

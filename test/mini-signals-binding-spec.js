@@ -1,41 +1,41 @@
-var MiniSignal = require('../src/'),
-  MiniSignalBinding = MiniSignal.MiniSignalBinding,
-  assume = require('assume');
+/* global it, describe, beforeEach */
 
-describe('MiniSignalsBinding', function tests() {
+var MiniSignal = require('../src/');
+/* var MiniSignalBinding = MiniSignal.MiniSignalBinding; */
+var assume = require('assume');
+
+describe('MiniSignalsBinding', function () {
   'use strict';
 
   describe('MiniSignalsBinding#detach', function () {
-
     /* istanbul ignore next */
-    function foo() {
+    function foo () {
       pattern.push('foo');
     }
 
     /* istanbul ignore next */
-    function bar() {
+    function bar () {
       pattern.push('bar');
     }
 
     /* istanbul ignore next */
-    function a() {
+    function a () {
       pattern.push('a');
     }
 
     /* istanbul ignore next */
-    function b() {
+    function b () {
       pattern.push('b');
     }
 
     var e, pattern;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
       pattern = [];
     });
 
     it('should only remove the specific listener', function () {
-
       e.add(a);
       e.add(b);
       var _bar = e.add(bar);
@@ -49,11 +49,9 @@ describe('MiniSignalsBinding', function tests() {
       assume(e.handlers().length).equals(2);
       e.dispatch();
       assume(pattern.join(';')).eqls('a;b');
-
     });
 
     it('should remove from front', function () {
-
       var _bar = e.add(bar);
       e.add(a);
       e.add(b);
@@ -67,11 +65,9 @@ describe('MiniSignalsBinding', function tests() {
       assume(e.handlers().length).equals(2);
       e.dispatch();
       assume(pattern.join(';')).eqls('a;b');
-
     });
 
     it('should remove from middle', function () {
-
       e.add(a);
       var _bar = e.add(bar);
       e.add(b);
@@ -84,11 +80,9 @@ describe('MiniSignalsBinding', function tests() {
       _bar.detach();
       e.dispatch();
       assume(pattern.join(';')).eqls('a;b');
-
     });
 
     it('emits to all event listeners after removing', function () {
-
       e.add(a);
       var _foo = e.add(foo);
       e.add(b);
@@ -100,7 +94,6 @@ describe('MiniSignalsBinding', function tests() {
     });
 
     it('can remove previous node in dispatch', function () {
-
       var _foo = e.add(foo);
       e.add(foo2);
       e.add(a);
@@ -110,15 +103,13 @@ describe('MiniSignalsBinding', function tests() {
 
       assume(pattern.join(';')).equals('foo;foo2;a;foo2;a');
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         _foo.detach();
       }
-
     });
 
     it('can remove next node in dispatch', function () {
-
       e.add(a);
       e.add(foo2);
       var _foo = e.add(foo);
@@ -128,15 +119,13 @@ describe('MiniSignalsBinding', function tests() {
 
       assume(pattern.join(';')).equals('a;foo2;a;foo2');  // will remove node this dispatch (might be unexpected)
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         _foo.detach();
       }
-
     });
 
     it('can remove node in dispatch', function () {
-
       e.add(foo2);
       e.add(a);
       var _foo = e.add(foo);
@@ -146,14 +135,13 @@ describe('MiniSignalsBinding', function tests() {
 
       assume(pattern.join(';')).equals('foo2;a;foo2;a');  // will remove node this dispatch (might be unexpected)
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         _foo.detach();
       }
     });
 
     it('can remove current node in dispatch', function () {
-
       e.add(a);
       var _foo = e.add(foo2);
       e.add(b);
@@ -163,11 +151,10 @@ describe('MiniSignalsBinding', function tests() {
 
       assume(pattern.join(';')).equals('a;foo2;b;a;b');
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         _foo.detach();
       }
     });
   });
-
 });

@@ -9,16 +9,31 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var MiniSignalBinding = function MiniSignalBinding(fn, once, thisArg) {
-  if (once === undefined) once = false;
+var MiniSignalBinding = (function () {
+  function MiniSignalBinding(fn, once, thisArg) {
+    if (once === undefined) once = false;
 
-  _classCallCheck(this, MiniSignalBinding);
+    _classCallCheck(this, MiniSignalBinding);
 
-  this._fn = fn;
-  this._next = this._prev = null;
-  this._once = once;
-  this._thisArg = thisArg;
-};
+    this._fn = fn;
+    this._once = once;
+    this._thisArg = thisArg;
+    this._next = this._prev = this._owner = null;
+  }
+
+  _createClass(MiniSignalBinding, [{
+    key: 'detach',
+    value: function detach() {
+      if (this._owner === null) {
+        return false;
+      }
+      this._owner.detach(this);
+      return true;
+    }
+  }]);
+
+  return MiniSignalBinding;
+})();
 
 function _addMiniSignalBinding(self, node) {
   if (!self._head) {
@@ -30,9 +45,11 @@ function _addMiniSignalBinding(self, node) {
     self._tail = node;
   }
 
-  node.detach = (function () {
-    self.detach(this);
-  }).bind(node);
+  node._owner = self;
+
+  node.detach = function () {
+    self.detach(node);
+  };
 
   return node;
 }
@@ -61,6 +78,15 @@ var MiniSignal = (function () {
       }
 
       return ee;
+    }
+  }, {
+    key: 'has',
+    value: function has(node) {
+      if (!(node instanceof MiniSignalBinding)) {
+        throw new Error('MiniSignal#has(): First arg must be a MiniSignalBinding object.');
+      }
+
+      return node._owner === this;
     }
   }, {
     key: 'dispatch',
@@ -104,21 +130,24 @@ var MiniSignal = (function () {
       if (!node._fn) {
         return this;
       }
+      if (node._owner !== this) {
+        return this;
+      }
+
+      if (node._prev) node._prev._next = node._next;
+      if (node._next) node._next._prev = node._prev;
+
       if (node === this._head) {
         this._head = node._next;
-        if (!this._head) {
+        if (node._next === null) {
           this._tail = null;
-        } else {
-          this._head._prev = null;
         }
       } else if (node === this._tail) {
         this._tail = node._prev;
         this._tail._next = null;
-      } else {
-        node._prev._next = node._next;
-        node._next._prev = node._prev;
       }
-      node._fn = null;
+
+      node._fn = node._owner = null;
       return this;
     }
   }, {

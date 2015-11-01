@@ -1,21 +1,23 @@
-/*jshint -W040 */
+/* jshint -W040 */
+/* global it, describe, beforeEach */
 
-var MiniSignal = require('../src/'),
-  MiniSignalBinding = MiniSignal.MiniSignalBinding,
-  assume = require('assume'),
-  assert = require('assert');
+var MiniSignal = require('../src/');
+var MiniSignalBinding = MiniSignal.MiniSignalBinding;
+var assume = require('assume');
+var assert = require('assert');
 
-describe('MiniSignal', function tests() {
+describe('MiniSignal', function tests () {
   'use strict';
 
   it('inherits when used with require(util).inherits', function () {
-    function Beast() {
+    function Beast () {
       /* rawr, i'm a beast */
     }
 
     require('util').inherits(Beast, MiniSignal);
 
-    var moop = new Beast(), meap = new Beast();
+    var moop = new Beast();
+    var meap = new Beast();
 
     assume(moop).is.instanceOf(Beast);
     assume(moop).is.instanceOf(MiniSignal);
@@ -34,14 +36,14 @@ describe('MiniSignal', function tests() {
   describe('MiniSignal#once', function () {
     var e;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
     });
 
-    it('should return false when there are not events to dispatch', function () {
-      assume( function(){ e.once(); } ).throws( 'MiniSignal#once(): First arg must be a Function.' );
-      assume( function(){ e.once(123); } ).throws( 'MiniSignal#once(): First arg must be a Function.' );
-      assume( function(){ e.once(true); } ).throws( 'MiniSignal#once(): First arg must be a Function.' );
+    it('should throw error for incorrect types', function () {
+      assume(function () { e.once(); }).throws('MiniSignal#once(): First arg must be a Function.');
+      assume(function () { e.once(123); }).throws('MiniSignal#once(): First arg must be a Function.');
+      assume(function () { e.once(true); }).throws('MiniSignal#once(): First arg must be a Function.');
       assume(e.handlers().length).equals(0);
     });
   });
@@ -49,27 +51,26 @@ describe('MiniSignal', function tests() {
   describe('MiniSignal#add', function () {
     var e;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
     });
 
-    it('should return false when there are not events to dispatch', function () {
-      assume( function(){ e.add(); } ).throws( 'MiniSignal#add(): First arg must be a Function.' );
-      assume( function(){ e.add(123); } ).throws( 'MiniSignal#add(): First arg must be a Function.' );
-      assume( function(){ e.add(true); } ).throws( 'MiniSignal#add(): First arg must be a Function.' );
+    it('should throw error for incorrect types', function () {
+      assume(function () { e.add(); }).throws('MiniSignal#add(): First arg must be a Function.');
+      assume(function () { e.add(123); }).throws('MiniSignal#add(): First arg must be a Function.');
+      assume(function () { e.add(true); }).throws('MiniSignal#add(): First arg must be a Function.');
       assume(e.handlers().length).equals(0);
     });
   });
 
   describe('MiniSignal#dispatch', function () {
-
-    function writer() {
+    function writer () {
       pattern += this;
     }
 
     var e, context, pattern;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
       context = { bar: 'baz' };
       pattern = '';
@@ -81,11 +82,13 @@ describe('MiniSignal', function tests() {
     });
 
     it('emits with context when function is bound function', function () {
-      e.add((function (bar) {
+      var cb = function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
         assume(arguments).has.length(1);
-      }).bind(context));
+      }.bind(context);
+
+      e.add(cb);
 
       e.dispatch('bar');
     });
@@ -101,9 +104,9 @@ describe('MiniSignal', function tests() {
     });
 
     it('can dispatch the function with multiple arguments', function () {
-      for(var i = 0; i < 100; i++) {  /*jshint -W083 */
+      for (var i = 0; i < 100; i++) {  /* jshint -W083 */
         e = new MiniSignal();
-        /*jshint -W083 */
+        /* jshint -W083 */
         (function (j) {
           for (var i = 0, args = []; i < j; i++) {
             args.push(j);
@@ -115,15 +118,14 @@ describe('MiniSignal', function tests() {
 
           e.dispatch.apply(e, args);
         })(i);
-        /*jshint +W083 */
+        /* jshint +W083 */
       }
     });
 
     it('can dispatch the function with multiple arguments, multiple listeners', function () {
-
-      for(var i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         e = new MiniSignal();
-        /*jshint -W083 */
+        /* jshint -W083 */
         (function (j) {
           for (var i = 0, args = []; i < j; i++) {
             args.push(j);
@@ -147,48 +149,46 @@ describe('MiniSignal', function tests() {
 
           e.dispatch.apply(e, args);
         })(i);
-        /*jshint +W083 */
+        /* jshint +W083 */
       }
     });
 
     it('can dispatch many listeners', function () {
-
       var N = 10000;
       var sum = 0;
 
-      return function add(i) {
+      function add (i) {
         sum += i;
       }
 
-      for(var i = 0; i <= N; i++) {
-        e.add(add.bind(this,i));
+      for (var i = 0; i <= N; i++) {
+        e.add(add.bind(this, i));
       }
 
       e.dispatch();
 
-      assume(sum).equals(N*(N+1)/2);
-
+      assume(sum).equals(N * (N + 1) / 2);
     });
 
     it('emits with context, multiple listeners (force loop)', function () {
-      e.add((function (bar) {
+      e.add(function (bar) {
         assume(this).eqls({ foo: 'bar' });
         assume(bar).equals('bar');
-      }), { foo: 'bar' });
+      }, { foo: 'bar' });
 
-      e.add((function (bar) {
+      e.add(function (bar) {
         assume(this).eqls({ bar: 'baz' });
         assume(bar).equals('bar');
-      }), { bar: 'baz' });
+      }, { bar: 'baz' });
 
       e.dispatch('bar');
     });
 
     it('emits with different contexts', function () {
-      e.add(writer,'foo');
-      e.add(writer,'baz');
-      e.add(writer,'bar');
-      e.add(writer,'banana');
+      e.add(writer, 'foo');
+      e.add(writer, 'baz');
+      e.add(writer, 'bar');
+      e.add(writer, 'banana');
 
       e.dispatch();
       assume(pattern).equals('foobazbarbanana');
@@ -223,7 +223,8 @@ describe('MiniSignal', function tests() {
     });
 
     it('emits to all event listeners', function () {
-      var e = new MiniSignal(), pattern = [];
+      var e = new MiniSignal();
+      var pattern = [];
 
       e.add(function () {
         pattern.push('foo1');
@@ -239,17 +240,18 @@ describe('MiniSignal', function tests() {
     });
 
     it('emits to all event listeners', function () {
-      var e = new MiniSignal(), pattern = [];
+      var e = new MiniSignal();
+      var pattern = [];
 
-      function foo1() {
+      function foo1 () {
         pattern.push('foo1');
       }
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
       }
 
-      function foo3() {
+      function foo3 () {
         pattern.push('foo3');
       }
 
@@ -263,17 +265,18 @@ describe('MiniSignal', function tests() {
     });
 
     it('emits to all event listeners, removes once', function () {
-      var e = new MiniSignal(), pattern = [];
+      var e = new MiniSignal();
+      var pattern = [];
 
-      function foo1() {
+      function foo1 () {
         pattern.push('foo1');
       }
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
       }
 
-      function foo3() {
+      function foo3 () {
         pattern.push('foo3');
       }
 
@@ -286,13 +289,11 @@ describe('MiniSignal', function tests() {
 
       assume(pattern.join(';')).equals('foo1;foo2;foo3;foo1;foo3');
     });
-
   });
 
   describe('MiniSignal#handlers', function () {
-
     /* istanbul ignore next */
-    function foo() {}
+    function foo () {}
 
     it('returns an empty array if no handlers are added', function () {
       var e = new MiniSignal();
@@ -302,15 +303,15 @@ describe('MiniSignal', function tests() {
     });
 
     it('returns an array of MiniSignalBinding', function () {
-       var e = new MiniSignal();
+      var e = new MiniSignal();
 
-       e.add(foo);
-       e.add(foo);
-       assume(e.handlers()).is.a('array');
-       assume(e.handlers().length).equals(2);
-       e.handlers().forEach(function(h) {
-         assume(h).instanceOf(MiniSignalBinding);
-       });
+      e.add(foo);
+      e.add(foo);
+      assume(e.handlers()).is.a('array');
+      assume(e.handlers().length).equals(2);
+      e.handlers().forEach(function (h) {
+        assume(h).instanceOf(MiniSignalBinding);
+      });
     });
 
     it('is not vulnerable to modifications', function () {
@@ -323,7 +324,7 @@ describe('MiniSignal', function tests() {
 
       e.handlers().length = 0;
       assume(e.handlers().length).equals(2);
-      e.handlers().forEach(function(h) {
+      e.handlers().forEach(function (h) {
         assume(h).instanceOf(MiniSignalBinding);
       });
     });
@@ -347,90 +348,86 @@ describe('MiniSignal', function tests() {
   });
 
   describe('MiniSignal#detach', function () {
-
     /* istanbul ignore next */
-    function foo() {
+    function foo () {
       pattern.push('foo');
     }
 
     /* istanbul ignore next */
-    function bar() {
+    function bar () {
       pattern.push('bar');
     }
 
     /* istanbul ignore next */
-    function a() {
+    function a () {
       pattern.push('a');
     }
 
     /* istanbul ignore next */
-    function b() {
+    function b () {
       pattern.push('b');
     }
 
     var e, pattern;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
       pattern = [];
     });
 
     it('should throw an error if not a SignalBinding', function () {
-
-      var _bar = e.add(bar);
-
-      assume( function(){ e.detach(); } ).throws( 'MiniSignal#detach(): First arg must be a MiniSignalBinding object.' );
-      assume( function(){ e.detach(1); } ).throws( 'MiniSignal#detach(): First arg must be a MiniSignalBinding object.' );
-      assume( function(){ e.detach(bar); } ).throws( 'MiniSignal#detach(): First arg must be a MiniSignalBinding object.' );
+      assume(function () { e.detach(); }).throws('MiniSignal#detach(): First arg must be a MiniSignalBinding object.');
+      assume(function () { e.detach(1); }).throws('MiniSignal#detach(): First arg must be a MiniSignalBinding object.');
+      assume(function () { e.detach(bar); }).throws('MiniSignal#detach(): First arg must be a MiniSignalBinding object.');
     });
 
-    it('should only remove the event with the specified function', function () {
-
+    it('should only remove the event with the specified node', function () {
       e.add(a);
       e.add(b);
       var _bar = e.add(bar);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b','bar']);
+      e.dispatch();
+      assume(pattern.join(';')).equals('a;b;bar');
 
       e.detach(_bar);
       assume(e.handlers().length).equals(2);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
 
+      e.dispatch();
+      assume(pattern.join(';')).equals('a;b;bar;a;b');
     });
 
     it('should remove from front', function () {
-
       var _bar = e.add(bar);
       e.add(a);
       e.add(b);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['bar','a','b']);
+      e.dispatch();
+      assume(pattern.join(';')).equals('bar;a;b');
 
       e.detach(_bar);
       assume(e.handlers().length).equals(2);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
-
+      e.dispatch();
+      assume(pattern.join(';')).equals('bar;a;b;a;b');
     });
 
     it('should remove from middle', function () {
-
       e.add(a);
       var _bar = e.add(bar);
       e.add(b);
 
       assume(e.handlers().length).equals(3);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','bar','b']);
+      e.dispatch();
+      assume(pattern.join(';')).equals('a;bar;b');
 
       e.detach(_bar);
-      //assume(e.handlers().map(function(fn) { return fn.name; })).eqls(['a','b']);
       assume(e.handlers().length).equals(2);
-
+      e.dispatch();
+      assume(pattern.join(';')).equals('a;bar;b;a;b');
     });
 
     it('emits to all event listeners after removing', function () {
-
       e.add(a);
       var _foo = e.add(foo);
       e.add(b);
@@ -442,7 +439,6 @@ describe('MiniSignal', function tests() {
     });
 
     it('can remove previous node in dispatch', function () {
-
       var _foo = e.add(foo);
       e.add(foo2);
       e.add(a);
@@ -452,15 +448,13 @@ describe('MiniSignal', function tests() {
 
       assume(pattern.join(';')).equals('foo;foo2;a;foo2;a');
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         e.detach(_foo);
       }
-
     });
 
     it('can remove next node in dispatch', function () {
-
       e.add(a);
       e.add(foo2);
       var _foo = e.add(foo);
@@ -470,15 +464,13 @@ describe('MiniSignal', function tests() {
 
       assume(pattern.join(';')).equals('a;foo2;a;foo2');  // will remove node this dispatch (might be unexpected)
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         e.detach(_foo);
       }
-
     });
 
     it('can remove node in dispatch', function () {
-
       e.add(foo2);
       e.add(a);
       var _foo = e.add(foo);
@@ -488,14 +480,13 @@ describe('MiniSignal', function tests() {
 
       assume(pattern.join(';')).equals('foo2;a;foo2;a');  // will remove node this dispatch (might be unexpected)
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         e.detach(_foo);
       }
     });
 
     it('can remove current node in dispatch', function () {
-
       e.add(a);
       var _foo = e.add(foo2);
       e.add(b);
@@ -505,25 +496,33 @@ describe('MiniSignal', function tests() {
 
       assume(pattern.join(';')).equals('a;foo2;b;a;b');
 
-      function foo2() {
+      function foo2 () {
         pattern.push('foo2');
         e.detach(_foo);
       }
+    });
+
+    it('can only detach from same signal', function () {
+      var e2 = new MiniSignal();
+
+      var binding = e.add(foo);
+      e2.detach(binding);
+      assume(binding._owner === e);
+      assume(e.handlers(true));
     });
   });
 
   describe('MiniSignal#detachAll', function () {
     /* istanbul ignore next */
-    function oops() { throw new Error('oops'); }
+    function oops () { throw new Error('oops'); }
 
     var e;
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
     });
 
     it('removes all events', function () {
-
       e.add(oops);
       e.add(oops);
       e.add(oops);
@@ -537,77 +536,109 @@ describe('MiniSignal', function tests() {
       assume(e.dispatch()).equals(false);
     });
 
-    it('should not thow an error if no listerners are set', function () {
+    it('should not throw an error if no listerners are set', function () {
       assume(e.detachAll()).equals(e);
       assume(e.handlers().length).equals(0);
 
       assume(e.dispatch()).equals(false);
     });
 
+    it('Should not throw error when calling detach after detachAll', function () {
+      var binding = e.add(onSignal);
+      e.detachAll();
+      binding.detach();
+
+      function onSignal (foo, bar) {
+        assert(foo === 'foo');
+        assert(bar === 'bar');
+      }
+    });
+  });
+
+  describe('MiniSignal#has', function () {
+    /* istanbul ignore next */
+    function oops () { throw new Error('oops'); }
+
+    var e;
+
+    beforeEach(function () {
+      e = new MiniSignal();
+    });
+
+    it('has returns true if bound', function () {
+      var binding = e.add(oops);
+      assert(e.has(binding));
+    });
+
+    it('has returns false if bound to another signal', function () {
+      var e2 = new MiniSignal();
+      var binding = e2.add(oops);
+      assert(e.has(binding) === false);
+    });
+
+    it('should throw error for incorrect types', function () {
+      assume(function () { e.has({}); }).throws('MiniSignal#has(): First arg must be a MiniSignalBinding object.');
+    });
   });
 
   describe('Readme Examples', function () {
-
     it('Example Usage', function () {
       var mySignal = new MiniSignal();
 
-      var binding = mySignal.add(onSignal);   //add listener
-      mySignal.dispatch('foo', 'bar');        //dispatch signal passing custom parameters
-      binding.detach();                       //remove a single listener
+      var binding = mySignal.add(onSignal);   // add listener
+      mySignal.dispatch('foo', 'bar');        // dispatch signal passing custom parameters
+      binding.detach();                       // remove a single listener
 
-      function onSignal(foo, bar) {
+      function onSignal (foo, bar) {
         assert(foo === 'foo');
         assert(bar === 'bar');
       }
     });
 
     it('Another Example', function () {
-
       var myObject = {
         foo: 'bar',
         updated: new MiniSignal()
       };
 
-      myObject.updated.add(onUpdated, myObject);   //add listener with context
+      myObject.updated.add(onUpdated, myObject);   // add listener with context
 
       myObject.foo = 'baz';
-      myObject.updated.dispatch();                 //dispatch signal
+      myObject.updated.dispatch();                 // dispatch signal
 
-      function onUpdated() {
+      function onUpdated () {
         assert(this === myObject);
         assert(this.foo === 'baz');
       }
-
     });
 
     it('Function#bind example', function () {
-
       var mySignal = new MiniSignal();
+      var context = {};
 
-      mySignal.add((function (bar) {
+      var cb = function (bar) {
         assume(arguments).has.length(1);
         assume(bar).equals('bar');
         assume(this).equals(context);
-      }).bind(context));
+      }.bind(context);
+
+      mySignal.add(cb);
 
       mySignal.dispatch('bar');
-
     });
 
     it('Function#bind example with parameters', function () {
-
       var mySignal = new MiniSignal();
-
-      mySignal.add((function (bar) {
+      var context = {};
+      var cb = function (bar) {
         assume(arguments).has.length(1);
         assume(bar).equals('bar');
         assume(this).equals(context);
-      }).bind(context, 'bar'));
+      }.bind(context, 'bar');
+
+      mySignal.add(cb);
 
       mySignal.dispatch();
-
     });
-
   });
-
 });

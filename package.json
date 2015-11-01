@@ -8,7 +8,8 @@
     "test": "npm run mocha",
     "test:fast": "mocha --compilers js:babel/register ./test/mini-signals-spec.js",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
-    "lint": "eslint src/mini-signals.js",
+    "lint": "semistandard src/*.js test/*.js",
+    "check": "npm run lint",
     "build": "npm run rollup && npm run browserify && npm run uglify && npm run jsdoc2md",
     "rollup": "rollup ./src/index.js | babel -o ./lib/mini-signals.js --no-comments",
     "browserify": "browserify ./lib/mini-signals.js -o browser.js -s MiniSignal",
@@ -41,12 +42,12 @@
     "benchmark": "^1.0.0",
     "browserify": "^11.2.0",
     "dmd": "^1.2.0",
-    "eslint": "^1.5.0",
     "eventemitter3": "^1.1.1",
     "istanbul": "^0.3.19",
     "jsdoc-parse": "^1.1.0",
     "mocha": "^2.2.5",
     "rollup": "^0.16.4",
+    "semistandard": "^7.0.2",
     "signals": "^1.0.0",
     "uglifyjs": "^2.4.10"
   }

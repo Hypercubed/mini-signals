@@ -1,24 +1,24 @@
-/*jshint -W040 */
+/* jshint -W040 */
+/* global it, describe, beforeEach */
 
-var MiniSignal = require('../'),
-  MiniSignalBinding = MiniSignal.MiniSignalBinding,
-  assume = require('assume');
+var MiniSignal = require('../');
+var MiniSignalBinding = MiniSignal.MiniSignalBinding;
+var assume = require('assume');
 
-describe('MiniSignal', function tests() {
+describe('MiniSignal', function () {
   'use strict';
 
   describe('CommonJS', function () {
-
-    //function writer() {
+    // function writer() {
     //  pattern += this;
-    //}
+    // }
 
-    var e, context, pattern;
+    var e, context; /* , pattern; */
 
-    beforeEach(function() {
+    beforeEach(function () {
       e = new MiniSignal();
       context = { bar: 'baz' };
-      pattern = '';
+      // pattern = '';
     });
 
     it('should expose MiniSignal and MiniSignalBinding', function () {
@@ -27,15 +27,13 @@ describe('MiniSignal', function tests() {
     });
 
     it('emits with context', function () {
-      e.add((function (bar) {
+      e.add(function (bar) {
         assume(bar).equals('bar');
         assume(this).equals(context);
         assume(arguments).has.length(1);
-      }).bind(context));
+      }, context);
 
       e.dispatch('bar');
     });
-
   });
-
 });
