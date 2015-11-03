@@ -156,5 +156,20 @@ describe('MiniSignalsBinding', function () {
         _foo.detach();
       }
     });
+
+    it('can be called multiple times', function () {
+      var binding = e.add(foo);
+      assume(binding._owner === e);
+      binding.detach();
+      assume(binding._owner === null);
+      binding.detach();
+      binding.detach();
+    });
+
+    it('Should not throw error when calling detach after detachAll', function () {
+      var binding = e.add(foo);
+      e.detachAll();
+      binding.detach();
+    });
   });
 });

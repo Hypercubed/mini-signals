@@ -18,7 +18,7 @@ export class MiniSignalBinding {
   }
 
   detach () {
-    if (this._owner === null) { return false; }  // todo: or error?
+    if (this._owner === null) return false;
     this._owner.detach(this);
     return true;
   }
@@ -39,10 +39,6 @@ function _addMiniSignalBinding (self, node) {
   }
 
   node._owner = self;
-
-  node.detach = function () {
-    self.detach(node);
-  };
 
   return node;
 }
@@ -114,7 +110,7 @@ export class MiniSignal {
 
     while (node) {
       node._fn.apply(node._thisArg, arguments);
-      if (node._once) { this.detach(node); }
+      if (node._once) this.detach(node);
       node = node._next;
     }
 
@@ -129,7 +125,7 @@ export class MiniSignal {
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  add (fn, thisArg) {
+  add (fn, thisArg = null) {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
@@ -144,7 +140,7 @@ export class MiniSignal {
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  once (fn, thisArg) {
+  once (fn, thisArg = null) {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#once(): First arg must be a Function.');
     }
@@ -161,8 +157,7 @@ export class MiniSignal {
     if (!(node instanceof MiniSignalBinding)) {
       throw new Error('MiniSignal#detach(): First arg must be a MiniSignalBinding object.');
     }
-    if (!node._fn) { return this; }
-    if (node._owner !== this) { return this; }  // todo: or error?
+    if (node._owner !== this) return this;  // todo: or error?
 
     if (node._prev) node._prev._next = node._next;
     if (node._next) node._next._prev = node._prev;
@@ -177,7 +172,7 @@ export class MiniSignal {
       this._tail._next = null;
     }
 
-    node._fn = node._owner = null;
+    node._owner = null;
     return this;
   }
 
@@ -188,7 +183,15 @@ export class MiniSignal {
   * @api public
   */
   detachAll () {
+    let node = this._head;
+    if (!node) return this;
+
     this._head = this._tail = null;
+
+    while (node) {
+      node._owner = null;
+      node = node._next;
+    }
     return this;
   }
 }

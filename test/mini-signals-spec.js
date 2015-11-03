@@ -2,7 +2,6 @@
 /* global it, describe, beforeEach */
 
 var MiniSignal = require('../src/');
-var MiniSignalBinding = MiniSignal.MiniSignalBinding;
 var assume = require('assume');
 var assert = require('assert');
 
@@ -31,6 +30,36 @@ describe('MiniSignal', function tests () {
 
     meap.dispatch('rawr');
     meap.detachAll();
+  });
+
+  it('quick test', function () {
+    var pattern = [];
+    var e = new MiniSignal();
+
+    var foo = e.add(writer, 'foo');
+    e.add(writer, 'baz');
+    var bar = e.add(writer, 'bar');
+
+    assume(e instanceof MiniSignal);
+    assume(foo instanceof MiniSignal.MiniSignalBinding);
+
+    e.dispatch('banana');
+    e.dispatch('appple');
+
+    foo.detach();
+    bar.detach();
+
+    e.dispatch('pear');
+
+    e.detachAll();
+
+    e.dispatch('raspberry');
+
+    assume(pattern.join(';') === 'foo:banana;baz:banana;bar:banana;foo:appple;baz:appple;bar:appple;baz:pear');
+
+    function writer (a) {
+      pattern.push(this + ':' + a);
+    }
   });
 
   describe('MiniSignal#once', function () {
@@ -310,7 +339,7 @@ describe('MiniSignal', function tests () {
       assume(e.handlers()).is.a('array');
       assume(e.handlers().length).equals(2);
       e.handlers().forEach(function (h) {
-        assume(h).instanceOf(MiniSignalBinding);
+        assume(h).instanceOf(MiniSignal.MiniSignalBinding);
       });
     });
 
@@ -325,7 +354,7 @@ describe('MiniSignal', function tests () {
       e.handlers().length = 0;
       assume(e.handlers().length).equals(2);
       e.handlers().forEach(function (h) {
-        assume(h).instanceOf(MiniSignalBinding);
+        assume(h).instanceOf(MiniSignal.MiniSignalBinding);
       });
     });
 
@@ -510,6 +539,15 @@ describe('MiniSignal', function tests () {
       assume(binding._owner === e);
       assume(e.handlers(true));
     });
+
+    it('can be called multiple times', function () {
+      var binding = e.add(foo);
+      assume(binding._owner === e);
+      e.detach(binding);
+      assume(binding._owner === null);
+      e.detach(binding);
+      e.detach(binding);
+    });
   });
 
   describe('MiniSignal#detachAll', function () {
@@ -544,14 +582,9 @@ describe('MiniSignal', function tests () {
     });
 
     it('Should not throw error when calling detach after detachAll', function () {
-      var binding = e.add(onSignal);
+      var binding = e.add(oops);
       e.detachAll();
-      binding.detach();
-
-      function onSignal (foo, bar) {
-        assert(foo === 'foo');
-        assert(bar === 'bar');
-      }
+      e.detach(binding);
     });
   });
 
@@ -573,6 +606,20 @@ describe('MiniSignal', function tests () {
     it('has returns false if bound to another signal', function () {
       var e2 = new MiniSignal();
       var binding = e2.add(oops);
+      assert(e.has(binding) === false);
+    });
+
+    it('has returns false if detached', function () {
+      var binding = e.add(oops);
+      assert(e.has(binding));
+      binding.detach();
+      assert(e.has(binding) === false);
+    });
+
+    it('has returns false after detachAll', function () {
+      var binding = e.add(oops);
+      assert(e.has(binding));
+      e.detachAll();
       assert(e.has(binding) === false);
     });
 
