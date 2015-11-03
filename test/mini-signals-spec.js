@@ -24,7 +24,8 @@ describe('MiniSignal', function tests () {
     moop.handlers();
     meap.handlers();
 
-    moop.add(/* istanbul ignore next */ function () {
+    /* istanbul ignore next */
+    moop.add(function () {
       throw new Error('I should not dispatch');
     });
 

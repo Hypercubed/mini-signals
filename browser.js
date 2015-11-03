@@ -24,9 +24,7 @@ var MiniSignalBinding = (function () {
   _createClass(MiniSignalBinding, [{
     key: 'detach',
     value: function detach() {
-      if (this._owner === null) {
-        return false;
-      }
+      if (this._owner === null) return false;
       this._owner.detach(this);
       return true;
     }
@@ -46,10 +44,6 @@ function _addMiniSignalBinding(self, node) {
   }
 
   node._owner = self;
-
-  node.detach = function () {
-    self.detach(node);
-  };
 
   return node;
 }
@@ -97,9 +91,7 @@ var MiniSignal = (function () {
 
       while (node) {
         node._fn.apply(node._thisArg, arguments);
-        if (node._once) {
-          this.detach(node);
-        }
+        if (node._once) this.detach(node);
         node = node._next;
       }
 
@@ -107,7 +99,9 @@ var MiniSignal = (function () {
     }
   }, {
     key: 'add',
-    value: function add(fn, thisArg) {
+    value: function add(fn) {
+      var thisArg = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
       if (typeof fn !== 'function') {
         throw new Error('MiniSignal#add(): First arg must be a Function.');
       }
@@ -115,7 +109,9 @@ var MiniSignal = (function () {
     }
   }, {
     key: 'once',
-    value: function once(fn, thisArg) {
+    value: function once(fn) {
+      var thisArg = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
       if (typeof fn !== 'function') {
         throw new Error('MiniSignal#once(): First arg must be a Function.');
       }
@@ -127,12 +123,7 @@ var MiniSignal = (function () {
       if (!(node instanceof MiniSignalBinding)) {
         throw new Error('MiniSignal#detach(): First arg must be a MiniSignalBinding object.');
       }
-      if (!node._fn) {
-        return this;
-      }
-      if (node._owner !== this) {
-        return this;
-      }
+      if (node._owner !== this) return this;
 
       if (node._prev) node._prev._next = node._next;
       if (node._next) node._next._prev = node._prev;
@@ -147,13 +138,21 @@ var MiniSignal = (function () {
         this._tail._next = null;
       }
 
-      node._fn = node._owner = null;
+      node._owner = null;
       return this;
     }
   }, {
     key: 'detachAll',
     value: function detachAll() {
+      var node = this._head;
+      if (!node) return this;
+
       this._head = this._tail = null;
+
+      while (node) {
+        node._owner = null;
+        node = node._next;
+      }
       return this;
     }
   }]);
