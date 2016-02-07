@@ -66,6 +66,10 @@ function onUpdated() {
 }
 ```
 
+## API
+
+See [API.md](https://github.com/Hypercubed/mini-signals/blob/master/API.md)
+
 ## License
 
 Copyright (c) 2015 Jayson Harshbarger

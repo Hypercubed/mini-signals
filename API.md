@@ -1,10 +1,12 @@
 ## Classes
+
 <dl>
 <dt><a href="#MiniSignalBinding">MiniSignalBinding</a></dt>
 <dd></dd>
 <dt><a href="#MiniSignal">MiniSignal</a></dt>
 <dd></dd>
 </dl>
+
 <a name="MiniSignalBinding"></a>
 ## MiniSignalBinding
 **Kind**: global class  
@@ -26,14 +28,14 @@ MiniSignalBinding constructor.
 **Api**: public  
 
 * [MiniSignal](#MiniSignal)
-  * [new MiniSignal()](#new_MiniSignal_new)
-  * [.handlers([exists])](#MiniSignal+handlers) ⇒ <code>[Array.&lt;MiniSignalBinding&gt;](#MiniSignalBinding)</code> &#124; <code>Boolean</code>
-  * [.has(node)](#MiniSignal+has) ⇒ <code>Boolean</code>
-  * [.dispatch()](#MiniSignal+dispatch) ⇒ <code>Boolean</code>
-  * [.add(fn, [thisArg])](#MiniSignal+add) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
-  * [.once(fn, [thisArg])](#MiniSignal+once) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
-  * [.detach(node)](#MiniSignal+detach) ⇒ <code>[MiniSignal](#MiniSignal)</code>
-  * [.detachAll()](#MiniSignal+detachAll) ⇒ <code>[MiniSignal](#MiniSignal)</code>
+    * [new MiniSignal()](#new_MiniSignal_new)
+    * [.handlers([exists])](#MiniSignal+handlers) ⇒ <code>[Array.&lt;MiniSignalBinding&gt;](#MiniSignalBinding)</code> &#124; <code>Boolean</code>
+    * [.has(node)](#MiniSignal+has) ⇒ <code>Boolean</code>
+    * [.dispatch()](#MiniSignal+dispatch) ⇒ <code>Boolean</code>
+    * [.add(fn, [thisArg])](#MiniSignal+add) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+    * [.once(fn, [thisArg])](#MiniSignal+once) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
+    * [.detach(node)](#MiniSignal+detach) ⇒ <code>[MiniSignal](#MiniSignal)</code>
+    * [.detachAll()](#MiniSignal+detachAll) ⇒ <code>[MiniSignal](#MiniSignal)</code>
 
 <a name="new_MiniSignal_new"></a>
 ### new MiniSignal()

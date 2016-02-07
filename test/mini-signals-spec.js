@@ -64,10 +64,11 @@ describe('MiniSignal', function tests () {
   });
 
   describe('MiniSignal#once', function () {
-    var e;
+    var e, context;
 
     beforeEach(function () {
       e = new MiniSignal();
+      context = { bar: 'baz' };
     });
 
     it('should throw error for incorrect types', function () {
@@ -75,6 +76,19 @@ describe('MiniSignal', function tests () {
       assume(function () { e.once(123); }).throws('MiniSignal#once(): First arg must be a Function.');
       assume(function () { e.once(true); }).throws('MiniSignal#once(): First arg must be a Function.');
       assume(e.handlers().length).equals(0);
+    });
+
+    it('should not invoke twice', function () {
+      var cb = function (bar) {
+        assume(bar).equals('bar');
+        assume(this).equals(context);
+        assume(arguments).has.length(1);
+        e.dispatch('bar');
+      }.bind(context);
+
+      e.once(cb);
+
+      e.dispatch('bar');
     });
   });
 
