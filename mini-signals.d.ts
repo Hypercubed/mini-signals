@@ -10,8 +10,7 @@ declare module "mini-signals" {
         detachAll(): MiniSignal;
     }
     
-    class MiniSignalBinding {
-        constructor(fn: Function, once?: boolean, thisArg?: any);
+    interface MiniSignalBinding {
         detach(): void;
     }
     
