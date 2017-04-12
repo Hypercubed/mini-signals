@@ -4,6 +4,7 @@
   "description": "signals, in JavaScript, fast",
   "main": "lib/mini-signals.js",
   "jsnext:main": "src/mini-signals.js",
+  "types": "typings/mini-signals.d.ts",
   "scripts": {
     "test": "npm run mocha",
     "test:fast": "mocha --compilers js:babel/register ./test/mini-signals-spec.js",
