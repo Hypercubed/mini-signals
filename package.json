@@ -20,7 +20,8 @@
     "bench": "babel-node ./bench/emit.js && babel-node ./bench/emit-context.js",
     "_prepublish": "npm run build && npm test",
     "jsdoc2md": "jsdoc-parse ./src/mini-signals.js | dmd > API.md",
-    "version": "chg release -y && git add -A CHANGELOG.md"
+    "version": "chg release -y && git add -A CHANGELOG.md",
+    "np": "npm run build && np"
   },
   "repository": {
     "type": "git",
@@ -47,6 +48,7 @@
     "istanbul": "^0.3.19",
     "jsdoc-parse": "^1.1.0",
     "mocha": "^2.2.5",
+    "np": "^2.16.0",
     "rollup": "^0.16.4",
     "semistandard": "^7.0.5",
     "signals": "^1.0.0",
