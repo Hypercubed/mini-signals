@@ -8,10 +8,12 @@
 </dl>
 
 <a name="MiniSignalBinding"></a>
+
 ## MiniSignalBinding
 **Kind**: global class  
 **Api**: private  
 <a name="new_MiniSignalBinding_new"></a>
+
 ### new MiniSignalBinding(fn, [once], [thisArg])
 MiniSignalBinding constructor.
 
@@ -23,6 +25,7 @@ MiniSignalBinding constructor.
 | [thisArg] | <code>Mixed</code> |  | The context of the callback function. |
 
 <a name="MiniSignal"></a>
+
 ## MiniSignal
 **Kind**: global class  
 **Api**: public  
@@ -38,6 +41,7 @@ MiniSignalBinding constructor.
     * [.detachAll()](#MiniSignal+detachAll) ⇒ <code>[MiniSignal](#MiniSignal)</code>
 
 <a name="new_MiniSignal_new"></a>
+
 ### new MiniSignal()
 MiniSignal constructor.
 
@@ -49,6 +53,7 @@ mySignal.dispatch('foo', 'bar');
 mySignal.detach(binding);
 ```
 <a name="MiniSignal+handlers"></a>
+
 ### miniSignal.handlers([exists]) ⇒ <code>[Array.&lt;MiniSignalBinding&gt;](#MiniSignalBinding)</code> &#124; <code>Boolean</code>
 Return an array of attached MiniSignalBinding.
 
@@ -61,6 +66,7 @@ Return an array of attached MiniSignalBinding.
 | [exists] | <code>Boolean</code> | <code>false</code> | We only need to know if there are handlers. |
 
 <a name="MiniSignal+has"></a>
+
 ### miniSignal.has(node) ⇒ <code>Boolean</code>
 Return true if node is a MiniSignalBinding attached to this MiniSignal
 
@@ -73,6 +79,7 @@ Return true if node is a MiniSignalBinding attached to this MiniSignal
 | node | <code>[MiniSignalBinding](#MiniSignalBinding)</code> | Node to check. |
 
 <a name="MiniSignal+dispatch"></a>
+
 ### miniSignal.dispatch() ⇒ <code>Boolean</code>
 Dispaches a signal to all registered listeners.
 
@@ -80,6 +87,7 @@ Dispaches a signal to all registered listeners.
 **Returns**: <code>Boolean</code> - Indication if we've emitted an event.  
 **Api**: public  
 <a name="MiniSignal+add"></a>
+
 ### miniSignal.add(fn, [thisArg]) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
 Register a new listener.
 
@@ -87,12 +95,13 @@ Register a new listener.
 **Returns**: <code>[MiniSignalBinding](#MiniSignalBinding)</code> - The MiniSignalBinding node that was added.  
 **Api**: public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| fn | <code>function</code> | Callback function. |
-| [thisArg] | <code>Mixed</code> | The context of the callback function. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| fn | <code>function</code> |  | Callback function. |
+| [thisArg] | <code>Mixed</code> | <code></code> | The context of the callback function. |
 
 <a name="MiniSignal+once"></a>
+
 ### miniSignal.once(fn, [thisArg]) ⇒ <code>[MiniSignalBinding](#MiniSignalBinding)</code>
 Register a new listener that will be executed only once.
 
@@ -100,12 +109,13 @@ Register a new listener that will be executed only once.
 **Returns**: <code>[MiniSignalBinding](#MiniSignalBinding)</code> - The MiniSignalBinding node that was added.  
 **Api**: public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| fn | <code>function</code> | Callback function. |
-| [thisArg] | <code>Mixed</code> | The context of the callback function. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| fn | <code>function</code> |  | Callback function. |
+| [thisArg] | <code>Mixed</code> | <code></code> | The context of the callback function. |
 
 <a name="MiniSignal+detach"></a>
+
 ### miniSignal.detach(node) ⇒ <code>[MiniSignal](#MiniSignal)</code>
 Remove binding object.
 
@@ -118,6 +128,7 @@ Remove binding object.
 | node | <code>[MiniSignalBinding](#MiniSignalBinding)</code> | The binding node that will be removed. |
 
 <a name="MiniSignal+detachAll"></a>
+
 ### miniSignal.detachAll() ⇒ <code>[MiniSignal](#MiniSignal)</code>
 Detach all listeners.
 
