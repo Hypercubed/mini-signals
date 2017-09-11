@@ -1,17 +1,20 @@
-export interface MiniSignalBinding {
-	detach (): boolean;
-}
+declare module "mini-signals" {
+	namespace MiniSignal {
+		interface MiniSignalBinding {
+			detach(): boolean;
+		}
+	}
 
-export interface MiniSignal {
-	MiniSignalBinding: { new (): MiniSignalBinding };
-	new (): MiniSignal;
-	handlers (exists?: boolean): MiniSignalBinding[];
-	has (node: MiniSignalBinding): boolean;
-	dispatch (...args: any[]): boolean;
-	add (fn: Function, thisArg?: any): MiniSignalBinding;
-	once (fn: Function, thisArg?: any): MiniSignalBinding;
-	detach (node: MiniSignalBinding): this | null;
-	detachAll (): this | null;
-}
+	class MiniSignal {
+		constructor();
+		handlers(exists?: boolean): MiniSignal.MiniSignalBinding[] | boolean;
+		has(node: MiniSignal.MiniSignalBinding): boolean;
+		dispatch(...args: any[]): boolean;
+		add(fn: Function, thisArg?: any): MiniSignal.MiniSignalBinding;
+		once(fn: Function, thisArg?: any): MiniSignal.MiniSignalBinding;
+		detach(node: MiniSignal.MiniSignalBinding): MiniSignal;
+		detachAll(): MiniSignal;
+	}
 
-export default MiniSignal;
+	export = MiniSignal;
+}
