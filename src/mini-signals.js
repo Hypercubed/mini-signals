@@ -24,6 +24,10 @@ export class MiniSignalBinding {
     return true;
   }
 
+  execute (...arguments) {
+    this._fn.apply(node._thisArg, arguments);
+  }
+  
 }
 
 /**
