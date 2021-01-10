@@ -15,6 +15,7 @@ export class MiniSignalBinding {
     this._once = once;
     this._thisArg = thisArg;
     this._next = this._prev = this._owner = null;
+    this.active = true;
   }
 
   detach () {
@@ -58,6 +59,7 @@ export class MiniSignal {
   */
   constructor () {
     this._head = this._tail = undefined;
+    this.active = true;
   }
 
   /**
@@ -107,8 +109,10 @@ export class MiniSignal {
     let node = this._head;
 
     if (!node) return false;
-
+    if (!this.active) return false;
+    
     while (node) {
+      if (!node.active) continue;
       if (node._once) this.detach(node);
       node._fn.apply(node._thisArg, arguments);
       node = node._next;
