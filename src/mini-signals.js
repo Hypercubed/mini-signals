@@ -44,6 +44,7 @@ function _addMiniSignalBinding (self, node) {
   }
 
   node._owner = self;
+  node.version = self.version;
 
   return node;
 }
@@ -64,6 +65,7 @@ export class MiniSignal {
   constructor () {
     this._head = this._tail = undefined;
     this.active = true;
+    this.version = 0;
   }
 
   /**
@@ -114,8 +116,9 @@ export class MiniSignal {
 
     if (!node) return false;
     if (!this.active) return false;
+    this.version++;
     
-    while (node) {
+    while (node && node.version < this.version) {
       if (!node.active) {
         node = node._next;
         continue;
