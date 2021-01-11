@@ -116,7 +116,10 @@ export class MiniSignal {
     if (!this.active) return false;
     
     while (node) {
-      if (!node.active) continue;
+      if (!node.active) {
+        node = node._next;
+        continue;
+      }
       if (node._once) this.detach(node);
       node._fn.apply(node._thisArg, arguments);
       node = node._next;
