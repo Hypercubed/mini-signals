@@ -25,7 +25,7 @@ export class MiniSignalBinding {
   }
 
   execute (...args) {
-    this._fn.apply(node._thisArg, args);
+    this._fn.apply(this._thisArg, args);
   }
   
 }
