@@ -15,6 +15,7 @@ export class MiniSignalBinding {
     this._once = once;
     this._thisArg = thisArg;
     this._next = this._prev = this._owner = null;
+    this.active = true;
   }
 
   detach () {
@@ -23,15 +24,23 @@ export class MiniSignalBinding {
     return true;
   }
 
+  execute (...args) {
+    this._fn.apply(this._thisArg, args);
+  }
+  
 }
 
 /**
 * @private
 */
-function _addMiniSignalBinding (self, node) {
+function _addMiniSignalBinding (self, node, prepend) {
   if (!self._head) {
     self._head = node;
     self._tail = node;
+  } else if (prepend){
+    self._head._prev = node;
+    node._next = self._head;
+    self._head = node;
   } else {
     self._tail._next = node;
     node._prev = self._tail;
@@ -39,6 +48,7 @@ function _addMiniSignalBinding (self, node) {
   }
 
   node._owner = self;
+  node.version = self.version;
 
   return node;
 }
@@ -58,6 +68,8 @@ export class MiniSignal {
   */
   constructor () {
     this._head = this._tail = undefined;
+    this.active = true;
+    this.version = 0;
   }
 
   /**
@@ -107,8 +119,14 @@ export class MiniSignal {
     let node = this._head;
 
     if (!node) return false;
-
-    while (node) {
+    if (!this.active) return false;
+    this.version++;
+    
+    while (node && node.version < this.version) {
+      if (!node.active) {
+        node = node._next;
+        continue;
+      }
       if (node._once) this.detach(node);
       node._fn.apply(node._thisArg, arguments);
       node = node._next;
@@ -122,14 +140,15 @@ export class MiniSignal {
   *
   * @param {Function} fn Callback function.
   * @param {Mixed} [thisArg] The context of the callback function.
+  * @param {Boolean} [prepend] Whether to prepend the signalBinding to the start of the list.
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  add (fn, thisArg = null) {
+  add (fn, thisArg = null, prepend = null) {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, thisArg));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, false, thisArg), prepend);
   }
 
   /**
@@ -137,14 +156,15 @@ export class MiniSignal {
   *
   * @param {Function} fn Callback function.
   * @param {Mixed} [thisArg] The context of the callback function.
+  * @param {Boolean} [prepend] Whether to prepend the signalBinding to the start of the list.
   * @returns {MiniSignalBinding} The MiniSignalBinding node that was added.
   * @api public
   */
-  once (fn, thisArg = null) {
+  once (fn, thisArg = null, prepend = null) {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#once(): First arg must be a Function.');
     }
-    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, thisArg));
+    return _addMiniSignalBinding(this, new MiniSignalBinding(fn, true, thisArg), prepend);
   }
 
   /**
