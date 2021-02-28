@@ -13,19 +13,19 @@ There are several advantages to signals over event-emitters (see [Comparison bet
 
 ### npm:
 
-```
+```sh
 npm install mini-signals
 ```
 
 ### jspm:
 
-```
+```sh
 jspm install mini-signals=npm:mini-signals
 ```
 
 ### bower:
 
-```
+```sh
 bower install mini-signals
 ```
 
@@ -33,7 +33,7 @@ bower install mini-signals
 
 ***When not using a module loader the mini-signals constructor (`MiniSignal`) is global.***
 
-```
+```js
 var MiniSignal = require('mini-signals');
 var mySignal = new MiniSignal();
 
@@ -49,7 +49,7 @@ function onSignal(foo, bar) {
 
 ## Another Example
 
-```
+```js
 var myObject = {
   foo: 'bar',
   updated: new MiniSignal()
