@@ -39,19 +39,19 @@
   },
   "homepage": "https://github.com/Hypercubed/mini-signals",
   "devDependencies": {
-    "assume": "^1.4.1",
-    "babel": "^5.8.23",
-    "benchmark": "^1.0.0",
-    "browserify": "^11.2.0",
-    "dmd": "^1.2.0",
-    "eventemitter3": "^1.1.1",
-    "istanbul": "^0.3.19",
-    "jsdoc-parse": "^1.1.0",
-    "mocha": "^2.2.5",
-    "np": "^2.16.0",
-    "rollup": "^0.16.4",
-    "semistandard": "^7.0.5",
-    "signals": "^1.0.0",
-    "uglifyjs": "^2.4.10"
+    "assume": "1.5.2",
+    "babel": "5.8.38",
+    "benchmark": "1.0.0",
+    "browserify": "11.2.0",
+    "dmd": "1.4.2",
+    "eventemitter3": "1.2.0",
+    "istanbul": "0.3.22",
+    "jsdoc-parse": "1.2.7",
+    "mocha": "2.5.3",
+    "np": "2.20.1",
+    "rollup": "0.16.4",
+    "semistandard": "7.0.5",
+    "signals": "1.0.0",
+    "uglifyjs": "2.4.11"
   }
 }
