@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/Hypercubed/mini-signals",
   "devDependencies": {
-    "assume": "^1.4.1",
+    "assume": "^2.0.0",
     "babel": "^5.8.23",
     "benchmark": "^1.0.0",
     "browserify": "^11.2.0",
