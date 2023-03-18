@@ -47,7 +47,7 @@
     "eventemitter3": "^1.1.1",
     "istanbul": "^0.3.19",
     "jsdoc-parse": "^1.1.0",
-    "mocha": "^2.2.5",
+    "mocha": "^10.0.0",
     "np": "^2.16.0",
     "rollup": "^0.16.4",
     "semistandard": "^7.0.5",
