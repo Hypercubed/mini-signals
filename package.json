@@ -49,7 +49,7 @@
     "jsdoc-parse": "^1.1.0",
     "mocha": "^2.2.5",
     "np": "^2.16.0",
-    "rollup": "^0.16.4",
+    "rollup": "^0.68.0",
     "semistandard": "^7.0.5",
     "signals": "^1.0.0",
     "uglifyjs": "^2.4.10"
