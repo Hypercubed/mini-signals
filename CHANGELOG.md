@@ -1,10 +1,13 @@
 # CHANGELOG
 
 ## HEAD (Unreleased)
-
-- Added TS typings
+_(none)_
 
 ---
+
+## 2.0.0-rc1.1 (2023-03-25)
+
+- Added TS typings
 
 ## 1.1.1 (2016-02-07)
 
