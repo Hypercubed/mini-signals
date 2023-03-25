@@ -23,19 +23,18 @@ npm install mini-signals
 ## Example Usage
 
 ```ts
-import { MiniSignal } from "mini-signals";
+import { MiniSignal } from 'mini-signals';
 
-const mySignal = new MiniSignal<[string, string]>();
+const mySignal = new MiniSignal<[string, string]>();  // the type variable is optional and defines the parameters to be dispatched
 
-const binding = mySignal.add(onSignal); //add listener
+const binding = mySignal.add((foo: string, bar: string) => { // add listener, note the parameter types match the type variable in the constructor
+  console.log('signal dispatched');
+  assert(foo === 'foo');
+  assert(bar === 'bar');
+});
 
-mySignal.dispatch("foo", "bar"); // dispatch signal passing custom parameters
+mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
 binding.detach(); // remove a single listener
-
-function onSignal(foo: string, bar: string) {
-  assert(foo === "foo");
-  assert(bar === "bar");
-}
 ```
 
 ## Another Example
@@ -43,18 +42,17 @@ function onSignal(foo: string, bar: string) {
 ```ts
 const myObject = {
   foo: "bar",
-  updated: new MiniSignal<never>(),
+  updated: new MiniSignal<never, typeof myObject>() // in this case the type variable is never, since we are not passing any parameters
 };
 
-myObject.updated.add(onUpdated, myObject); //add listener with context
-
-myObject.foo = "baz";
-myObject.updated.dispatch(); //dispatch signal
-
-function onUpdated() {
+myObject.updated.add(() => {
+  console.log('signal dispatched');
   assert(this === myObject);
-  assert(this.foo === "baz");
-}
+  assert(this.foo === 'baz');
+}, myObject); // add listener with context
+
+myObject.foo = 'baz';
+myObject.updated.dispatch(); // dispatch signal
 ```
 
 ## API

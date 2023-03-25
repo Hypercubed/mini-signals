@@ -616,7 +616,7 @@ describe('MiniSignal', () => {
       throw new Error('oops');
     }
 
-    let e;
+    let e: MiniSignal;
 
     beforeEach(() => {
       e = new MiniSignal();
@@ -656,7 +656,7 @@ describe('MiniSignal', () => {
       throw new Error('oops');
     }
 
-    let e;
+    let e: MiniSignal;
 
     beforeEach(() => {
       e = new MiniSignal();
@@ -689,7 +689,7 @@ describe('MiniSignal', () => {
 
     it('should throw error for incorrect types', () => {
       expect(() => {
-        e.has({});
+        e.has({} as any);
       }).throws(
         'MiniSignal#has(): First arg must be a MiniSignalBinding object.'
       );
