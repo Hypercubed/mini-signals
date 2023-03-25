@@ -5,7 +5,7 @@
 */
 var EventEmitter3 = require('eventemitter3'),
   EventEmitter1 = require('events').EventEmitter,
-  MiniSignal = require('../src/index'),
+  {MiniSignal} = require('../src/index'),
   MiniSignal_0_0_1 = require('./mini-signals@0.0.1'),
   MiniSignal_0_0_2 = require('./mini-signals@0.0.2'),
   MiniSignal_1_0_1 = require('./mini-signals@1.0.1'),

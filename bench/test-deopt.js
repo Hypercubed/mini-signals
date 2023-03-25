@@ -1,4 +1,4 @@
-var MiniSignal = require('../lib/mini-signals');
+var { MiniSignal } = require('../dist/');
 var assert = require('assert');
 
 var myObject = new MyObject();

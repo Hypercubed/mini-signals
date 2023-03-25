@@ -1,8 +1,0 @@
-*
-!src/**
-!lib/**
-!typings/**
-!index.*
-!browser.*
-!README.md
-!package.json
