@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc1.0",
   "description": "signals, in TypeScript, fast",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -47,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "benchmark": "^1.0.0",
     "chai": "^4.3.7",
+    "chg": "^0.4.0",
     "dmd": "^1.2.0",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.8.0",
