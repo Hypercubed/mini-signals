@@ -54,7 +54,7 @@
 
 #### Defined in
 
-[mini-signals.ts:18](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L18)
+[mini-signals.ts:18](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L18)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:19](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L19)
+[mini-signals.ts:19](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L19)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:22](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L22)
+[mini-signals.ts:22](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L22)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:21](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L21)
+[mini-signals.ts:21](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L21)
 
 ## Methods
 
@@ -104,7 +104,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:132](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L132)
+[mini-signals.ts:132](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L132)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:101](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L101)
+[mini-signals.ts:101](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L101)
 
 ___
 
@@ -144,7 +144,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:107](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L107)
+[mini-signals.ts:107](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L107)
 
 ___
 
@@ -166,7 +166,7 @@ Register a new listener.
 
 #### Defined in
 
-[mini-signals.ts:53](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L53)
+[mini-signals.ts:53](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L53)
 
 ___
 
@@ -188,7 +188,7 @@ Remove binding object.
 
 #### Defined in
 
-[mini-signals.ts:66](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L66)
+[mini-signals.ts:66](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L66)
 
 ___
 
@@ -204,7 +204,7 @@ Detach all listeners.
 
 #### Defined in
 
-[mini-signals.ts:88](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L88)
+[mini-signals.ts:88](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L88)
 
 ___
 
@@ -226,7 +226,7 @@ Dispatches a signal to all registered listeners.
 
 #### Defined in
 
-[mini-signals.ts:31](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L31)
+[mini-signals.ts:31](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L31)
 
 ___
 
@@ -240,4 +240,4 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:24](https://github.com/Hypercubed/mini-signals/blob/d63c598/src/mini-signals.ts#L24)
+[mini-signals.ts:24](https://github.com/Hypercubed/mini-signals/blob/41f424e/src/mini-signals.ts#L24)
