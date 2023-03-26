@@ -1,5 +1,4 @@
 import { MiniSignal } from '../src/mini-signals';
-import { MiniSignalBinding } from '../src/mini-signals-binding';
 
 import { inherits } from 'node:util';
 import { expect } from 'chai';
@@ -19,9 +18,6 @@ describe('MiniSignal', () => {
     expect(moop).is.instanceOf(Beast);
     expect(moop).is.instanceOf(MiniSignal);
 
-    moop.handlers();
-    meap.handlers();
-
     /* istanbul ignore next */
     moop.add(() => {
       throw new Error('I should not dispatch');
@@ -40,13 +36,12 @@ describe('MiniSignal', () => {
     const bar = e.add(writer, 'bar');
 
     expect(e instanceof MiniSignal);
-    expect(foo instanceof MiniSignalBinding);
 
     e.dispatch('banana');
     e.dispatch('apple');
 
-    foo.detach();
-    bar.detach();
+    e.detach(foo);
+    e.detach(bar);
 
     e.dispatch('pear');
 
@@ -65,15 +60,9 @@ describe('MiniSignal', () => {
   });
 
   describe('MiniSignal#once', () => {
-    let e: MiniSignal;
-    let context: any;
-
-    beforeEach(() => {
-      e = new MiniSignal<[string]>();
-      context = { bar: 'baz' };
-    });
-
     it('should throw error for incorrect types', () => {
+      const e = new MiniSignal<[string]>();
+
       expect(() => {
         // @ts-expect-error testing error
         e.once();
@@ -87,18 +76,19 @@ describe('MiniSignal', () => {
         e.once(true);
       }).throws('MiniSignal#once(): First arg must be a Function.');
 
-      expect(e.handlers().length).equals(0);
+      expect(!e.hasListeners);
     });
 
     it('should not invoke twice', () => {
-      const cb = function (bar: string): void {
+      const e = new MiniSignal<[string]>();
+      const context = { bar: 'baz' };
+
+      e.once(function (bar: string) {
         expect(bar).equals('bar');
         expect(this).equals(context);
         expect(arguments).has.length(1);
         e.dispatch('bar');
-      }.bind(context);
-
-      e.once(cb);
+      }, context);
 
       e.dispatch('bar');
     });
@@ -124,7 +114,7 @@ describe('MiniSignal', () => {
         // @ts-expect-error testing error
         e.add(true);
       }).throws('MiniSignal#add(): First arg must be a Function.');
-      expect(e.handlers().length).equals(0);
+      expect(!e.hasListeners);
     });
   });
 
@@ -364,62 +354,6 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#handlers', () => {
-    /* istanbul ignore next */
-    function foo(): void {}
-
-    it('returns an empty array if no handlers are added', () => {
-      const e = new MiniSignal();
-
-      expect(e.handlers()).is.a('array');
-      expect((e.handlers() as any[]).length).equals(0);
-    });
-
-    it('returns an array of MiniSignalBinding', () => {
-      const e = new MiniSignal();
-
-      e.add(foo);
-      e.add(foo);
-      expect(e.handlers()).is.a('array');
-      expect((e.handlers() as any[]).length).equals(2);
-      (e.handlers() as any[]).forEach(function (h) {
-        expect(h).instanceOf(MiniSignalBinding);
-      });
-    });
-
-    it('is not vulnerable to modifications', () => {
-      const e = new MiniSignal();
-
-      e.add(foo);
-      e.add(foo);
-
-      expect((e.handlers() as any[]).length).equals(2);
-
-      (e.handlers() as any[]).length = 0;
-      expect((e.handlers() as any[]).length).equals(2);
-      (e.handlers() as any[]).forEach(function (h) {
-        expect(h).instanceOf(MiniSignalBinding);
-      });
-    });
-
-    it('can return a boolean as indication if handlers exist', () => {
-      const e = new MiniSignal();
-
-      e.add(foo);
-      e.add(foo);
-      e.add(foo);
-      e.add(foo);
-      e.add(foo);
-      e.add(foo);
-
-      expect(e.hasHandlers()).equals(true);
-
-      e.detachAll();
-
-      expect(e.hasHandlers()).equals(false);
-    });
-  });
-
   describe('MiniSignal#detach', () => {
     /* istanbul ignore next */
     function foo(): void {
@@ -454,19 +388,19 @@ describe('MiniSignal', () => {
         // @ts-expect-error testing error
         e.detach();
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalBinding object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(1);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalBinding object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(bar);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalBinding object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
       );
     });
 
@@ -475,12 +409,12 @@ describe('MiniSignal', () => {
       e.add(b);
       const _bar = e.add(bar);
 
-      expect(e.handlers().length).equals(3);
+      expect(e.hasListeners()).equals(true);
       e.dispatch();
       expect(pattern.join(';')).equals('a;b;bar');
 
       e.detach(_bar);
-      expect(e.handlers().length).equals(2);
+      expect(e.hasListeners()).equals(true);
 
       e.dispatch();
       expect(pattern.join(';')).equals('a;b;bar;a;b');
@@ -491,12 +425,12 @@ describe('MiniSignal', () => {
       e.add(a);
       e.add(b);
 
-      expect(e.handlers().length).equals(3);
+      expect(e.hasListeners()).equals(true);
       e.dispatch();
       expect(pattern.join(';')).equals('bar;a;b');
 
       e.detach(_bar);
-      expect(e.handlers().length).equals(2);
+      expect(e.hasListeners()).equals(true);
       e.dispatch();
       expect(pattern.join(';')).equals('bar;a;b;a;b');
     });
@@ -506,12 +440,12 @@ describe('MiniSignal', () => {
       const _bar = e.add(bar);
       e.add(b);
 
-      expect(e.handlers().length).equals(3);
+      expect(e.hasListeners()).equals(true);
       e.dispatch();
       expect(pattern.join(';')).equals('a;bar;b');
 
       e.detach(_bar);
-      expect(e.handlers().length).equals(2);
+      expect(e.hasListeners()).equals(true);
       e.dispatch();
       expect(pattern.join(';')).equals('a;bar;b;a;b');
     });
@@ -596,15 +530,12 @@ describe('MiniSignal', () => {
 
       const binding = e.add(foo);
       e2.detach(binding);
-      expect(binding._owner === e);
-      expect(e.hasHandlers());
+      expect(e.hasListeners());
     });
 
     it('can be called multiple times', () => {
       const binding = e.add(foo);
-      expect(binding._owner === e);
       e.detach(binding);
-      expect(binding._owner === null);
       e.detach(binding);
       e.detach(binding);
     });
@@ -628,17 +559,17 @@ describe('MiniSignal', () => {
       e.add(oops);
       e.add(oops);
 
-      expect(e.handlers().length).equals(4);
+      expect(e.hasListeners()).equals(true);
 
       expect(e.detachAll()).equals(e);
-      expect(e.handlers().length).equals(0);
+      expect(e.hasListeners()).equals(false);
 
       expect(e.dispatch()).equals(false);
     });
 
     it('should not throw an error if no listeners are set', () => {
       expect(e.detachAll()).equals(e);
-      expect(e.handlers().length).equals(0);
+      expect(e.hasListeners()).equals(false);
 
       expect(e.dispatch()).equals(false);
     });
@@ -650,59 +581,13 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#has', () => {
-    /* istanbul ignore next */
-    function oops(): void {
-      throw new Error('oops');
-    }
-
-    let e: MiniSignal;
-
-    beforeEach(() => {
-      e = new MiniSignal();
-    });
-
-    it('has returns true if bound', () => {
-      const binding = e.add(oops);
-      assert(e.has(binding));
-    });
-
-    it('has returns false if bound to another signal', () => {
-      const e2 = new MiniSignal();
-      const binding = e2.add(oops);
-      assert(e.has(binding) === false);
-    });
-
-    it('has returns false if detached', () => {
-      const binding = e.add(oops);
-      assert(e.has(binding));
-      binding.detach();
-      assert(e.has(binding) === false);
-    });
-
-    it('has returns false after detachAll', () => {
-      const binding = e.add(oops);
-      assert(e.has(binding));
-      e.detachAll();
-      assert(e.has(binding) === false);
-    });
-
-    it('should throw error for incorrect types', () => {
-      expect(() => {
-        e.has({} as any);
-      }).throws(
-        'MiniSignal#has(): First arg must be a MiniSignalBinding object.'
-      );
-    });
-  });
-
   describe('Readme Examples', () => {
     it('Example Usage', () => {
       const mySignal = new MiniSignal<[string, string]>();
 
       const binding = mySignal.add(onSignal); // add listener
       mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
-      binding.detach(); // remove a single listener
+      mySignal.detach(binding); // remove a single listener
 
       function onSignal(foo: string, bar: string): void {
         assert(foo === 'foo');
