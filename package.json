@@ -5,16 +5,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "/dist"
+    "/dist",
+    "/docs"
   ],
   "scripts": {
     "test": "npm-run-all test:*",
-    "test:unit": "mocha --reporter spec --require ts-node/register src/**/*.spec.ts",
+    "test:unit": "mocha --reporter spec --require ts-node/register src/**/*.spec.ts -n expose-gc",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
     "test:types": "tsd -f ./src/mini-signals.test-d.ts",
     "build": "npm-run-all build:*",
     "build:tsc": "tsc",
-    "xxx-build:jsdoc2md": "jsdoc-parse ./src/mini-signals.ts | dmd > API.md",
+    "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
     "coverage": "nyc --reporter=html --reporter=text --timeout=3000 npm run test:unit",
     "bench": "ts-node ./bench/index.js | tee ./bench/latest.md",
     "bench:emit": "ts-node ./bench/emit.js",
@@ -49,7 +50,6 @@
     "benchmark": "^1.0.0",
     "chai": "^4.3.7",
     "chg": "^0.4.0",
-    "dmd": "^1.2.0",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
@@ -57,7 +57,6 @@
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-promise": "^6.1.1",
     "eventemitter3": "^5.0.0",
-    "jsdoc-parse": "^1.1.0",
     "mocha": "^10.2.0",
     "np": "^7.6.4",
     "npm-check": "^6.0.1",
@@ -67,6 +66,8 @@
     "signals": "^1.0.0",
     "ts-node": "^10.9.1",
     "tsd": "^0.28.0",
+    "typedoc": "^0.23.28",
+    "typedoc-plugin-markdown": "^3.14.0",
     "typescript": "^5.0.2"
   }
 }

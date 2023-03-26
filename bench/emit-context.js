@@ -3,24 +3,26 @@
 /**
 * Preparation code.
 */
-var EventEmitter3 = require('eventemitter3'),
-  EventEmitter1 = require('events').EventEmitter,
-  {MiniSignal} = require('../src/index'),
-  MiniSignal_0_0_1 = require('./mini-signals@0.0.1'),
-  MiniSignal_0_0_2 = require('./mini-signals@0.0.2'),
-  MiniSignal_1_0_1 = require('./mini-signals@1.0.1'),
-  Signal = require('signals');
+const EventEmitter3 = require('eventemitter3');
+const EventEmitter1 = require('events').EventEmitter;
+const {MiniSignal} = require('../src/index');
+const MiniSignal_0_0_1 = require('./mini-signals@0.0.1');
+const MiniSignal_0_0_2 = require('./mini-signals@0.0.2');
+const MiniSignal_1_0_1 = require('./mini-signals@1.0.1');
+const MiniSignal_1_1_0 = require('./mini-signals@1.1.0');
+const Signal = require('signals');
 
 /**
 * Instances.
 */
-var ee1 = new EventEmitter1(),
-  ee3 = new EventEmitter3(),
-  miniSignal = new MiniSignal(),
-  miniSignal_0_0_1 = new MiniSignal_0_0_1(),
-  miniSignal_0_0_2 = new MiniSignal_0_0_2(),
-  miniSignal_1_0_1 = new MiniSignal_1_0_1(),
-  signal = new Signal();
+const ee1 = new EventEmitter1();
+const ee3 = new EventEmitter3();
+const miniSignal = new MiniSignal();
+const miniSignal_0_0_1 = new MiniSignal_0_0_1();
+const miniSignal_0_0_2 = new MiniSignal_0_0_2();
+const miniSignal_1_0_1 = new MiniSignal_1_0_1();
+const miniSignal_1_1_0 = new MiniSignal_1_1_0();
+const signal = new Signal();
 
 var ctx = {
   foo: 'bar'
@@ -41,10 +43,11 @@ ee3.on('foo', handle, ctx); ee3.on('foo', handle2);
 
 // signals
 signal.add(handle, ctx); signal.add(handle2);
-miniSignal.add(handle,ctx); miniSignal.add(handle2);
+miniSignal.add(handle.bind(ctx)); miniSignal.add(handle2);  // Note: MiniSignal no loner supports context
 miniSignal_0_0_1.add(handle.bind(ctx)); miniSignal_0_0_1.add(handle2);
 miniSignal_0_0_2.add(handle.bind(ctx)); miniSignal_0_0_2.add(handle2);
 miniSignal_1_0_1.add(handle.bind(ctx)); miniSignal_1_0_1.add(handle2);
+miniSignal_1_1_0.add(handle, ctx); miniSignal_1_1_0.add(handle2);
 
 require('./suite')('emit-context')
   .add('Node EventEmitter', function() {
@@ -88,5 +91,11 @@ require('./suite')('emit-context')
     miniSignal_1_0_1.dispatch('bar');
     miniSignal_1_0_1.dispatch('bar', 'baz');
     miniSignal_1_0_1.dispatch('bar', 'baz', 'boom');
+  })
+  .add('\\@1.1.0', function() {
+    miniSignal_1_1_0.dispatch();
+    miniSignal_1_1_0.dispatch('bar');
+    miniSignal_1_1_0.dispatch('bar', 'baz');
+    miniSignal_1_1_0.dispatch('bar', 'baz', 'boom');
   })
   .run();

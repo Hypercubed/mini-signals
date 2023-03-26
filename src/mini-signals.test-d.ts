@@ -42,8 +42,8 @@ describe('MiniSignal Typing', () => {
   });
 
   it('should show ts error on incorrect branded types', () => {
-    const e1 = new MiniSignal<[string], never, { __type: 'e1' }>();
-    const e2 = new MiniSignal<[string], never, { __type: 'e2' }>();
+    const e1 = new MiniSignal<[string], { __type: 'e1' }>();
+    const e2 = new MiniSignal<[string], { __type: 'e2' }>();
 
     const l1 = e1.add(expectType<string>);
     const l2 = e2.add(expectType<string>);

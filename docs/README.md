@@ -1,3 +1,5 @@
+mini-signals / [Exports](modules.md)
+
 # mini-signals
 
 signals, in JavaScript, fast

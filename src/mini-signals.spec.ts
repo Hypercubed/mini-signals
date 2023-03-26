@@ -1,40 +1,24 @@
 import { MiniSignal } from '../src/mini-signals';
 
-import { expectError, expectType } from 'tsd';
-import { inherits } from 'node:util';
 import { expect } from 'chai';
-import { strict as assert } from 'node:assert';
 
 describe('MiniSignal', () => {
-  it('inherits when used with require(util).inherits', () => {
-    function Beast(): void {
-      /* rawr, i'm a beast */
-    }
+  const pattern: string[] = [];
 
-    inherits(Beast, MiniSignal);
+  const writer = (a: string): void => {
+    pattern.push(a);
+  };
 
-    const moop = new Beast();
-    const meap = new Beast();
-
-    expect(moop).is.instanceOf(Beast);
-    expect(moop).is.instanceOf(MiniSignal);
-
-    /* istanbul ignore next */
-    moop.add(() => {
-      throw new Error('I should not dispatch');
-    });
-
-    meap.dispatch('rawr');
-    meap.detachAll();
+  beforeEach(() => {
+    pattern.length = 0;
   });
 
   it('quick test', () => {
-    const pattern: string[] = [];
     const e = new MiniSignal<[string]>();
 
-    const foo = e.add(writer, 'foo');
-    e.add(writer, 'baz');
-    const bar = e.add(writer, 'bar');
+    const foo = e.add(writer);
+    e.add(writer);
+    const bar = e.add(writer);
 
     expect(e instanceof MiniSignal);
 
@@ -50,48 +34,50 @@ describe('MiniSignal', () => {
 
     e.dispatch('raspberry');
 
-    expect(
-      pattern.join(';') ===
-        'foo:banana;baz:banana;bar:banana;foo:apple;baz:apple;bar:apple;baz:pear'
-    );
-
-    function writer(a: string): void {
-      pattern.push(String(this) + ':' + a);
-    }
+    expect(pattern.join(';')).to.equal('banana;banana;banana;apple;apple;apple;pear');
   });
 
-  describe('MiniSignal#once', () => {
-    it('should throw error for incorrect types', () => {
-      const e = new MiniSignal<[string]>();
+  describe('Readme Examples', () => {
+    it('Example Usage', () => {
+      const mySignal = new MiniSignal<[string, string]>();
 
-      expect(() => {
-        // @ts-expect-error testing error
-        e.once();
-      }).throws('MiniSignal#once(): First arg must be a Function.');
-      expect(() => {
-        // @ts-expect-error testing error
-        e.once(123);
-      }).throws('MiniSignal#once(): First arg must be a Function.');
-      expect(() => {
-        // @ts-expect-error testing error
-        e.once(true);
-      }).throws('MiniSignal#once(): First arg must be a Function.');
+      const binding = mySignal.add(onSignal); // add listener
+      mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
+      mySignal.detach(binding); // remove a single listener
 
-      expect(!e.hasListeners);
+      function onSignal(foo: string, bar: string): void {
+        expect(foo).to.equal('foo');
+        expect(bar).to.equal('bar');
+      }
     });
 
-    it('should not invoke twice', () => {
-      const e = new MiniSignal<[string]>();
-      const context = { bar: 'baz' };
+    it('Function#bind example', () => {
+      const mySignal = new MiniSignal<[string]>();
+      const context = {};
 
-      e.once(function (bar: string) {
+      const cb = function (bar: string) {
+        expect(arguments).has.length(1);
         expect(bar).equals('bar');
         expect(this).equals(context);
-        expect(arguments).has.length(1);
-        e.dispatch('bar');
-      }, context);
+      }.bind(context);
 
-      e.dispatch('bar');
+      mySignal.add(cb);
+
+      mySignal.dispatch('bar');
+    });
+
+    it('Function#bind example with parameters', () => {
+      const mySignal = new MiniSignal<never>();
+      const context = {};
+      const cb = function (bar: string) {
+        expect(arguments).has.length(1);
+        expect(bar).equals('bar');
+        expect(this).equals(context);
+      }.bind(context, 'bar');
+
+      mySignal.add(cb);
+
+      mySignal.dispatch();
     });
   });
 
@@ -117,21 +103,29 @@ describe('MiniSignal', () => {
       }).throws('MiniSignal#add(): First arg must be a Function.');
       expect(!e.hasListeners);
     });
+
+    // Note: once is deprecated
+    // These tests use the add method instead
+    it('should not invoke twice', () => {
+      const l = e.add(function (arg: string) {
+        writer(arg);
+        expect(arg).equals('foo');
+        e.detach(l);
+      });
+
+      e.dispatch('foo');
+      e.dispatch('bar');
+      e.dispatch('baz');
+
+      expect(pattern.join(';')).equals('foo');
+    });
   });
 
   describe('MiniSignal#dispatch', () => {
-    function writer(): void {
-      pattern += String(this);
-    }
-
     let e: MiniSignal;
-    let context = { bar: 'baz' };
-    let pattern = '';
 
     beforeEach(() => {
-      e = new MiniSignal<[string], typeof context>();
-      context = { bar: 'baz' };
-      pattern = '';
+      e = new MiniSignal<[string]>();
     });
 
     it('should return false when there are not events to dispatch', () => {
@@ -147,16 +141,6 @@ describe('MiniSignal', () => {
       }.bind(context);
 
       e.add(cb);
-
-      e.dispatch('bar');
-    });
-
-    it('emits with context when context is specified', () => {
-      e.add(function (bar): void {
-        expect(bar).equals('bar');
-        expect(this).equals(context);
-        expect(arguments).has.length(1);
-      }, context);
 
       e.dispatch('bar');
     });
@@ -228,36 +212,6 @@ describe('MiniSignal', () => {
       expect(sum).equals((N * (N + 1)) / 2);
     });
 
-    it('emits with context, multiple listeners (force loop)', () => {
-      e.add(
-        function (bar): void {
-          expect(this).deep.equals({ foo: 'bar' });
-          expect(bar).equals('bar');
-        },
-        { foo: 'bar' }
-      );
-
-      e.add(
-        function (bar): void {
-          expect(this).deep.equals({ bar: 'baz' });
-          expect(bar).equals('bar');
-        },
-        { bar: 'baz' }
-      );
-
-      e.dispatch('bar');
-    });
-
-    it('emits with different contexts', () => {
-      e.add(writer, 'foo');
-      e.add(writer, 'baz');
-      e.add(writer, 'bar');
-      e.add(writer, 'banana');
-
-      e.dispatch();
-      expect(pattern).equals('foobazbarbanana');
-    });
-
     it('should return true when there are events to dispatch', function (done) {
       e.add(() => {
         process.nextTick(done);
@@ -273,7 +227,7 @@ describe('MiniSignal', () => {
     it('receives the emitted events', (done) => {
       const e = new MiniSignal();
 
-      e.add(function (a, b, c, d, undef): void {
+      e.add(function (a, b, c, undef): void {
         expect(a).equals('foo');
         expect(b).equals(e);
         expect(c).is.instanceOf(Date);
@@ -305,7 +259,6 @@ describe('MiniSignal', () => {
 
     it('emits to all event listeners', () => {
       const e = new MiniSignal();
-      const pattern: string[] = [];
 
       function foo1(): void {
         pattern.push('foo1');
@@ -330,28 +283,38 @@ describe('MiniSignal', () => {
 
     it('emits to all event listeners, removes once', () => {
       const e = new MiniSignal();
-      const pattern: string[] = [];
 
-      function foo1(): void {
+      e.add(() => {
         pattern.push('foo1');
-      }
+      });
 
-      function foo2(): void {
+      const l = e.add(() => {
         pattern.push('foo2');
-      }
+        e.detach(l);
+      });
 
-      function foo3(): void {
+      e.add(() => {
         pattern.push('foo3');
-      }
-
-      e.add(foo1);
-      e.once(foo2);
-      e.add(foo3);
+      });
 
       e.dispatch();
       e.dispatch();
 
       expect(pattern.join(';')).equals('foo1;foo2;foo3;foo1;foo3');
+    });
+
+    it('cannot dispatch while dispatching', () => {
+      const cb = function (bar: string): void {
+        expect(bar).equals('bar');
+        expect(arguments).has.length(1);
+        e.dispatch('bar');
+      };
+
+      e.add(cb);
+
+      expect(() => {
+        e.dispatch('bar');
+      }).throws('MiniSignal#dispatch(): Signal already dispatching.');
     });
   });
 
@@ -582,64 +545,40 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('Readme Examples', () => {
-    it('Example Usage', () => {
-      const mySignal = new MiniSignal<[string, string]>();
+  describe('Garbage Collection', () => {
+    it('should not leak memory', async () => {
+      const e = new MiniSignal();
+      const w = e.add(() => {
+        /* */
+      });
 
-      const binding = mySignal.add(onSignal); // add listener
-      mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
-      mySignal.detach(binding); // remove a single listener
+      expect(w.deref()).to.exist;
+      e.dispatch();
+      expect(w.deref()).to.exist;
 
-      function onSignal(foo: string, bar: string): void {
-        assert(foo === 'foo');
-        assert(bar === 'bar');
-      }
+      e.detach(w);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(w.deref()).to.be.undefined;
+
+      // should not throw an error when detaching gc ref
+      e.detach(w);
     });
 
-    it('Another Example', () => {
-      const myObject = {
-        foo: 'bar',
-        updated: new MiniSignal<never>(),
-      };
+    it('can clean up after itself when using add', async () => {
+      const e = new MiniSignal();
+      const w = e.add(() => {
+        e.detach(w);
+      });
 
-      myObject.updated.add(onUpdated, myObject); // add listener with context
+      expect(w.deref()).to.exist;
+      e.dispatch();
+      expect(w.deref()).to.exist;
 
-      myObject.foo = 'baz';
-      myObject.updated.dispatch(); // dispatch signal
-
-      function onUpdated(): void {
-        assert(this === myObject);
-        assert(this.foo === 'baz');
-      }
-    });
-
-    it('Function#bind example', () => {
-      const mySignal = new MiniSignal<[string]>();
-      const context = {};
-
-      const cb = function (bar: string) {
-        expect(arguments).has.length(1);
-        expect(bar).equals('bar');
-        expect(this).equals(context);
-      }.bind(context);
-
-      mySignal.add(cb);
-
-      mySignal.dispatch('bar');
-    });
-
-    it('Function#bind example with parameters', () => {
-      const mySignal = new MiniSignal<never>();
-      const context = {};
-      const cb = function (bar: string) {
-        expect(arguments).has.length(1);
-        expect(bar).equals('bar');
-        expect(this).equals(context);
-      }.bind(context, 'bar');
-
-      mySignal.add(cb);
-
-      mySignal.dispatch();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(w.deref()).to.be.undefined;
     });
   });
 });

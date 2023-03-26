@@ -1,27 +1,25 @@
-type BoundFunction<T extends any[], A = any> = (this: A, ...x: T) => void;
+type CallBack<T extends any[]> = (...x: T) => void;
 
 const MiniSignalSymbol = Symbol('MiniSignalSymbol');
 
-type MiniSignalNode<T extends any[], A extends any | undefined> = {
-  fn: BoundFunction<T, A>;
-  once: boolean;
-  next?: MiniSignalNode<T, A>;
-  prev?: MiniSignalNode<T, A>;
-  thisArg?: A;
+type MiniSignalNode<T extends any[]> = {
+  fn: CallBack<T>;
+  next?: MiniSignalNode<T>;
+  prev?: MiniSignalNode<T>;
   [MiniSignalSymbol]?: symbol
 }
 
-type MiniSignalRef<T extends any[], A extends any | undefined, S extends any> = WeakRef<MiniSignalNode<T, A>> & S;
+type MiniSignalRef<T extends any[], S extends any> = WeakRef<MiniSignalNode<T>> & S;
 
 export class MiniSignal<
   T extends any[] = any[],
-  A extends any | undefined = any | undefined,
   S extends any = { [MiniSignalSymbol]: true }
 > {
-  private _head?: MiniSignalNode<T, A> = undefined;
-  private _tail?: MiniSignalNode<T, A> = undefined;
+  private _head?: MiniSignalNode<T> = undefined;
+  private _tail?: MiniSignalNode<T> = undefined;
 
-  private symbol = Symbol('MiniSignal');
+  private readonly symbol = Symbol('MiniSignal');
+  private dispatching = false;
 
   hasListeners(): boolean {
     return !(this._head == null);
@@ -31,45 +29,33 @@ export class MiniSignal<
    * Dispatches a signal to all registered listeners.
    */
   dispatch(...args: T): boolean {
+    if (this.dispatching) {
+      throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
+    }
+
     let node = this._head;
 
     if (node == null) return false;
+    this.dispatching = true;
 
     while (node != null) {
-      if (node.once) this._disconnectNode(node);
-      node.fn.apply(node.thisArg as A, args as T);
+      node.fn(...args);
       node = node.next;
     }
 
+    this.dispatching = false;
     return true;
   }
 
   /**
    * Register a new listener.
    */
-  add(fn: BoundFunction<T, A>, thisArg?: A): MiniSignalRef<T, A, S> {
+  add(fn: CallBack<T>): MiniSignalRef<T, S> {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
     return this._addNode({
       fn,
-      once: false,
-      thisArg,
-      [MiniSignalSymbol]: this.symbol
-    });
-  }
-
-  /**
-   * Register a new listener that will be executed only once.
-   */
-  once(fn: BoundFunction<T, A>, thisArg?: A): MiniSignalRef<T, A, S> {
-    if (typeof fn !== 'function') {
-      throw new Error('MiniSignal#once(): First arg must be a Function.');
-    }
-    return this._addNode({
-      fn,
-      once: true,
-      thisArg,
       [MiniSignalSymbol]: this.symbol
     });
   }
@@ -77,7 +63,7 @@ export class MiniSignal<
   /**
    * Remove binding object.
    */
-  detach(ref: MiniSignalRef<T, A, S>): this {
+  detach(ref: MiniSignalRef<T, S>): this {
     if (!(ref instanceof WeakRef)) {
       throw new Error(
         'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
@@ -112,15 +98,13 @@ export class MiniSignal<
     return this;
   }
 
-  private _destroyNode(node: MiniSignalNode<T, A>) {
+  private _destroyNode(node: MiniSignalNode<T>) {
     node.fn = undefined as any;
-    node.thisArg = undefined as any;
-    // node.next = undefined;
     node.prev = undefined;
     node[MiniSignalSymbol] = undefined;
   }
 
-  private _disconnectNode(node: MiniSignalNode<T, A>) {
+  private _disconnectNode(node: MiniSignalNode<T>) {
     if (node === this._head) {
       // first node
       this._head = node.next;
@@ -145,7 +129,7 @@ export class MiniSignal<
     node[MiniSignalSymbol] = undefined;
   }
 
-  private _addNode(node: MiniSignalNode<T, A>): MiniSignalRef<T, A, S> {
+  private _addNode(node: MiniSignalNode<T>): MiniSignalRef<T, S> {
     if (this._head == null) {
       this._head = node;
       this._tail = node;
@@ -156,7 +140,7 @@ export class MiniSignal<
       this._tail = node;
     }
 
-    return new WeakRef(node) as MiniSignalRef<T, A, S>;
+    return new WeakRef(node) as MiniSignalRef<T, S>;
   }
 }
 
