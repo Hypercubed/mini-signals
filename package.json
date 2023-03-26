@@ -15,7 +15,7 @@
     "test:types": "tsd -f ./src/mini-signals.test-d.ts",
     "build": "npm-run-all build:*",
     "build:tsc": "tsc",
-    "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
+    "xxx-build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
     "coverage": "nyc --reporter=html --reporter=text --timeout=3000 npm run test:unit",
     "bench": "ts-node ./bench/index.js | tee ./bench/latest.md",
     "bench:emit": "ts-node ./bench/emit.js",
