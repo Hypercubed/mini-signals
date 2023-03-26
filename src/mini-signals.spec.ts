@@ -1,5 +1,6 @@
 import { MiniSignal } from '../src/mini-signals';
 
+import { expectError, expectType } from 'tsd';
 import { inherits } from 'node:util';
 import { expect } from 'chai';
 import { strict as assert } from 'node:assert';

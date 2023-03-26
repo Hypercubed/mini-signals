@@ -11,6 +11,7 @@
     "test": "npm-run-all test:*",
     "test:unit": "mocha --reporter spec --require ts-node/register src/**/*.spec.ts",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
+    "test:types": "tsd -f ./src/mini-signals.test-d.ts",
     "build": "npm-run-all build:*",
     "build:tsc": "tsc",
     "xxx-build:jsdoc2md": "jsdoc-parse ./src/mini-signals.ts | dmd > API.md",
@@ -65,6 +66,7 @@
     "prettier": "2.8.7",
     "signals": "^1.0.0",
     "ts-node": "^10.9.1",
+    "tsd": "^0.28.0",
     "typescript": "^5.0.2"
   }
 }

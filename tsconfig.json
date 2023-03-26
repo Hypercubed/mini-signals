@@ -5,7 +5,8 @@
     "declaration": true,
     "outDir": "./dist",
     "esModuleInterop": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "lib": ["ESNext"]
   },
   "include": ["src/**/*"]
 }
