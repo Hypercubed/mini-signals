@@ -1,6 +1,6 @@
 type BoundFunction<T extends any[], A = any> = (this: A, ...x: T) => void;
 
-const MiniSignalSymbol = Symbol('MiniSignal');
+const MiniSignalSymbol = Symbol('MiniSignalSymbol');
 
 type MiniSignalNode<T extends any[], A extends any | undefined> = {
   fn: BoundFunction<T, A>;
@@ -8,14 +8,10 @@ type MiniSignalNode<T extends any[], A extends any | undefined> = {
   next?: MiniSignalNode<T, A>;
   prev?: MiniSignalNode<T, A>;
   thisArg?: A;
-  [MiniSignalSymbol]: true
+  [MiniSignalSymbol]?: symbol
 }
 
 type MiniSignalRef<T extends any[], A extends any | undefined, S extends any> = WeakRef<MiniSignalNode<T, A>> & S;
-
-function isMiniSignalRef<T extends any[], A extends any | undefined, S extends any>(value: any): value is MiniSignalRef<T, A, S> {
-  return value instanceof WeakRef && !!(value.deref() as any)[MiniSignalSymbol];
-}
 
 export class MiniSignal<
   T extends any[] = any[],
@@ -24,6 +20,8 @@ export class MiniSignal<
 > {
   private _head?: MiniSignalNode<T, A> = undefined;
   private _tail?: MiniSignalNode<T, A> = undefined;
+
+  private symbol = Symbol('MiniSignal');
 
   hasListeners(): boolean {
     return !(this._head == null);
@@ -57,7 +55,7 @@ export class MiniSignal<
       fn,
       once: false,
       thisArg,
-      [MiniSignalSymbol]: true
+      [MiniSignalSymbol]: this.symbol
     });
   }
 
@@ -72,7 +70,7 @@ export class MiniSignal<
       fn,
       once: true,
       thisArg,
-      [MiniSignalSymbol]: true
+      [MiniSignalSymbol]: this.symbol
     });
   }
 
@@ -80,20 +78,20 @@ export class MiniSignal<
    * Remove binding object.
    */
   detach(ref: MiniSignalRef<T, A, S>): this {
-    if (!isMiniSignalRef(ref)) {
+    if (!(ref instanceof WeakRef)) {
       throw new Error(
         'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
       );
     }
 
-    // TODO: Verify that this node belongs to this signal
-
     const node = ref.deref();
 
-    if (!node) return this;
-    if (!this._hasNode(node)) return this; // Don't want to error, allow ref to detached several times
+    if (!node || !node[MiniSignalSymbol]) return this;
+
+    if (node[MiniSignalSymbol] !== this.symbol) return this;  // Error?
 
     this._disconnectNode(node);
+    this._destroyNode(node);
 
     return this;
   }
@@ -108,18 +106,18 @@ export class MiniSignal<
     this._head = this._tail = undefined;
 
     while (n != null) {
+      this._destroyNode(n);
       n = n.next;
     }
     return this;
   }
 
-  private _hasNode(node: MiniSignalNode<T, A>): boolean {
-    let n = this._head;
-    while (n != null) {
-      if (n === node) return true;
-      n = n.next;
-    }
-    return false;
+  private _destroyNode(node: MiniSignalNode<T, A>) {
+    node.fn = undefined as any;
+    node.thisArg = undefined as any;
+    // node.next = undefined;
+    node.prev = undefined;
+    node[MiniSignalSymbol] = undefined;
   }
 
   private _disconnectNode(node: MiniSignalNode<T, A>) {
@@ -143,6 +141,8 @@ export class MiniSignal<
     if (node.next != null) {
       node.next.prev = node.prev;
     }
+
+    node[MiniSignalSymbol] = undefined;
   }
 
   private _addNode(node: MiniSignalNode<T, A>): MiniSignalRef<T, A, S> {

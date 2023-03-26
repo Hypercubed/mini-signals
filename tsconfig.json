@@ -8,5 +8,6 @@
     "strictNullChecks": true,
     "lib": ["ESNext"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/mini-signals.test-d.ts"]
 }
