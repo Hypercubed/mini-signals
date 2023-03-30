@@ -23,7 +23,7 @@
     "bench:emit-context": "ts-node ./bench/emit-context.js",
     "bench:emit-depot": "ts-node ./bench/emit-depot.js",
     "version": "chg release -y && git add -A CHANGELOG.md",
-    "np": "npm run build && np --tag next --any-branch",
+    "np": "npm run build && np",
     "fix": "npm-run-all fix:*",
     "fix:prettier": "prettier --write './{src, bench}/**/*.*'",
     "fix:lint": "eslint './{src, bench}/**/*.*' --fix"
