@@ -23,7 +23,7 @@ export class MiniSignal<
    * instance.
    */
   private readonly _symbol = Symbol('MiniSignal');
-  private readonly _refMap = new WeakMap<MiniSignalNodeRef<T, S>, WeakRef<MiniSignalNode<T>>>();
+  private _refMap = new WeakMap<MiniSignalNodeRef<T, S>, MiniSignalNode<T>>();
   
   private _head?: MiniSignalNode<T> = undefined;
   private _tail?: MiniSignalNode<T> = undefined;
@@ -81,14 +81,11 @@ export class MiniSignal<
       );
     }
 
-    const ref = this._refMap.get(sym);
+    const node = this._refMap.get(sym);
 
-    if (!ref) return this; // already detached
+    if (!node) return this; // already detached
 
-    const node = ref.deref();
-
-    if (!node) return this; // already garbage collected (shouldn't be necessary)
-
+    this._refMap.delete(sym);
     this._disconnectNode(node);
     this._destroyNode(node);
 
@@ -103,6 +100,7 @@ export class MiniSignal<
     if (n == null) return this;
 
     this._head = this._tail = undefined;
+    this._refMap = new WeakMap();
 
     while (n != null) {
       this._destroyNode(n);
@@ -156,7 +154,7 @@ export class MiniSignal<
 
   private _createRef(node: MiniSignalNode<T>): MiniSignalNodeRef<T, S> {
     const sym = { [MINI_SIGNAL_KEY]: this._symbol } as unknown as MiniSignalNodeRef<T, S>;
-    this._refMap.set(sym, new WeakRef(node));
+    this._refMap.set(sym, node);
     return sym;
   }
 

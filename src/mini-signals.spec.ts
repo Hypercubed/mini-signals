@@ -550,39 +550,161 @@ describe('MiniSignal', () => {
   });
 
   describe('Garbage Collection', () => {
-    it('should not leak memory', async () => {
-      const e = new MiniSignal();
-      const w = e.add(() => {
-        /* */
+    it('should clean up when signal is destroyed', async () => {
+      let e = new MiniSignal();
+      const eR = new WeakRef(e);
+
+      let fn = () => {
+        noop(e, w);
+      };
+
+      const fR = new WeakRef(fn);
+
+      const w = e.add(fn);
+      e.add(fn);
+      e.add(noop);
+      e.add(() => {
+        fn();
+        noop();
       });
-
-      expect((e as any)._getRef(w).deref()).to.exist;
-      e.dispatch();
-      expect((e as any)._getRef(w).deref()).to.exist;
-
-      e.detach(w);
-
-      await new Promise(resolve => setTimeout(resolve, 0));
-      global.gc!();
-      expect((e as any)._getRef(w).deref()).to.be.undefined;
-
-      // should not throw an error when detaching gc ref
-      e.detach(w);
-    });
-
-    it('can clean up after itself when using add', async () => {
-      const e = new MiniSignal();
-      const w = e.add(() => {
+      e.add(() => {
+        fn();
+        noop();
         e.detach(w);
       });
 
-      expect((e as any)._getRef(w).deref()).to.exist;
+      expect(fR.deref()).to.exist;
       e.dispatch();
-      expect((e as any)._getRef(w).deref()).to.exist;
+      
+      // Removing references in this scope should mark nodes GC
+      fn = null as any;
+      e = null as any;
 
       await new Promise(resolve => setTimeout(resolve, 0));
       global.gc!();
-      expect((e as any)._getRef(w).deref()).to.be.undefined;
+
+      expect(fR.deref()).to.be.undefined;
+      expect(eR.deref()).to.be.undefined;
+
+      // Only the node reference should be left
+      expect(w).to.exist;
+    });
+
+    it('should not leak memory after detach', async () => {
+      let e = new MiniSignal();
+
+      const eR = new WeakRef(e);
+
+      let fn = () => {
+        noop(e, fn);
+      }
+
+      const fR = new WeakRef(fn);
+      const w = e.add(fn);
+
+      fn = null as any;
+
+      expect(fR.deref()).to.exist;
+      e.dispatch();
+      expect(fR.deref()).to.exist;
+
+      e.detach(w);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(fR.deref()).to.be.undefined;
+
+      // should not throw an error when detaching gc ref
+      e.detach(w);
+
+      expect(eR.deref()).to.exist;
+
+      // Also cleans up the signal
+      e = null as any;
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(eR.deref()).to.be.undefined;
+
+      // Only the node reference should be left
+      expect(w).to.exist;
+    });
+
+    it('should not leak memory after detach all', async () => {
+      let e = new MiniSignal();
+
+      const eR = new WeakRef(e);
+
+      let fn = () => {
+        noop(e, fn);
+      }
+
+      const fR = new WeakRef(fn);
+      const w = e.add(fn);
+
+      fn = null as any;
+
+      expect(fR.deref()).to.exist;
+      e.dispatch();
+      expect(fR.deref()).to.exist;
+
+      e.detach(w);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(fR.deref()).to.be.undefined;
+
+      // should not throw an error when detaching gc ref
+      e.detachAll();
+
+      expect(eR.deref()).to.exist;
+
+      // Also cleans up the signal
+      e = null as any;
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(eR.deref()).to.be.undefined;
+
+      // Only the node reference should be left
+      expect(w).to.exist;
+    });
+
+    it('should clean up after itself when using add', async () => {
+      let e = new MiniSignal();
+      const eR = new WeakRef(e);
+
+      let w: any;
+
+      let fn = () => {
+        noop(e, w);
+        e.detach(w);
+      };
+
+      const fR = new WeakRef(fn);
+
+      w = e.add(fn);
+
+      fn = null as any;
+
+      expect(fR.deref()).to.exist;
+      e.dispatch();
+
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(fR.deref()).to.be.undefined;
+
+      // Also cleans up the signal
+      e = null as any;
+      await new Promise(resolve => setTimeout(resolve, 0));
+      global.gc!();
+      expect(eR.deref()).to.be.undefined;
+
+      // Only the node reference should be left
+      expect(w).to.exist;
     });
   });
 });
+
+function noop(...args: any[]) {
+  // empty
+}

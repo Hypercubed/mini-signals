@@ -50,49 +50,49 @@ miniSignal_1_0_1.add(handle.bind(ctx)); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle, ctx); miniSignal_1_1_0.add(handle2);
 
 require('./suite')('emit-context')
-  .add('Node EventEmitter', function() {
+  .add('Node EventEmitter', () => {
     ee1.emit('foo');
     ee1.emit('foo', 'bar');
     ee1.emit('foo', 'bar', 'baz');
     ee1.emit('foo', 'bar', 'baz', 'boom');
   })
-  .add('EventEmitter3', function() {
+  .add('EventEmitter3', () => {
     ee3.emit('foo');
     ee3.emit('foo', 'bar');
     ee3.emit('foo', 'bar', 'baz');
     ee3.emit('foo', 'bar', 'baz', 'boom');
   })
-  .add('JS-Signals', function() {
+  .add('JS-Signals', () => {
     signal.dispatch();
     signal.dispatch('bar');
     signal.dispatch('bar', 'baz');
     signal.dispatch('bar', 'baz', 'boom');
   })
-  .add('Latest', function() {
+  .add('MiniSignals Latest', () => {
     miniSignal.dispatch();
     miniSignal.dispatch('bar');
     miniSignal.dispatch('bar', 'baz');
     miniSignal.dispatch('bar', 'baz', 'boom');
   })
-  .add('\\@0.0.1', function() {
+  .add('MiniSignals @0.0.1', () => {
     miniSignal_0_0_1.dispatch();
     miniSignal_0_0_1.dispatch('bar');
     miniSignal_0_0_1.dispatch('bar', 'baz');
     miniSignal_0_0_1.dispatch('bar', 'baz', 'boom');
   })
-  .add('\\@0.0.2', function() {
+  .add('MiniSignals @0.0.2', () => {
     miniSignal_0_0_2.dispatch();
     miniSignal_0_0_2.dispatch('bar');
     miniSignal_0_0_2.dispatch('bar', 'baz');
     miniSignal_0_0_2.dispatch('bar', 'baz', 'boom');
   })
-  .add('\\@1.0.1', function() {
+  .add('MiniSignals @1.0.1', () => {
     miniSignal_1_0_1.dispatch();
     miniSignal_1_0_1.dispatch('bar');
     miniSignal_1_0_1.dispatch('bar', 'baz');
     miniSignal_1_0_1.dispatch('bar', 'baz', 'boom');
   })
-  .add('\\@1.1.0', function() {
+  .add('MiniSignals @1.2.0', () => {
     miniSignal_1_1_0.dispatch();
     miniSignal_1_1_0.dispatch('bar');
     miniSignal_1_1_0.dispatch('bar', 'baz');
