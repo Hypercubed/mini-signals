@@ -41,9 +41,29 @@ describe('MiniSignal Typing', () => {
     expectType<boolean>(e1.dispatch('foo'));
   });
 
-  it('should show ts error on incorrect branded types', () => {
-    const e1 = new MiniSignal<[string], { __type: 'e1' }>();
-    const e2 = new MiniSignal<[string], { __type: 'e2' }>();
+  it('should show ts error on incorrect branded types using flavors', () => {
+    const e1 = new MiniSignal<[string], 'e1'>();
+    const e2 = new MiniSignal<[string], 'e2'>();
+
+    const l1 = e1.add(expectType<string>);
+    const l2 = e2.add(expectType<string>);
+
+    expectAssignable<WeakRef<any>>(l1);
+    expectAssignable<WeakRef<any>>(l2);
+
+    expectType<typeof e1>(e1.detach(l1));
+
+    expectError(e1.detach(l2));
+
+    expectType<boolean>(e1.dispatch('foo'));
+  });
+
+  it('should show ts error on incorrect branded types using symbols', () => {
+    const e1s = Symbol('e1');
+    const e2s = Symbol('e2');
+
+    const e1 = new MiniSignal<[string], typeof e1s>();
+    const e2 = new MiniSignal<[string], typeof e2s>();
 
     const l1 = e1.add(expectType<string>);
     const l2 = e2.add(expectType<string>);

@@ -1,24 +1,24 @@
 type CallBack<T extends any[]> = (...x: T) => void;
 
-const MiniSignalSymbol = Symbol('MiniSignalSymbol');
+const MiniSignalNodeSymbol = Symbol('MiniSignalNode');
 
 type MiniSignalNode<T extends any[]> = {
   fn: CallBack<T>;
   next?: MiniSignalNode<T>;
   prev?: MiniSignalNode<T>;
-  [MiniSignalSymbol]?: symbol
+  [MiniSignalNodeSymbol]?: symbol
 }
 
-type MiniSignalRef<T extends any[], S extends any> = WeakRef<MiniSignalNode<T>> & S;
+type MiniSignalRef<T extends any[], S extends any> = WeakRef<MiniSignalNode<T>> & { [MiniSignalNodeSymbol]: S };
 
 export class MiniSignal<
   T extends any[] = any[],
-  S extends any = { [MiniSignalSymbol]: true }
+  S extends any = Symbol | string
 > {
   private _head?: MiniSignalNode<T> = undefined;
   private _tail?: MiniSignalNode<T> = undefined;
 
-  private readonly symbol = Symbol('MiniSignal');
+  private readonly symbol = Symbol('MiniSignalInstance');
   private dispatching = false;
 
   hasListeners(): boolean {
@@ -56,7 +56,7 @@ export class MiniSignal<
     }
     return this._addNode({
       fn,
-      [MiniSignalSymbol]: this.symbol
+      [MiniSignalNodeSymbol]: this.symbol
     });
   }
 
@@ -66,15 +66,19 @@ export class MiniSignal<
   detach(ref: MiniSignalRef<T, S>): this {
     if (!(ref instanceof WeakRef)) {
       throw new Error(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
       );
     }
 
     const node = ref.deref();
 
-    if (!node || !node[MiniSignalSymbol]) return this;
+    if (!node || !node[MiniSignalNodeSymbol]) return this;
 
-    if (node[MiniSignalSymbol] !== this.symbol) return this;  // Error?
+    if (node[MiniSignalNodeSymbol] !== this.symbol) {
+      throw new Error(
+        'MiniSignal#detach(): MiniSignalNode does not belong to this MiniSignal.'
+      );
+    }
 
     this._disconnectNode(node);
     this._destroyNode(node);
@@ -101,7 +105,6 @@ export class MiniSignal<
   private _destroyNode(node: MiniSignalNode<T>) {
     node.fn = undefined as any;
     node.prev = undefined;
-    node[MiniSignalSymbol] = undefined;
   }
 
   private _disconnectNode(node: MiniSignalNode<T>) {
@@ -126,7 +129,7 @@ export class MiniSignal<
       node.next.prev = node.prev;
     }
 
-    node[MiniSignalSymbol] = undefined;
+    node[MiniSignalNodeSymbol] = undefined;
   }
 
   private _addNode(node: MiniSignalNode<T>): MiniSignalRef<T, S> {

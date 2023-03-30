@@ -352,19 +352,19 @@ describe('MiniSignal', () => {
         // @ts-expect-error testing error
         e.detach();
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(1);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(bar);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode object.'
+        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
       );
     });
 
@@ -493,7 +493,11 @@ describe('MiniSignal', () => {
       const e2 = new MiniSignal();
 
       const binding = e.add(foo);
-      e2.detach(binding);
+
+      expect(() => {
+        e2.detach(binding);
+      }).throws('MiniSignal#detach(): MiniSignalNode does not belong to this MiniSignal');
+
       expect(e.hasListeners());
     });
 
