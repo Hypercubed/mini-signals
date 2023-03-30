@@ -6,9 +6,6 @@ _(none)_
 ---
 
 ## 2.0.0 (2023-03-29)
-_(none)_
-
-## 2.0.0-2 (2023-03-29)
 
 - `.add` is now type safe.  The type of the listener is checked against the type variable in the constructor as well as an optional "flavor".
 - `.add` now returns a node reference instead of a object.  The returned node cannot be removed directly; it must be from the signal using `MiniSignal#detach`.

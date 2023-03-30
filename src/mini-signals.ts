@@ -2,7 +2,11 @@ type CallBack<T extends any[]> = (...x: T) => void;
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
-type MiniSignalNodeRef<T, S> = { [MINI_SIGNAL_KEY]: Symbol } & { __brand: S } & { __type: T };
+type MiniSignalNodeRef<T, S> = {
+  [MINI_SIGNAL_KEY]: Symbol,
+  __brand?: S,
+  __type?: T
+};
 
 type MiniSignalNode<T extends any[]> = {
   fn: CallBack<T>;

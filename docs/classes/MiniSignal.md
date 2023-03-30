@@ -7,7 +7,7 @@
 | Name | Type |
 | :------ | :------ |
 | `T` | extends `any`[] = `any`[] |
-| `S` | extends `any` = { `[MiniSignalSymbol]`: ``true``  } |
+| `S` | extends `any` = `Symbol` \| `string` |
 
 ## Table of contents
 
@@ -17,16 +17,19 @@
 
 ### Properties
 
+- [\_dispatching](MiniSignal.md#_dispatching)
 - [\_head](MiniSignal.md#_head)
+- [\_refMap](MiniSignal.md#_refmap)
+- [\_symbol](MiniSignal.md#_symbol)
 - [\_tail](MiniSignal.md#_tail)
-- [dispatching](MiniSignal.md#dispatching)
-- [symbol](MiniSignal.md#symbol)
 
 ### Methods
 
 - [\_addNode](MiniSignal.md#_addnode)
+- [\_createRef](MiniSignal.md#_createref)
 - [\_destroyNode](MiniSignal.md#_destroynode)
 - [\_disconnectNode](MiniSignal.md#_disconnectnode)
+- [\_getRef](MiniSignal.md#_getref)
 - [add](MiniSignal.md#add)
 - [detach](MiniSignal.md#detach)
 - [detachAll](MiniSignal.md#detachall)
@@ -44,9 +47,19 @@
 | Name | Type |
 | :------ | :------ |
 | `T` | extends `any`[] = `any`[] |
-| `S` | extends `unknown` = { `[MiniSignalSymbol]`: ``true``  } |
+| `S` | extends `unknown` = `string` \| `Symbol` |
 
 ## Properties
+
+### \_dispatching
+
+• `Private` **\_dispatching**: `boolean` = `false`
+
+#### Defined in
+
+[mini-signals.ts:34](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L34)
+
+___
 
 ### \_head
 
@@ -54,7 +67,30 @@
 
 #### Defined in
 
-[mini-signals.ts:18](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L18)
+[mini-signals.ts:32](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L32)
+
+___
+
+### \_refMap
+
+• `Private` **\_refMap**: `WeakMap`<`MiniSignalNodeRef`<`T`, `S`\>, `MiniSignalNode`<`T`\>\>
+
+#### Defined in
+
+[mini-signals.ts:30](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L30)
+
+___
+
+### \_symbol
+
+• `Private` `Readonly` **\_symbol**: `symbol`
+
+A Symbol that is used to guarantee the uniqueness of the MiniSignal
+instance.
+
+#### Defined in
+
+[mini-signals.ts:29](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L29)
 
 ___
 
@@ -64,33 +100,33 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:19](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L19)
-
-___
-
-### dispatching
-
-• `Private` **dispatching**: `boolean` = `false`
-
-#### Defined in
-
-[mini-signals.ts:22](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L22)
-
-___
-
-### symbol
-
-• `Private` `Readonly` **symbol**: `symbol`
-
-#### Defined in
-
-[mini-signals.ts:21](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L21)
+[mini-signals.ts:33](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L33)
 
 ## Methods
 
 ### \_addNode
 
-▸ `Private` **_addNode**(`node`): `MiniSignalNodeRef`<`T`, `S`\>
+▸ `Private` **_addNode**(`node`): `MiniSignalNode`<`T`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node` | `MiniSignalNode`<`T`\> |
+
+#### Returns
+
+`MiniSignalNode`<`T`\>
+
+#### Defined in
+
+[mini-signals.ts:145](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L145)
+
+___
+
+### \_createRef
+
+▸ `Private` **_createRef**(`node`): `MiniSignalNodeRef`<`T`, `S`\>
 
 #### Parameters
 
@@ -104,7 +140,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:132](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L132)
+[mini-signals.ts:159](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L159)
 
 ___
 
@@ -124,7 +160,7 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:101](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L101)
+[mini-signals.ts:117](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L117)
 
 ___
 
@@ -144,7 +180,27 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:107](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L107)
+[mini-signals.ts:122](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L122)
+
+___
+
+### \_getRef
+
+▸ `Protected` **_getRef**(`sym`): `undefined` \| `MiniSignalNode`<`T`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `sym` | `MiniSignalNodeRef`<`T`, `S`\> |
+
+#### Returns
+
+`undefined` \| `MiniSignalNode`<`T`\>
+
+#### Defined in
+
+[mini-signals.ts:165](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L165)
 
 ___
 
@@ -166,13 +222,13 @@ Register a new listener.
 
 #### Defined in
 
-[mini-signals.ts:53](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L53)
+[mini-signals.ts:65](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L65)
 
 ___
 
 ### detach
 
-▸ **detach**(`ref`): [`MiniSignal`](MiniSignal.md)<`T`, `S`\>
+▸ **detach**(`sym`): [`MiniSignal`](MiniSignal.md)<`T`, `S`\>
 
 Remove binding object.
 
@@ -180,7 +236,7 @@ Remove binding object.
 
 | Name | Type |
 | :------ | :------ |
-| `ref` | `MiniSignalNodeRef`<`T`, `S`\> |
+| `sym` | `MiniSignalNodeRef`<`T`, `S`\> |
 
 #### Returns
 
@@ -188,7 +244,7 @@ Remove binding object.
 
 #### Defined in
 
-[mini-signals.ts:66](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L66)
+[mini-signals.ts:75](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L75)
 
 ___
 
@@ -204,7 +260,7 @@ Detach all listeners.
 
 #### Defined in
 
-[mini-signals.ts:88](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L88)
+[mini-signals.ts:102](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L102)
 
 ___
 
@@ -226,7 +282,7 @@ Dispatches a signal to all registered listeners.
 
 #### Defined in
 
-[mini-signals.ts:31](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L31)
+[mini-signals.ts:43](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L43)
 
 ___
 
@@ -240,4 +296,4 @@ ___
 
 #### Defined in
 
-[mini-signals.ts:24](https://github.com/Hypercubed/mini-signals/blob/8bd4ace/src/mini-signals.ts#L24)
+[mini-signals.ts:36](https://github.com/Hypercubed/mini-signals/blob/e88de47/src/mini-signals.ts#L36)
