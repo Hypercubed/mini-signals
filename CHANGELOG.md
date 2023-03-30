@@ -5,6 +5,9 @@ _(none)_
 
 ---
 
+## 2.0.0 (2023-03-29)
+_(none)_
+
 ## 2.0.0-2 (2023-03-29)
 
 - `.add` is now type safe.  The type of the listener is checked against the type variable in the constructor as well as an optional "flavor".
