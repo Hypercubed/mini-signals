@@ -90,7 +90,7 @@ ___
 
 ### \_addNode
 
-▸ `Private` **_addNode**(`node`): `MiniSignalRef`<`T`, `S`\>
+▸ `Private` **_addNode**(`node`): `MiniSignalNodeRef`<`T`, `S`\>
 
 #### Parameters
 
@@ -100,7 +100,7 @@ ___
 
 #### Returns
 
-`MiniSignalRef`<`T`, `S`\>
+`MiniSignalNodeRef`<`T`, `S`\>
 
 #### Defined in
 
@@ -150,7 +150,7 @@ ___
 
 ### add
 
-▸ **add**(`fn`): `MiniSignalRef`<`T`, `S`\>
+▸ **add**(`fn`): `MiniSignalNodeRef`<`T`, `S`\>
 
 Register a new listener.
 
@@ -162,7 +162,7 @@ Register a new listener.
 
 #### Returns
 
-`MiniSignalRef`<`T`, `S`\>
+`MiniSignalNodeRef`<`T`, `S`\>
 
 #### Defined in
 
@@ -180,7 +180,7 @@ Remove binding object.
 
 | Name | Type |
 | :------ | :------ |
-| `ref` | `MiniSignalRef`<`T`, `S`\> |
+| `ref` | `MiniSignalNodeRef`<`T`, `S`\> |
 
 #### Returns
 

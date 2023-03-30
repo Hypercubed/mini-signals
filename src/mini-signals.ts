@@ -1,84 +1,93 @@
 type CallBack<T extends any[]> = (...x: T) => void;
 
-const MiniSignalNodeSymbol = Symbol('MiniSignalNode');
+const MINI_SIGNAL_KEY = Symbol('SIGNAL');
+
+type MiniSignalNodeRef<T, S> = { [MINI_SIGNAL_KEY]: Symbol } & { __brand: S } & { __type: T };
 
 type MiniSignalNode<T extends any[]> = {
   fn: CallBack<T>;
   next?: MiniSignalNode<T>;
   prev?: MiniSignalNode<T>;
-  [MiniSignalNodeSymbol]?: symbol
 }
 
-type MiniSignalRef<T extends any[], S extends any> = WeakRef<MiniSignalNode<T>> & { [MiniSignalNodeSymbol]: S };
+function isMiniSignalNodeRef(obj: any): obj is MiniSignalNodeRef<any, any> {
+  return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
+}
 
 export class MiniSignal<
   T extends any[] = any[],
   S extends any = Symbol | string
 > {
+  /**
+   * A Symbol that is used to guarantee the uniqueness of the MiniSignal
+   * instance.
+   */
+  private readonly _symbol = Symbol('MiniSignal');
+  private readonly _refMap = new WeakMap<MiniSignalNodeRef<T, S>, WeakRef<MiniSignalNode<T>>>();
+  
   private _head?: MiniSignalNode<T> = undefined;
   private _tail?: MiniSignalNode<T> = undefined;
-
-  private readonly symbol = Symbol('MiniSignalInstance');
-  private dispatching = false;
+  private _dispatching = false;
 
   hasListeners(): boolean {
-    return !(this._head == null);
+    return this._head != null;
   }
 
   /**
    * Dispatches a signal to all registered listeners.
    */
   dispatch(...args: T): boolean {
-    if (this.dispatching) {
+    if (this._dispatching) {
       throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
     }
 
     let node = this._head;
 
     if (node == null) return false;
-    this.dispatching = true;
+    this._dispatching = true;
 
     while (node != null) {
       node.fn(...args);
       node = node.next;
     }
 
-    this.dispatching = false;
+    this._dispatching = false;
     return true;
   }
 
   /**
    * Register a new listener.
    */
-  add(fn: CallBack<T>): MiniSignalRef<T, S> {
+  add(fn: CallBack<T>): MiniSignalNodeRef<T, S> {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
-    return this._addNode({
-      fn,
-      [MiniSignalNodeSymbol]: this.symbol
-    });
+    return this._createRef(this._addNode({ fn }));
   }
 
   /**
    * Remove binding object.
    */
-  detach(ref: MiniSignalRef<T, S>): this {
-    if (!(ref instanceof WeakRef)) {
+  detach(sym: MiniSignalNodeRef<T, S>): this {
+    if (!isMiniSignalNodeRef(sym)) {
       throw new Error(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
+        'MiniSignal#detach(): First arg must be a MiniSignal listener reference.'
       );
     }
+
+    if (sym[MINI_SIGNAL_KEY] !== this._symbol) {
+      throw new Error(
+        'MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.'
+      );
+    }
+
+    const ref = this._refMap.get(sym);
+
+    if (!ref) return this; // already detached
 
     const node = ref.deref();
 
-    if (!node || !node[MiniSignalNodeSymbol]) return this;
-
-    if (node[MiniSignalNodeSymbol] !== this.symbol) {
-      throw new Error(
-        'MiniSignal#detach(): MiniSignalNode does not belong to this MiniSignal.'
-      );
-    }
+    if (!node) return this; // already garbage collected (shouldn't be necessary)
 
     this._disconnectNode(node);
     this._destroyNode(node);
@@ -99,6 +108,7 @@ export class MiniSignal<
       this._destroyNode(n);
       n = n.next;
     }
+
     return this;
   }
 
@@ -128,11 +138,9 @@ export class MiniSignal<
     if (node.next != null) {
       node.next.prev = node.prev;
     }
-
-    node[MiniSignalNodeSymbol] = undefined;
   }
 
-  private _addNode(node: MiniSignalNode<T>): MiniSignalRef<T, S> {
+  private _addNode(node: MiniSignalNode<T>): MiniSignalNode<T> {
     if (this._head == null) {
       this._head = node;
       this._tail = node;
@@ -143,7 +151,17 @@ export class MiniSignal<
       this._tail = node;
     }
 
-    return new WeakRef(node) as MiniSignalRef<T, S>;
+    return node;
+  }
+
+  private _createRef(node: MiniSignalNode<T>): MiniSignalNodeRef<T, S> {
+    const sym = { [MINI_SIGNAL_KEY]: this._symbol } as unknown as MiniSignalNodeRef<T, S>;
+    this._refMap.set(sym, new WeakRef(node));
+    return sym;
+  }
+
+  protected _getRef(sym: MiniSignalNodeRef<T, S>) {
+    return this._refMap.get(sym);
   }
 }
 

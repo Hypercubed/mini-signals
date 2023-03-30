@@ -9,8 +9,6 @@ describe('MiniSignal Typing', () => {
       expectType<string>(a);
     });
 
-    expectAssignable<WeakRef<any>>(l1);
-
     expectType<boolean>(e1.dispatch('foo'));
 
     expectType<typeof e1>(e1.detach(l1));
@@ -31,9 +29,6 @@ describe('MiniSignal Typing', () => {
     const l1 = e1.add(expectType<string>);
     const l2 = e2.add(expectType<number>);
 
-    expectAssignable<WeakRef<any>>(l1);
-    expectAssignable<WeakRef<any>>(l2);
-
     expectType<typeof e1>(e1.detach(l1));
 
     expectError(e1.detach(l2));
@@ -47,9 +42,6 @@ describe('MiniSignal Typing', () => {
 
     const l1 = e1.add(expectType<string>);
     const l2 = e2.add(expectType<string>);
-
-    expectAssignable<WeakRef<any>>(l1);
-    expectAssignable<WeakRef<any>>(l2);
 
     expectType<typeof e1>(e1.detach(l1));
 
@@ -67,9 +59,6 @@ describe('MiniSignal Typing', () => {
 
     const l1 = e1.add(expectType<string>);
     const l2 = e2.add(expectType<string>);
-
-    expectAssignable<WeakRef<any>>(l1);
-    expectAssignable<WeakRef<any>>(l2);
 
     expectType<typeof e1>(e1.detach(l1));
 

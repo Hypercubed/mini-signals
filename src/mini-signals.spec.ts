@@ -352,19 +352,19 @@ describe('MiniSignal', () => {
         // @ts-expect-error testing error
         e.detach();
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
+        'MiniSignal#detach(): First arg must be a MiniSignal listener reference.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(1);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
+        'MiniSignal#detach(): First arg must be a MiniSignal listener reference.'
       );
       expect(() => {
         // @ts-expect-error testing error
         e.detach(bar);
       }).throws(
-        'MiniSignal#detach(): First arg must be a MiniSignalNode reference.'
+        'MiniSignal#detach(): First arg must be a MiniSignal listener reference.'
       );
     });
 
@@ -496,7 +496,7 @@ describe('MiniSignal', () => {
 
       expect(() => {
         e2.detach(binding);
-      }).throws('MiniSignal#detach(): MiniSignalNode does not belong to this MiniSignal');
+      }).throws('MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.');
 
       expect(e.hasListeners());
     });
@@ -556,15 +556,15 @@ describe('MiniSignal', () => {
         /* */
       });
 
-      expect(w.deref()).to.exist;
+      expect((e as any)._getRef(w).deref()).to.exist;
       e.dispatch();
-      expect(w.deref()).to.exist;
+      expect((e as any)._getRef(w).deref()).to.exist;
 
       e.detach(w);
 
       await new Promise(resolve => setTimeout(resolve, 0));
       global.gc!();
-      expect(w.deref()).to.be.undefined;
+      expect((e as any)._getRef(w).deref()).to.be.undefined;
 
       // should not throw an error when detaching gc ref
       e.detach(w);
@@ -576,13 +576,13 @@ describe('MiniSignal', () => {
         e.detach(w);
       });
 
-      expect(w.deref()).to.exist;
+      expect((e as any)._getRef(w).deref()).to.exist;
       e.dispatch();
-      expect(w.deref()).to.exist;
+      expect((e as any)._getRef(w).deref()).to.exist;
 
       await new Promise(resolve => setTimeout(resolve, 0));
       global.gc!();
-      expect(w.deref()).to.be.undefined;
+      expect((e as any)._getRef(w).deref()).to.be.undefined;
     });
   });
 });
