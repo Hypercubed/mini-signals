@@ -2,6 +2,9 @@ import { MiniSignal } from '../src/mini-signals';
 
 import { expect } from 'chai';
 
+const delay = async (ms: number) =>
+  await new Promise((resolve) => setTimeout(resolve, ms));
+
 describe('MiniSignal', () => {
   const pattern: string[] = [];
 
@@ -34,7 +37,9 @@ describe('MiniSignal', () => {
 
     e.dispatch('raspberry');
 
-    expect(pattern.join(';')).to.equal('banana;banana;banana;apple;apple;apple;pear');
+    expect(pattern.join(';')).to.equal(
+      'banana;banana;banana;apple;apple;apple;pear'
+    );
   });
 
   describe('Readme Examples', () => {
@@ -67,7 +72,7 @@ describe('MiniSignal', () => {
     });
 
     it('Function#bind example with parameters', () => {
-      const mySignal = new MiniSignal<never>();
+      const mySignal = new MiniSignal<[]>();
       const context = {};
       const cb = function (bar: string) {
         expect(arguments).has.length(1);
@@ -496,7 +501,9 @@ describe('MiniSignal', () => {
 
       expect(() => {
         e2.detach(binding);
-      }).throws('MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.');
+      }).throws(
+        'MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.'
+      );
 
       expect(e.hasListeners());
     });
@@ -575,12 +582,12 @@ describe('MiniSignal', () => {
 
       expect(fR.deref()).to.exist;
       e.dispatch();
-      
+
       // Removing references in this scope should mark nodes GC
       fn = null as any;
       e = null as any;
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
 
       expect(fR.deref()).to.be.undefined;
@@ -597,7 +604,7 @@ describe('MiniSignal', () => {
 
       let fn = () => {
         noop(e, fn);
-      }
+      };
 
       const fR = new WeakRef(fn);
       const w = e.add(fn);
@@ -610,7 +617,7 @@ describe('MiniSignal', () => {
 
       e.detach(w);
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(fR.deref()).to.be.undefined;
 
@@ -621,7 +628,7 @@ describe('MiniSignal', () => {
 
       // Also cleans up the signal
       e = null as any;
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(eR.deref()).to.be.undefined;
 
@@ -636,7 +643,7 @@ describe('MiniSignal', () => {
 
       let fn = () => {
         noop(e, fn);
-      }
+      };
 
       const fR = new WeakRef(fn);
       const w = e.add(fn);
@@ -649,7 +656,7 @@ describe('MiniSignal', () => {
 
       e.detach(w);
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(fR.deref()).to.be.undefined;
 
@@ -660,7 +667,7 @@ describe('MiniSignal', () => {
 
       // Also cleans up the signal
       e = null as any;
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(eR.deref()).to.be.undefined;
 
@@ -688,19 +695,72 @@ describe('MiniSignal', () => {
       expect(fR.deref()).to.exist;
       e.dispatch();
 
-
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(fR.deref()).to.be.undefined;
 
       // Also cleans up the signal
       e = null as any;
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       global.gc!();
       expect(eR.deref()).to.be.undefined;
 
       // Only the node reference should be left
       expect(w).to.exist;
+    });
+  });
+
+  describe('MiniSignal#dispatchSerial', () => {
+    let e: MiniSignal;
+
+    beforeEach(() => {
+      e = new MiniSignal<[string]>();
+    });
+
+    it('emits to all event listeners in correct order', async () => {
+      const e = new MiniSignal();
+      const pattern: string[] = [];
+
+      e.add(async () => {
+        await delay(10);
+        pattern.push('foo1');
+      });
+
+      e.add(async () => {
+        pattern.push('foo2');
+        // await delay(5);
+      });
+
+      await e.dispatchSerial();
+
+      expect(pattern.join(';')).equals('foo1;foo2');
+    });
+  });
+
+  describe('MiniSignal#dispatchParallel', () => {
+    let e: MiniSignal;
+
+    beforeEach(() => {
+      e = new MiniSignal<[string]>();
+    });
+
+    it('emits to all event listeners in correct order', async () => {
+      const e = new MiniSignal();
+      const pattern: string[] = [];
+
+      e.add(async () => {
+        await delay(10);
+        pattern.push('foo1');
+      });
+
+      e.add(async () => {
+        pattern.push('foo2');
+        await delay(5);
+      });
+
+      await e.dispatchParallel();
+
+      expect(pattern.join(';')).equals('foo2;foo1');
     });
   });
 });

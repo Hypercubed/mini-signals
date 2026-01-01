@@ -12,22 +12,12 @@ There are several advantages to signals over event-emitters (see [Comparison bet
 
 > Note: Signals here are the type defined by Miller Medeiros in [js-signals](https://github.com/millermedeiros/js-signals) inspired by AS3-Signals.  They should not to be confused with [SolidJS](https://www.solidjs.com/tutorial/introduction_signals) or [Angular signals](https://github.com/angular/angular/discussions/49090).
 
-## mini-signals 2.0.0
-
-MiniSignals v2.0.0 has been rewritten in TypeScript and had it's API changed to improve performance and add type safety.
+## mini-signals 2.1.0
 
 New features:
 
-- `.add` now returns a node reference which can be used to remove the listener directly from the signal.  Reduces memory leaks.
-- `.add` is now type safe.  The type of the listener is checked against the type variable in the constructor as well as an optional "flavor".
-
-Breaking changes:
-
-- `.add` now returns a node reference instead of an object.  The returned node cannot be removed directly; it must be from the signal using `MiniSignal#detach`.
-- `.once` has been removed.  Use `.add` instead with a call to `.detach` in the callback.
-- The `thisArg` parameter has been removed from `.add`.  Use `.add` with a call to `.bind` or (preferred) use an arrow function with a closure.
-- `.dispatch` now throws an error if the signal is already dispatching.
-`.detach` now throws an error if the node reference was not generated from the signal.
+- `.dispatchSerial` - Dispatches listeners serially, waiting for each to complete if they return a Promise.
+- `.dispatchParallel` - Dispatches listeners in parallel, waiting for all to complete if they return Promises.
 
 ## Install
 
@@ -59,7 +49,7 @@ mySignal.detach(binding); // remove a single listener
 ```ts
 const myObject = {
   foo: "bar",
-  updated: new MiniSignal<never>() // in this case the type variable is never, since we are not passing any parameters
+  updated: new MiniSignal<[]>(); // in this case the type variable is empty, since we are not passing any parameters
 };
 
 myObject.updated.add(() => {

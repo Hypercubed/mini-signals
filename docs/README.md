@@ -61,7 +61,7 @@ mySignal.detach(binding); // remove a single listener
 ```ts
 const myObject = {
   foo: "bar",
-  updated: new MiniSignal<never>() // in this case the type variable is never, since we are not passing any parameters
+  updated: new MiniSignal<[]>() // in this case the type variable is empty, since we are not passing any parameters
 };
 
 myObject.updated.add(() => {

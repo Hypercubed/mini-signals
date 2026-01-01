@@ -1,11 +1,11 @@
-import {expectAssignable, expectError, expectType} from 'tsd';
+import { expectAssignable, expectError, expectType } from 'tsd';
 import { MiniSignal } from './mini-signals';
 
 describe('MiniSignal Typing', () => {
   it('should have correct types', () => {
     const e1 = new MiniSignal<[string]>();
 
-    const l1 = e1.add(a => {
+    const l1 = e1.add((a) => {
       expectType<string>(a);
     });
 
@@ -17,7 +17,11 @@ describe('MiniSignal Typing', () => {
   it('should show TS error on incorrect listeners and dispatch', () => {
     const e1 = new MiniSignal<[string]>();
 
-    expectError(e1.add((a: number) => { /* noop */ }));
+    expectError(
+      e1.add((a: number) => {
+        /* noop */
+      })
+    );
 
     expectError(e1.dispatch(5));
   });

@@ -1,9 +1,9 @@
-type CallBack<T extends any[]> = (...x: T) => void;
+type CallBack<T extends any[]> = (...x: T) => void | Promise<void>;
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
-interface MiniSignalNodeRef<T, S> {
-  [MINI_SIGNAL_KEY]: Symbol;
+export interface MiniSignalNodeRef<T, S> {
+  [MINI_SIGNAL_KEY]: symbol;
   __brand?: S;
   __type?: T;
 }
@@ -18,17 +18,14 @@ function isMiniSignalNodeRef(obj: any): obj is MiniSignalNodeRef<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
 }
 
-export class MiniSignal<
-  T extends any[] = any[],
-  S extends any = Symbol | string
-> {
+export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * A Symbol that is used to guarantee the uniqueness of the MiniSignal
    * instance.
    */
   private readonly _symbol = Symbol('MiniSignal');
   private _refMap = new WeakMap<MiniSignalNodeRef<T, S>, MiniSignalNode<T>>();
-  
+
   private _head?: MiniSignalNode<T> = undefined;
   private _tail?: MiniSignalNode<T> = undefined;
   private _dispatching = false;
@@ -51,9 +48,66 @@ export class MiniSignal<
     this._dispatching = true;
 
     while (node != null) {
-      node.fn(...args);
+      void node.fn(...args);
       node = node.next;
     }
+
+    this._dispatching = false;
+    return true;
+  }
+
+  /**
+   * Dispatches listeners serially, waiting for each to complete if they return a Promise.
+   * Returns a Promise that resolves to true if listeners were called, false otherwise.
+   */
+  async dispatchSerial(...args: T): Promise<boolean> {
+    if (this._dispatching) {
+      throw new Error(
+        'MiniSignal#dispatchSerial(): Signal already dispatching.'
+      );
+    }
+
+    let node = this._head;
+
+    if (node == null) return false;
+    this._dispatching = true;
+
+    while (node != null) {
+      await node.fn(...args);
+      node = node.next;
+    }
+
+    this._dispatching = false;
+    return true;
+  }
+
+  /**
+   * Dispatches listeners in parallel, waiting for all to complete if they return Promises.
+   * Returns a Promise that resolves to true if listeners were called, false otherwise.
+   */
+  async dispatchParallel(...args: T): Promise<boolean> {
+    if (this._dispatching) {
+      throw new Error(
+        'MiniSignal#dispatchParallel(): Signal already dispatching.'
+      );
+    }
+
+    let node = this._head;
+
+    if (node == null) return false;
+    this._dispatching = true;
+
+    const nodes: Array<MiniSignalNode<T>> = [];
+    while (node != null) {
+      nodes.push(node);
+      node = node.next;
+    }
+
+    await Promise.all(
+      nodes.map(async (n) => {
+        await n.fn(...args);
+      })
+    );
 
     this._dispatching = false;
     return true;
@@ -87,7 +141,7 @@ export class MiniSignal<
 
     const node = this._refMap.get(sym);
 
-    if (!node) return this; // already detached
+    if (node == null) return this; // already detached
 
     this._refMap.delete(sym);
     this._disconnectNode(node);
@@ -114,12 +168,12 @@ export class MiniSignal<
     return this;
   }
 
-  private _destroyNode(node: MiniSignalNode<T>) {
+  private _destroyNode(node: MiniSignalNode<T>): void {
     node.fn = undefined as any;
     node.prev = undefined;
   }
 
-  private _disconnectNode(node: MiniSignalNode<T>) {
+  private _disconnectNode(node: MiniSignalNode<T>): void {
     if (node === this._head) {
       // first node
       this._head = node.next;
@@ -157,13 +211,16 @@ export class MiniSignal<
   }
 
   private _createRef(node: MiniSignalNode<T>): MiniSignalNodeRef<T, S> {
-    const sym = { [MINI_SIGNAL_KEY]: this._symbol } as unknown as MiniSignalNodeRef<T, S>;
+    const sym = {
+      [MINI_SIGNAL_KEY]: this._symbol,
+    } as unknown as MiniSignalNodeRef<T, S>;
     this._refMap.set(sym, node);
     return sym;
   }
 
-  protected _getRef(sym: MiniSignalNodeRef<T, S>) {
+  protected _getRef(
+    sym: MiniSignalNodeRef<T, S>
+  ): MiniSignalNode<T> | undefined {
     return this._refMap.get(sym);
   }
 }
-
