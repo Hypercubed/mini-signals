@@ -1,10 +1,13 @@
 # CHANGELOG
 
 ## HEAD (Unreleased)
-* Adding `.dispatchSerial`
-* Adding `.dispatchParallel`
+_(none)_
 
 ---
+
+## 2.1.0 (2026-01-01)
+* Adding `.dispatchSerial`
+* Adding `.dispatchParallel`
 
 ## 2.0.0 (2023-03-29)
 
