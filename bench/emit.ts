@@ -83,6 +83,12 @@ bench
     handle2('bar', 'baz', 'boom');
   })
   .endGroup('Burn-in')
+  .add('Hypercubed/mini-signals', () => {
+    miniSignal.dispatch();
+    miniSignal.dispatch('bar');
+    miniSignal.dispatch('bar', 'baz');
+    miniSignal.dispatch('bar', 'baz', 'boom');
+  })
   .add('node:events', () => {
     ee1.emit('foo');
     ee1.emit('foo', 'bar');
@@ -100,12 +106,6 @@ bench
     signal.dispatch('bar');
     signal.dispatch('bar', 'baz');
     signal.dispatch('bar', 'baz', 'boom');
-  })
-  .add('Hypercubed/mini-signals', () => {
-    miniSignal.dispatch();
-    miniSignal.dispatch('bar');
-    miniSignal.dispatch('bar', 'baz');
-    miniSignal.dispatch('bar', 'baz', 'boom');
   })
   .add('Hypercubed/mini-signals@0.0.1', () => {
     miniSignal_0_0_1.dispatch();

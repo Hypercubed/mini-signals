@@ -42,9 +42,12 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
       throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
 
     let node = this._head;
-
     if (node == null) return false;
     this._dispatching = true;
+
+    // We know we have at least one node here
+    void node.fn(...args);
+    node = node.next;
 
     while (node != null) {
       void node.fn(...args);
@@ -69,6 +72,10 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
 
     if (node == null) return false;
     this._dispatching = true;
+
+    // We know we have at least one node here
+    await node.fn(...args);
+    node = node.next;
 
     while (node != null) {
       await node.fn(...args);
