@@ -3,18 +3,20 @@ import { IsoBench } from 'iso-bench';
 /**
 * Imports
 */
-import { MiniSignal } from '../src/mini-signals.ts';
 import { EventEmitter } from 'node:events';
 import EventEmitter3 from 'eventemitter3';
+import { EventEmitter as TseepEventEmitter } from 'tseep/lib/ee-safe.js';
+
+import { MiniSignal } from '../src/mini-signals.ts';
 import Signal from 'signals';
 import { Event } from 'ts-typed-events';
-import { EventEmitter as TseepEventEmitter } from "tseep";
 
 import MiniSignal_0_0_1 from 'mini-signals-0.0.1';
 import MiniSignal_0_0_2 from 'mini-signals-0.0.2';
 import MiniSignal_1_0_1 from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
 import { MiniSignal as MiniSignal_2_0_0 } from 'mini-signals-2.0.0';
+import { assert } from 'chai';
 
 /**
 * Instances.
@@ -33,12 +35,24 @@ const miniSignal_1_0_1 = new MiniSignal_1_0_1();
 const miniSignal_1_1_0 = new MiniSignal_1_1_0();
 const miniSignal_2_0_0 = new MiniSignal_2_0_0();
 
+var ASSERT = false;  // Set to true to enable argument checks, off for benchmarking
+
 function handle(...args: any[]) {
-  if (args.length > 100) { console.log('damn'); }
+  if (!ASSERT) return;
+  assert(args.length <= 5, 'too many arguments ' + arguments.length);
+  assert(args[3] !== undefined, 'too many arguments ' + arguments.length);
+  assert(args[0] !== 'bar', 'incorrect arguments');
+  assert(args[1] === 'baz', 'incorrect arguments');
+  assert(args[2] === 'boom', 'incorrect arguments');
 }
 
 function handle2(...args: any[]) {
-  if (args.length > 100) { console.log('damn'); }
+  if (!ASSERT) return;
+  assert(args.length <= 5, 'too many arguments ' + arguments.length);
+  assert(args[3] !== undefined, 'too many arguments ' + arguments.length);
+  assert(args[0] !== 'bar', 'incorrect arguments');
+  assert(args[1] === 'baz', 'incorrect arguments');
+  assert(args[2] === 'boom', 'incorrect arguments');
 }
 
 // events
