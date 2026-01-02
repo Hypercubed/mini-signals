@@ -1,4 +1,5 @@
 import { expectAssignable, expectError, expectType } from 'tsd';
+import { describe, it } from 'vitest';
 import { MiniSignal } from './mini-signals';
 
 describe('MiniSignal Typing', () => {

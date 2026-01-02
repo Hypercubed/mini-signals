@@ -20,5 +20,6 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {},
+  "ignorePatterns": ["*.spec.ts", "*.test-d.ts"]
 }

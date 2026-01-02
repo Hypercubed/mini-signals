@@ -7,8 +7,14 @@
     "esModuleInterop": true,
     "strictNullChecks": true,
     "allowImportingTsExtensions": true,
-    "lib": ["ESNext"]
+    "lib": [
+      "ESNext"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["src/mini-signals.test-d.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/mini-signals.test-d.ts"
+  ]
 }
