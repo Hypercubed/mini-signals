@@ -1,4 +1,5 @@
 import { IsoBench } from "iso-bench";
+import assert from "node:assert";
 
 /**
 * Imports
@@ -16,7 +17,6 @@ import MiniSignal_0_0_2 from 'mini-signals-0.0.2';
 import MiniSignal_1_0_1 from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
 import { MiniSignal as MiniSignal_2_0_0 } from 'mini-signals-2.0.0';
-import { assert } from "node:console";
 
 /**
 * Instances.
@@ -35,21 +35,21 @@ const miniSignal_1_0_1 = new MiniSignal_1_0_1();
 const miniSignal_1_1_0 = new MiniSignal_1_1_0();
 const miniSignal_2_0_0 = new MiniSignal_2_0_0();
 
-var ASSERT = false;  // Set to true to enable argument checks, off for benchmarking
+var ASSERT = process.env['ASSERT'] === 'true';  // Set to true to enable argument checks, off for benchmarking
 
 function handle(...args: any[]) {
   if (!ASSERT) return;
   assert(args.length <= 5, 'too many arguments ' + arguments.length);
-  assert(args[1] !== undefined, 'too many arguments ' + arguments.length);
-  assert(typeof args[0] !== 'object', 'incorrect arguments');
+  assert(args[1] === undefined, 'too many arguments ' + arguments.length);
+  assert(typeof args[0] === 'object', 'incorrect arguments');
   assert(args[0].bar === 'baz', 'incorrect arguments');
 }
 
 function handle2(...args: any[]) {
   if (!ASSERT) return;
   assert(args.length <= 5, 'too many arguments ' + arguments.length);
-  assert(args[1] !== undefined, 'too many arguments ' + arguments.length);
-  assert(typeof args[0] !== 'object', 'incorrect arguments');
+  assert(args[1] === undefined, 'too many arguments ' + arguments.length);
+  assert(typeof args[0] === 'object', 'incorrect arguments');
   assert(args[0].bar === 'baz', 'incorrect arguments');
 }
 
@@ -69,7 +69,7 @@ miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle); miniSignal_1_1_0.add(handle2);
 miniSignal_2_0_0.add(handle); miniSignal_2_0_0.add(handle2);
 
-const bench = new IsoBench();
+const bench = new IsoBench('emit single' + (ASSERT ? ' WITH ASSERTS' : ''));
 
 bench
   .add('node:events', () => {

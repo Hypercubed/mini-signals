@@ -34,13 +34,19 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     return this._head != null;
   }
 
+  *[Symbol.iterator]() {
+    let node = this._head;
+    while (node != null) {
+      yield node;
+      node = node.next;
+    }
+  }
+
   /**
    * Dispatches a signal to all registered listeners.
    */
   dispatch(...args: T): boolean {
-    if (this._dispatching) {
-      throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
-    }
+    if (this._dispatching) throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
 
     let node = this._head;
 
@@ -61,11 +67,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
   async dispatchSerial(...args: T): Promise<boolean> {
-    if (this._dispatching) {
-      throw new Error(
-        'MiniSignal#dispatchSerial(): Signal already dispatching.'
-      );
-    }
+    if (this._dispatching) throw new Error('MiniSignal#dispatchSerial(): Signal already dispatching.');
 
     let node = this._head;
 
@@ -85,7 +87,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
    * Dispatches listeners in parallel, waiting for all to complete if they return Promises.
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
-  async dispatchParallel(...args: T): Promise<boolean> {
+  dispatchParallel(...args: T): Promise<boolean> {
     if (this._dispatching) {
       throw new Error(
         'MiniSignal#dispatchParallel(): Signal already dispatching.'
@@ -94,23 +96,32 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
 
     let node = this._head;
 
-    if (node == null) return false;
+    if (node == null) return Promise.resolve(false);
     this._dispatching = true;
 
-    const nodes: Array<MiniSignalNode<T>> = [];
-    while (node != null) {
-      nodes.push(node);
-      node = node.next;
-    }
+    // Fast Promise.all implementation to avoid creating an array of promises
+    return new Promise((resolve, reject) => {
+      let promisesRunning = 0;
 
-    await Promise.all(
-      nodes.map(async (n) => {
-        await n.fn(...args);
-      })
-    );
-
-    this._dispatching = false;
-    return true;
+      while (node != null) {
+        promisesRunning++;
+  
+        Promise.resolve(node.fn(...args)) // ensures non-promise values are handled as promises
+          .then(() => {
+            promisesRunning--;
+            if (node == null && promisesRunning === 0) {
+              this._dispatching = false;
+              resolve(true);
+            }
+          })
+          .catch((err) => {
+            this._dispatching = false;
+            reject(err);
+          });
+  
+        node = node.next;
+      }
+    });
   }
 
   /**

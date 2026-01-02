@@ -1,4 +1,5 @@
 import { IsoBench } from 'iso-bench';
+import assert from 'node:assert';
 
 /**
 * Imports
@@ -29,13 +30,18 @@ var ctx = {
   foo: 'bar'
 };
 
-function handle() {
-  if (arguments.length > 100) {console.log('damn');}
-  if (this !== ctx) {console.log('damn'); process.exit(); }
+var ASSERT = process.env['ASSERT'] === 'true';  // Set to true to enable argument checks, off for benchmarking
+
+function handle(this: typeof ctx) {
+  if (!ASSERT) return;
+  assert(arguments.length <= 3, 'too many arguments');
+  assert(this === ctx, 'incorrect context');
 }
 
-function handle2() {
-  if (arguments.length > 100) {console.log('damn');}
+function handle2(this: any) {
+  if (!ASSERT) return;
+  assert(arguments.length <= 3, 'too many arguments');
+  assert(this !== ctx, 'incorrect context');
 }
 
 // events
@@ -50,7 +56,7 @@ miniSignal_0_0_2.add(handle.bind(ctx)); miniSignal_0_0_2.add(handle2);
 miniSignal_1_0_1.add(handle.bind(ctx)); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle, ctx); miniSignal_1_1_0.add(handle2);
 
-const bench = new IsoBench();
+const bench = new IsoBench('emit with context' + (ASSERT ? ' WITH ASSERTS' : ''));
 
 bench
   .add('node:events', () => {

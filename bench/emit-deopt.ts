@@ -12,6 +12,7 @@ import MiniSignal_0_0_1 from 'mini-signals-0.0.1';
 import MiniSignal_0_0_2 from 'mini-signals-0.0.2';
 import { MiniSignal as MiniSignal_1_0_1 } from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
+import { assert } from 'node:console';
 
 /**
 * Instances.
@@ -25,14 +26,18 @@ const miniSignal_1_0_1 = new MiniSignal_1_0_1();
 const miniSignal_1_1_0 = new MiniSignal_1_1_0();
 const signal = new Signal();
 
+var ASSERT = process.env['ASSERT'] === 'true';  // Set to true to enable argument checks, off for benchmarking
+
 function handle() {
-  if (arguments.length > 100) {console.log('damn');}
+  if (!ASSERT) return;
+  assert(arguments.length <= 3, 'too many arguments');
 }
 
 // Adding a prop to the function to make it deopt
 handle.$inject = [1,2,3];
 
 function handle2() {
+  if (!ASSERT) return;
   if (arguments.length > 100) {console.log('damn');}
 }
 
@@ -48,7 +53,7 @@ miniSignal_0_0_2.add(handle); miniSignal_0_0_2.add(handle2);
 miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle); miniSignal_1_1_0.add(handle2);
 
-const bench = new IsoBench();
+const bench = new IsoBench('emit deopt' + (ASSERT ? ' WITH ASSERTS' : ''));
 
 bench
   .add('node:events', () => {

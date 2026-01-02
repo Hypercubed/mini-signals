@@ -1,4 +1,5 @@
 import { IsoBench } from 'iso-bench';
+import assert from 'node:assert';
 
 /**
 * Imports
@@ -16,7 +17,6 @@ import MiniSignal_0_0_2 from 'mini-signals-0.0.2';
 import MiniSignal_1_0_1 from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
 import { MiniSignal as MiniSignal_2_0_0 } from 'mini-signals-2.0.0';
-import { assert } from 'chai';
 
 /**
 * Instances.
@@ -35,24 +35,22 @@ const miniSignal_1_0_1 = new MiniSignal_1_0_1();
 const miniSignal_1_1_0 = new MiniSignal_1_1_0();
 const miniSignal_2_0_0 = new MiniSignal_2_0_0();
 
-var ASSERT = false;  // Set to true to enable argument checks, off for benchmarking
+var ASSERT = process.env['ASSERT'] === 'true';  // Set to true to enable argument checks, off for benchmarking
 
 function handle(...args: any[]) {
   if (!ASSERT) return;
   assert(args.length <= 5, 'too many arguments ' + arguments.length);
-  assert(args[3] !== undefined, 'too many arguments ' + arguments.length);
-  assert(args[0] !== 'bar', 'incorrect arguments');
-  assert(args[1] === 'baz', 'incorrect arguments');
-  assert(args[2] === 'boom', 'incorrect arguments');
+  assert(args[0] === undefined || args[0] === 'bar', 'incorrect arguments');
+  assert(args[1] === undefined || args[1] === 'baz', 'incorrect arguments');
+  assert(args[2] === undefined || args[2] === 'boom', 'incorrect arguments');
 }
 
 function handle2(...args: any[]) {
   if (!ASSERT) return;
   assert(args.length <= 5, 'too many arguments ' + arguments.length);
-  assert(args[3] !== undefined, 'too many arguments ' + arguments.length);
-  assert(args[0] !== 'bar', 'incorrect arguments');
-  assert(args[1] === 'baz', 'incorrect arguments');
-  assert(args[2] === 'boom', 'incorrect arguments');
+  assert(args[0] === undefined || args[0] === 'bar', 'incorrect arguments');
+  assert(args[1] === undefined || args[1] === 'baz', 'incorrect arguments');
+  assert(args[2] === undefined || args[2] === 'boom', 'incorrect arguments');
 }
 
 // events
@@ -71,9 +69,20 @@ miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle); miniSignal_1_1_0.add(handle2);
 miniSignal_2_0_0.add(handle); miniSignal_2_0_0.add(handle2);
 
-const bench = new IsoBench();
+const bench = new IsoBench('emit' + (ASSERT ? ' WITH ASSERTS' : ''));
 
 bench
+  .add('Theory', () => {
+    handle();
+    handle2();
+    handle('bar');
+    handle2('bar');
+    handle('bar', 'baz');
+    handle2('bar', 'baz');
+    handle('bar', 'baz', 'boom');
+    handle2('bar', 'baz', 'boom');
+  })
+  .endGroup('Burn-in')
   .add('node:events', () => {
     ee1.emit('foo');
     ee1.emit('foo', 'bar');

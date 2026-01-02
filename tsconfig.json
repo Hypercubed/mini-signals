@@ -6,6 +6,7 @@
     "outDir": "./dist",
     "esModuleInterop": true,
     "strictNullChecks": true,
+    "allowImportingTsExtensions": true,
     "lib": ["ESNext"]
   },
   "include": ["src/**/*"],

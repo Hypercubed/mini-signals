@@ -1,4 +1,4 @@
-import { MiniSignal } from '../src/mini-signals';
+import { MiniSignal } from '../src/mini-signals.ts';
 
 import { expect } from 'chai';
 
