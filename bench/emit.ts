@@ -8,24 +8,30 @@ import { EventEmitter } from 'node:events';
 import EventEmitter3 from 'eventemitter3';
 import Signal from 'signals';
 import { Event } from 'ts-typed-events';
+import { EventEmitter as TseepEventEmitter } from "tseep";
 
 import MiniSignal_0_0_1 from 'mini-signals-0.0.1';
 import MiniSignal_0_0_2 from 'mini-signals-0.0.2';
-import { MiniSignal as MiniSignal_1_0_1 } from 'mini-signals-1.0.1';
+import MiniSignal_1_0_1 from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
+import { MiniSignal as MiniSignal_2_0_0 } from 'mini-signals-2.0.0';
 
 /**
 * Instances.
 */
 const ee1 = new EventEmitter();
 const ee3 = new EventEmitter3();
+const tseepEE = new TseepEventEmitter();
+
+const signal = new Signal();
+const event = new Event<string>();
 const miniSignal = new MiniSignal();
+
 const miniSignal_0_0_1 = new MiniSignal_0_0_1();
 const miniSignal_0_0_2 = new MiniSignal_0_0_2();
 const miniSignal_1_0_1 = new MiniSignal_1_0_1();
 const miniSignal_1_1_0 = new MiniSignal_1_1_0();
-const signal = new Signal();
-const event = new Event<string>();
+const miniSignal_2_0_0 = new MiniSignal_2_0_0();
 
 function handle(...args: any[]) {
   if (args.length > 100) { console.log('damn'); }
@@ -38,17 +44,18 @@ function handle2(...args: any[]) {
 // events
 ee1.on('foo', handle); ee1.on('foo', handle2);
 ee3.on('foo', handle); ee3.on('foo', handle2);
+tseepEE.on('foo', handle); tseepEE.on('foo', handle2);
 
 // signals
 signal.add(handle); signal.add(handle2);
 miniSignal.add(handle); miniSignal.add(handle2);
 event.on(handle); event.on(handle2);
 
-// @ts-ignore
 miniSignal_0_0_1.add(handle); miniSignal_0_0_1.add(handle2);
 miniSignal_0_0_2.add(handle); miniSignal_0_0_2.add(handle2);
 miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
 miniSignal_1_1_0.add(handle); miniSignal_1_1_0.add(handle2);
+miniSignal_2_0_0.add(handle); miniSignal_2_0_0.add(handle2);
 
 const bench = new IsoBench();
 
@@ -100,6 +107,18 @@ bench
     miniSignal_1_1_0.dispatch('bar');
     miniSignal_1_1_0.dispatch('bar', 'baz');
     miniSignal_1_1_0.dispatch('bar', 'baz', 'boom');
+  })
+  .add('Hypercubed/mini-signals@2.0.0', () => {
+    miniSignal_2_0_0.dispatch();
+    miniSignal_2_0_0.dispatch('bar');
+    miniSignal_2_0_0.dispatch('bar', 'baz');
+    miniSignal_2_0_0.dispatch('bar', 'baz', 'boom');
+  })
+  .add('Morglod/tseep', () => {
+    miniSignal_2_0_0.dispatch();
+    miniSignal_2_0_0.dispatch('bar');
+    miniSignal_2_0_0.dispatch('bar', 'baz');
+    miniSignal_2_0_0.dispatch('bar', 'baz', 'boom');
   });
 
 bench.consoleLog().run();
