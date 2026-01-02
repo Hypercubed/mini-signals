@@ -1,4 +1,5 @@
-require('./emit.js');
-require('./emit-context.js');
-require('./emit-bind.js');
-require('./emit-deopt.js');
+import './emit.ts';
+import './emit-single.ts';
+import './emit-context.ts';
+import './emit-bind.ts';
+import './emit-deopt.ts';
