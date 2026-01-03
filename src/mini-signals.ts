@@ -1,20 +1,8 @@
-import type { EventHandler } from "./shared-types";
+import type { EventHandler, Node, Binding } from "./types.d.ts";
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
-export interface MiniSignalNodeRef<T, S> {
-  [MINI_SIGNAL_KEY]: symbol;
-  __brand?: S;
-  __type?: T;
-}
-
-interface MiniSignalNode<T extends any[]> {
-  fn: EventHandler<T>;
-  next?: MiniSignalNode<T>;
-  prev?: MiniSignalNode<T>;
-}
-
-function isMiniSignalNodeRef(obj: any): obj is MiniSignalNodeRef<any, any> {
+function isBinding(obj: any): obj is Binding<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
 }
 
@@ -24,10 +12,10 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
    * instance.
    */
   private readonly _symbol = Symbol('MiniSignal');
-  private _refMap = new WeakMap<MiniSignalNodeRef<T, S>, MiniSignalNode<T>>();
+  private _refMap = new WeakMap<Binding<T, S>, Node<T>>();
 
-  private _head?: MiniSignalNode<T> = undefined;
-  private _tail?: MiniSignalNode<T> = undefined;
+  private _head?: Node<T> = undefined;
+  private _tail?: Node<T> = undefined;
   private _dispatching = false;
 
   hasListeners(): boolean {
@@ -130,7 +118,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * Register a new listener.
    */
-  add(fn: EventHandler<T>): MiniSignalNodeRef<T, S> {
+  add(fn: EventHandler<T>): Binding<T, S> {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
@@ -140,8 +128,8 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * Remove binding object.
    */
-  detach(sym: MiniSignalNodeRef<T, S>): this {
-    if (!isMiniSignalNodeRef(sym)) {
+  detach(sym: Binding<T, S>): this {
+    if (!isBinding(sym)) {
       throw new Error(
         'MiniSignal#detach(): First arg must be a MiniSignal listener reference.'
       );
@@ -182,12 +170,12 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     return this;
   }
 
-  private _destroyNode(node: MiniSignalNode<T>): void {
+  private _destroyNode(node: Node<T>): void {
     node.fn = undefined as any;
     node.prev = undefined;
   }
 
-  private _disconnectNode(node: MiniSignalNode<T>): void {
+  private _disconnectNode(node: Node<T>): void {
     if (node === this._head) {
       // first node
       this._head = node.next;
@@ -210,7 +198,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     }
   }
 
-  private _addNode(node: MiniSignalNode<T>): MiniSignalNode<T> {
+  private _addNode(node: Node<T>): Node<T> {
     if (this._head == null) {
       this._head = node;
       this._tail = node;
@@ -224,17 +212,17 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     return node;
   }
 
-  private _createRef(node: MiniSignalNode<T>): MiniSignalNodeRef<T, S> {
+  private _createRef(node: Node<T>): Binding<T, S> {
     const sym = {
       [MINI_SIGNAL_KEY]: this._symbol,
-    } as unknown as MiniSignalNodeRef<T, S>;
+    } as unknown as Binding<T, S>;
     this._refMap.set(sym, node);
     return sym;
   }
 
   protected _getRef(
-    sym: MiniSignalNodeRef<T, S>
-  ): MiniSignalNode<T> | undefined {
+    sym: Binding<T, S>
+  ): Node<T> | undefined {
     return this._refMap.get(sym);
   }
 }

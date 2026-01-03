@@ -1,6 +1,6 @@
 import { expectAssignable, expectError, expectType } from 'tsd';
 import { describe, it } from 'vitest';
-import { MiniSignal } from './mini-signals';
+import { MiniSignal } from './mini-signals.ts';
 
 describe('MiniSignal Typing', () => {
   it('should have correct types', () => {

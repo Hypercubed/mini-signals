@@ -1,19 +1,20 @@
 {
+  "$schema": "https://www.schemastore.org/tsconfig",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2015",
+    "module": "NodeNext",
+    "target": "es2020",
     "declaration": true,
     "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "strictNullChecks": true,
-    "lib": [
-      "ESNext"
-    ]
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "isolatedDeclarations": true,
+    "lib": ["es2020"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "src/mini-signals.test-d.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.d.ts", "**/*.test-d.ts", "node_modules", "dist", "tests"]
 }

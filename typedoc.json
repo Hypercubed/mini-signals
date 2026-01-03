@@ -1,0 +1,12 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["./src/mini-signals.ts", "./src/types.d.ts"],
+    "out": "docs",
+    "plugin": ["typedoc-plugin-markdown"],
+    "excludeProtected": true,
+    "excludePrivate": true,
+    "compilerOptions": {
+      "skipLibCheck": true,
+      "strictNullChecks": false,
+    }
+}

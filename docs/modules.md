@@ -1,9 +1,10 @@
-[mini-signals](README.md) / Exports
+[**mini-signals**](README.md)
+
+***
 
 # mini-signals
 
-## Table of contents
+## Modules
 
-### Classes
-
-- [MiniSignal](classes/MiniSignal.md)
+- [mini-signals](mini-signals/README.md)
+- [types](types/README.md)

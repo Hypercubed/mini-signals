@@ -1,3 +1,4 @@
-export * from './mini-signals';
-export * from './mini-signals-bus';
-export * from './mini-signals-utils';
+export * from './mini-signals.ts';
+export * from './mini-signals-bus.ts';
+export * from './mini-signals-utils.ts';
+export type * from './types.d.ts';

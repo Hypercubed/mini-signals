@@ -1,10 +1,10 @@
-import { MiniSignal } from "./mini-signals";
-import type { EventMap } from "./shared-types";
+import { MiniSignal } from "./mini-signals.ts";
+import type { MiniSignalEventMap } from "./types.d.ts";
 
 /**
  * Helper to create a signal map for SignalEmitter
  */
-export function createSignalMap<T extends EventMap>(
+export function createSignalMap<T extends MiniSignalEventMap>(
   events: (keyof T)[]
 ): { [K in keyof T]: MiniSignal<T[K]> } {
   const map = {} as { [K in keyof T]: MiniSignal<T[K]> };

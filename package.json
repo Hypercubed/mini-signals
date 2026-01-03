@@ -3,11 +3,18 @@
   "version": "2.1.0",
   "description": "signals, in TypeScript, fast",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
-    "/dist",
-    "/docs"
+    "/dist"
   ],
   "scripts": {
     "test": "vitest run",
@@ -15,8 +22,8 @@
     "test:types": "tsd -f ./src/mini-signals.test-d.ts",
     "watch": "vitest watch",
     "build": "npm-run-all build:*",
-    "build:tsc": "tsc",
-    "xxx-build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
+    "build:tsc": "tsdown",
+    "build:doc": "typedoc",
     "coverage": "vitest run --coverage",
     "test-bench": "ASSERT=true npm-run-all bench:*",
     "bench": "npm-run-all bench:*",
@@ -50,6 +57,7 @@
   "homepage": "https://github.com/Hypercubed/mini-signals",
   "devDependencies": {
     "@types/benchmark": "^2.1.5",
+    "@types/node": "^25.0.3",
     "@types/signals": "^1.0.4",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@vitest/coverage-v8": "^1.6.1",
@@ -79,10 +87,11 @@
     "ts-node": "^10.9.2",
     "ts-typed-events": "^3.0.0",
     "tsd": "^0.28.1",
+    "tsdown": "^0.19.0-beta.1",
     "tseep": "^1.3.1",
-    "typedoc": "^0.23.28",
-    "typedoc-plugin-markdown": "^3.14.0",
-    "typescript": "^5.0.2",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typescript": "^5.9.3",
     "vitest": "^1.6.1"
   }
 }
