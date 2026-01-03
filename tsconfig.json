@@ -12,6 +12,7 @@
     "strictNullChecks": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
+    "isolatedDeclarations": true,
     "lib": ["es2020"]
   },
   "include": ["src/**/*"],
