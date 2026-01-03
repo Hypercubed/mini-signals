@@ -17,11 +17,13 @@
     "/dist"
   ],
   "scripts": {
-    "test": "vitest run",
+    "test": "npm-run-all test:*",
+    "test:check": "npm-run-all check:*",
+    "test:unit": "vitest run",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
     "test:types": "tsd -f ./src/mini-signals.test-d.ts",
     "watch": "vitest watch",
-    "build": "npm-run-all build:*",
+    "build": "npm-run-all fix:* && npm-run-all build:*",
     "build:tsc": "tsdown",
     "build:doc": "typedoc",
     "coverage": "vitest run --coverage",
@@ -38,7 +40,10 @@
     "fix": "npm-run-all fix:*",
     "fix:prettier": "prettier --write './{src, bench}/**/*.*'",
     "fix:lint": "eslint './{src, bench}/**/*.*' --fix",
-    "test:watch": "vitest watch"
+    "check": "npm-run-all check:*",
+    "check:prettier": "prettier --check './{src, bench}/**/*.*'",
+    "check:lint": "eslint './{src, bench}/**/*.*'",
+    "check:types": "tsc --noEmit"
   },
   "repository": {
     "type": "git",

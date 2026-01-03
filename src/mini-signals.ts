@@ -1,4 +1,4 @@
-import type { EventHandler, Node, Binding } from "./types.d.ts";
+import type { EventHandler, Node, Binding } from './types.d.ts';
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
@@ -220,9 +220,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     return sym;
   }
 
-  protected _getRef(
-    sym: Binding<T, S>
-  ): Node<T> | undefined {
+  protected _getRef(sym: Binding<T, S>): Node<T> | undefined {
     return this._refMap.get(sym);
   }
 }

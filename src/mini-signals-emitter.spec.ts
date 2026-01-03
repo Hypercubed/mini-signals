@@ -1,8 +1,8 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { MiniSignalEmitter } from './mini-signals-bus';
-import { MiniSignal } from './mini-signals';
-import type { EventHandler } from './shared-types';
+import { MiniSignalEmitter } from './mini-signals-emitter.ts';
+import { MiniSignal } from './mini-signals.ts';
+import type { EventHandler, SignalMap } from './types.d.ts';
 
 type TestEvents = {
   'user:login': [userId: string, timestamp: number];
@@ -14,11 +14,6 @@ type TestEvents = {
 const LOGIN = Symbol('login');
 const LOGOUT = Symbol('logout');
 
-type SymbolEvents = {
-  [LOGIN]: [userId: string];
-  [LOGOUT]: [reason: string];
-};
-
 describe('MiniSignalEmitter', () => {
   describe('constructor', () => {
     it('should create an emitter with provided signals', () => {
@@ -29,7 +24,7 @@ describe('MiniSignalEmitter', () => {
         'no-args': new MiniSignal<[]>(),
       };
 
-      const emitter = new MiniSignalEmitter<TestEvents>(signals);
+      const emitter = new MiniSignalEmitter(signals);
       expect(emitter).toBeDefined();
     });
 
@@ -41,8 +36,8 @@ describe('MiniSignalEmitter', () => {
         'no-args': new MiniSignal<[]>(),
       };
 
-      const emitter = new MiniSignalEmitter<TestEvents>(signals);
-      
+      const emitter = new MiniSignalEmitter(signals);
+
       // Mutating the original shouldn't affect the emitter
       const newSignal = new MiniSignal<[string, number]>();
       signals['user:login'] = newSignal;
@@ -60,7 +55,7 @@ describe('MiniSignalEmitter', () => {
         [LOGOUT]: new MiniSignal<[string]>(),
       };
 
-      const emitter = new MiniSignalEmitter<SymbolEvents>(signals);
+      const emitter = new MiniSignalEmitter(signals);
       const handler = vi.fn();
 
       emitter.on(LOGIN, handler);
@@ -71,8 +66,8 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('on', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
-    let signals: Record<keyof TestEvents, MiniSignal<any>>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let signals: SignalMap<TestEvents>;
 
     beforeEach(() => {
       signals = {
@@ -81,7 +76,7 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should register a listener', () => {
@@ -125,7 +120,7 @@ describe('MiniSignalEmitter', () => {
     });
 
     it('should throw for missing signal', () => {
-      const emptyEmitter = new MiniSignalEmitter<TestEvents>({
+      const emptyEmitter = new MiniSignalEmitter({
         'user:login': new MiniSignal<[string, number]>(),
         'user:logout': new MiniSignal<[string]>(),
         'data:update': new MiniSignal<[string, any]>(),
@@ -140,11 +135,14 @@ describe('MiniSignalEmitter', () => {
 
     it('should support async handlers', async () => {
       const handler = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return userId;
       });
 
-      emitter.on('user:logout', handler as unknown as EventHandler<[userId: string]>);
+      emitter.on(
+        'user:logout',
+        handler as unknown as EventHandler<[userId: string]>
+      );
       emitter.emit('user:logout', 'user123');
 
       expect(handler).toHaveBeenCalledWith('user123');
@@ -152,7 +150,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('once', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -161,7 +159,7 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should only fire the handler once', () => {
@@ -207,7 +205,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emit', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -216,7 +214,7 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should emit events with correct arguments', () => {
@@ -230,7 +228,7 @@ describe('MiniSignalEmitter', () => {
     it('should return true when dispatch succeeds', () => {
       const handler = vi.fn();
       emitter.on('user:login', handler);
-      
+
       const result = emitter.emit('user:login', 'user123', 1234567890);
       expect(result).toBe(true);
     });
@@ -267,7 +265,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitSerial', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -276,19 +274,19 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should emit events and wait for async handlers to complete', async () => {
       const results: number[] = [];
-      
+
       const handler1 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         results.push(1);
       });
-      
+
       const handler2 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 30));
         results.push(2);
       });
 
@@ -304,16 +302,16 @@ describe('MiniSignalEmitter', () => {
 
     it('should execute handlers in serial order', async () => {
       const executionOrder: string[] = [];
-      
+
       const handler1 = vi.fn(async () => {
         executionOrder.push('start-1');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         executionOrder.push('end-1');
       });
-      
+
       const handler2 = vi.fn(async () => {
         executionOrder.push('start-2');
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 30));
         executionOrder.push('end-2');
       });
 
@@ -329,12 +327,12 @@ describe('MiniSignalEmitter', () => {
     it('should handle sync handlers in emitSerial', async () => {
       const handler1 = vi.fn((userId: string) => {
         return 'sync';
-      });
-      
+      }) as unknown as EventHandler<[string]>;
+
       const handler2 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return 'async';
-      });
+      }) as unknown as EventHandler<[string]>;
 
       emitter.on('user:logout', handler1);
       emitter.on('user:logout', handler2);
@@ -365,7 +363,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitParallel', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -374,19 +372,19 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should emit events and wait for all async handlers to complete', async () => {
       const results: number[] = [];
-      
+
       const handler1 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         results.push(1);
       });
-      
+
       const handler2 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 30));
         results.push(2);
       });
 
@@ -404,16 +402,16 @@ describe('MiniSignalEmitter', () => {
 
     it('should execute handlers in parallel', async () => {
       const executionOrder: string[] = [];
-      
+
       const handler1 = vi.fn(async () => {
         executionOrder.push('start-1');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         executionOrder.push('end-1');
       });
-      
+
       const handler2 = vi.fn(async () => {
         executionOrder.push('start-2');
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 30));
         executionOrder.push('end-2');
       });
 
@@ -432,11 +430,11 @@ describe('MiniSignalEmitter', () => {
 
     it('should be faster than serial execution', async () => {
       const handler1 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
-      
+
       const handler2 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
       emitter.on('no-args', handler1);
@@ -453,12 +451,12 @@ describe('MiniSignalEmitter', () => {
     it('should handle sync handlers in emitParallel', async () => {
       const handler1 = vi.fn((userId: string) => {
         return 'sync';
-      });
-      
+      }) as unknown as EventHandler<[string]>;
+
       const handler2 = vi.fn(async (userId: string) => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return 'async';
-      });
+      }) as unknown as EventHandler<[string]>;
 
       emitter.on('user:logout', handler1);
       emitter.on('user:logout', handler2);
@@ -477,7 +475,7 @@ describe('MiniSignalEmitter', () => {
 
     it('should propagate errors from handlers', async () => {
       const handler1 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
 
       const handler2 = vi.fn(async () => {
@@ -494,7 +492,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('clear', () => {
-    let emitter: MiniSignalEmitter<TestEvents>;
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -503,7 +501,7 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      emitter = new MiniSignalEmitter<TestEvents>(signals);
+      emitter = new MiniSignalEmitter(signals);
     });
 
     it('should clear listeners for a specific event', () => {
@@ -547,7 +545,7 @@ describe('MiniSignalEmitter', () => {
         [LOGIN]: new MiniSignal<[string]>(),
         [LOGOUT]: new MiniSignal<[string]>(),
       };
-      const symbolEmitter = new MiniSignalEmitter<SymbolEvents>(signals);
+      const symbolEmitter = new MiniSignalEmitter(signals);
 
       const handler = vi.fn();
       symbolEmitter.on(LOGIN, handler);
@@ -586,8 +584,8 @@ describe('MiniSignalEmitter', () => {
         'no-args': new MiniSignal<[]>(),
       };
 
-      const emitter1 = new MiniSignalEmitter<TestEvents>(sharedSignals);
-      const emitter2 = new MiniSignalEmitter<TestEvents>(sharedSignals);
+      const emitter1 = new MiniSignalEmitter(sharedSignals);
+      const emitter2 = new MiniSignalEmitter(sharedSignals);
 
       const handler1 = vi.fn();
       const handler2 = vi.fn();
@@ -610,14 +608,14 @@ describe('MiniSignalEmitter', () => {
         'no-args': new MiniSignal<[]>(),
       };
 
-      const emitter1 = new MiniSignalEmitter<TestEvents>(sharedSignals);
-      const emitter2 = new MiniSignalEmitter<TestEvents>(sharedSignals);
+      const emitter1 = new MiniSignalEmitter(sharedSignals);
+      const emitter2 = new MiniSignalEmitter(sharedSignals);
 
       const handler1 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
       const handler2 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
 
       emitter1.on('no-args', handler1);
@@ -637,14 +635,14 @@ describe('MiniSignalEmitter', () => {
         'no-args': new MiniSignal<[]>(),
       };
 
-      const emitter1 = new MiniSignalEmitter<TestEvents>(sharedSignals);
-      const emitter2 = new MiniSignalEmitter<TestEvents>(sharedSignals);
+      const emitter1 = new MiniSignalEmitter(sharedSignals);
+      const emitter2 = new MiniSignalEmitter(sharedSignals);
 
       const handler1 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
       const handler2 = vi.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
 
       emitter1.on('no-args', handler1);
@@ -665,7 +663,7 @@ describe('MiniSignalEmitter', () => {
         'data:update': new MiniSignal<[string, any]>(),
         'no-args': new MiniSignal<[]>(),
       };
-      const emitter = new MiniSignalEmitter<TestEvents>(signals);
+      const emitter = new MiniSignalEmitter(signals);
 
       // These should compile
       emitter.on('user:login', (userId, timestamp) => {

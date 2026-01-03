@@ -1,5 +1,5 @@
-var { MiniSignal } = require('../dist/');
-var assert = require('assert');
+import { MiniSignal } from '../dist/index.mjs';
+import assert from 'assert';
 
 var myObject = new MyObject();
 
