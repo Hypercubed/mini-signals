@@ -20,6 +20,8 @@ import MiniSignal_1_0_1 from 'mini-signals-1.0.1';
 import MiniSignal_1_1_0 from 'mini-signals-1.1.0';
 import { MiniSignal as MiniSignal_2_0_0 } from 'mini-signals-2.0.0';
 
+EventEmitter.setMaxListeners(100);
+
 /**
 * Instances.
 */
@@ -40,6 +42,8 @@ const miniSignal_2_0_0 = new MiniSignal_2_0_0();
 
 var ASSERT = process.env['ASSERT'] === 'true';  // Set to true to enable argument checks, off for benchmarking
 
+const N = 20;
+
 function handle(...args: any[]) {
   if (!ASSERT) return;
   assert(args.length <= 5, 'too many arguments ' + arguments.length);
@@ -56,35 +60,45 @@ function handle2(...args: any[]) {
   assert(args[2] === undefined || args[2] === 'boom', 'incorrect arguments');
 }
 
-// events
-ee1.on('foo', handle); ee1.on('foo', handle2);
-ee3.on('foo', handle); ee3.on('foo', handle2);
-tseepEE.on('foo', handle); tseepEE.on('foo', handle2);
-emitter.on('foo', handle); emitter.on('foo', handle2);
+for (let i = 0; i < N; i++) {
+  const h1 = (...args: any[]) => handle(...args);
+  const h2 = (...args: any[]) => handle2(...args);
 
-// signals
-signal.add(handle); signal.add(handle2);
-miniSignal.add(handle); miniSignal.add(handle2);
-event.on(handle); event.on(handle2);
-
-miniSignal_0_0_1.add(handle); miniSignal_0_0_1.add(handle2);
-miniSignal_0_0_2.add(handle); miniSignal_0_0_2.add(handle2);
-miniSignal_1_0_1.add(handle); miniSignal_1_0_1.add(handle2);
-miniSignal_1_1_0.add(handle); miniSignal_1_1_0.add(handle2);
-miniSignal_2_0_0.add(handle); miniSignal_2_0_0.add(handle2);
+  // events
+  ee1.on('foo', h1); ee1.on('foo', h2);
+  ee3.on('foo', h1); ee3.on('foo', h2);
+  tseepEE.on('foo', h1); tseepEE.on('foo', h2);
+  emitter.on('foo', h1); emitter.on('foo', h2);
+  
+  // signals
+  signal.add(h1); signal.add(h2);
+  miniSignal.add(h1); miniSignal.add(h2);
+  event.on(h1); event.on(h2);
+  
+  miniSignal_0_0_1.add(h1); miniSignal_0_0_1.add(h2);
+  miniSignal_0_0_2.add(h1); miniSignal_0_0_2.add(h2);
+  miniSignal_1_0_1.add(h1); miniSignal_1_0_1.add(h2);
+  miniSignal_1_1_0.add(h1); miniSignal_1_1_0.add(h2);
+  miniSignal_2_0_0.add(h1); miniSignal_2_0_0.add(h2);
+}
 
 const bench = new IsoBench('emit' + (ASSERT ? ' WITH ASSERTS' : ''));
 
+const h1 = (...args: any[]) => handle(...args);
+const h2 = (...args: any[]) => handle2(...args);
+
 bench
   .add('Theory', () => {
-    handle();
-    handle2();
-    handle('bar');
-    handle2('bar');
-    handle('bar', 'baz');
-    handle2('bar', 'baz');
-    handle('bar', 'baz', 'boom');
-    handle2('bar', 'baz', 'boom');
+    for (let i = 0; i < N; i++) {
+      h1();
+      h2();
+      h1('bar');
+      h2('bar');
+      h1('bar', 'baz');
+      h2('bar', 'baz');
+      h1('bar', 'baz', 'boom');
+      h2('bar', 'baz', 'boom');
+    }
   })
   .endGroup('Burn-in')
   .add('Hypercubed/mini-signals', () => {

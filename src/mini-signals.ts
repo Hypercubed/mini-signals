@@ -1,4 +1,4 @@
-type CallBack<T extends any[]> = (...x: T) => void | Promise<void>;
+import type { EventHandler } from "./shared-types";
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
@@ -9,7 +9,7 @@ export interface MiniSignalNodeRef<T, S> {
 }
 
 interface MiniSignalNode<T extends any[]> {
-  fn: CallBack<T>;
+  fn: EventHandler<T>;
   next?: MiniSignalNode<T>;
   prev?: MiniSignalNode<T>;
 }
@@ -130,7 +130,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * Register a new listener.
    */
-  add(fn: CallBack<T>): MiniSignalNodeRef<T, S> {
+  add(fn: EventHandler<T>): MiniSignalNodeRef<T, S> {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }

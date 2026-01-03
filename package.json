@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
     "test:types": "tsd -f ./src/mini-signals.test-d.ts",
+    "watch": "vitest watch",
     "build": "npm-run-all build:*",
     "build:tsc": "tsc",
     "xxx-build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",

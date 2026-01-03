@@ -1,4 +1,4 @@
-import { MiniSignal } from '../src/mini-signals.ts';
+import { MiniSignal } from '../src/mini-signals';
 
 import { beforeEach, describe, it, expect } from 'vitest';
 

@@ -63,6 +63,8 @@ myObject.updated.dispatch(); // dispatch signal
 
 ### Flavoring the signal
 
+Flavoring (or branding) a signal ensures that only bindings created by that specific signal can be used to detach listeners from it. This prevents accidentally attempting to detach a binding from a different signal; which would result in a runtime error.
+
 ```ts
 import { MiniSignal } from 'mini-signals';
 
