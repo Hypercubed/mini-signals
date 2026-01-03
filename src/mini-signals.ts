@@ -1,18 +1,6 @@
-type CallBack<T extends any[]> = (...x: T) => void | Promise<void>;
+import type { CallBack, MiniSignalNode, MiniSignalNodeRef } from "./types.d.ts";
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
-
-export interface MiniSignalNodeRef<T, S> {
-  [MINI_SIGNAL_KEY]: symbol;
-  __brand?: S;
-  __type?: T;
-}
-
-interface MiniSignalNode<T extends any[]> {
-  fn: CallBack<T>;
-  next?: MiniSignalNode<T>;
-  prev?: MiniSignalNode<T>;
-}
 
 function isMiniSignalNodeRef(obj: any): obj is MiniSignalNodeRef<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
