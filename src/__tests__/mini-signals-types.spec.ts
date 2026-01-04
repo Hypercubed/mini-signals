@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { MiniSignal } from '../mini-signals.ts';
 import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
+// import { asyncSignal, syncSignal } from '../mini-signals-utils.ts';
 
 describe('MiniSignal Typing', () => {
   it('should have correct types', () => {
@@ -113,6 +114,63 @@ describe('MiniSignal Typing', () => {
     expectType<Promise<boolean>>(e1.dispatchParallel());
     expectType<Promise<boolean>>(e1.dispatchSerial());
   });
+
+  it('can add async and sync handlers to untyped signals', async () => {
+    const e1 = new MiniSignal();
+    
+    e1.add(() => {
+      /* sync handler */
+    });
+    e1.add(async () => {
+      /* async handler */
+    });
+    
+    expectType<boolean>(e1.dispatch());
+    expectType<Promise<boolean>>(e1.dispatchParallel());
+    expectType<Promise<boolean>>(e1.dispatchSerial());
+  });
+
+  it('can add both sync and async handlers to async signals', async () => {
+    const e1 = new MiniSignal<() => Promise<void> | void>();
+    
+    e1.add(() => {
+      /* sync handler */
+    });
+    e1.add(async () => {
+      /* async handler */
+    });
+    
+    expectType<boolean>(e1.dispatch());
+    expectType<Promise<boolean>>(e1.dispatchParallel());
+    expectType<Promise<boolean>>(e1.dispatchSerial());
+  });
+
+  it('should show TS errors adding sync handlers to async signals', () => {
+    const e1 = new MiniSignal<() => Promise<void>>();
+    
+    const handler = () => {
+      /* sync handler */
+    };
+
+    expectError(
+      e1.add(handler)
+    );
+  });
+
+  // it('should show TS error adding async handlers to sync signals', () => {
+  //   type NotPromise<T> = T extends Promise<unknown> ? never : T;
+
+  //   const e1 = new MiniSignal<() => NotPromise<void>>();
+
+  //   const handler = async () => {
+  //     /* async handler */
+  //     return await Promise.resolve();
+  //   };
+    
+  //   expectError(
+  //     e1.add(handler)
+  //   );
+  // });
 });
 
 describe('MiniSignalEmitter Typing', () => {
@@ -291,3 +349,33 @@ describe('MiniSignalEmitter Typing', () => {
     emitter.emitSerial('syncEvent', 'test');
   });
 });
+
+// describe('syncSignal/asyncSignal utilities', () => {
+//   it('should create sync signals', () => {
+//     const signal = syncSignal<[number, string], 'testSignal'>();
+//     expectType<MiniSignal<(n: number, s: string) => void, 'testSignal'>>(signal);
+//   });
+
+//   it('should create async signals', () => {
+//     const signal = asyncSignal<[number, string], 'testSignal'>();
+//     expectType<MiniSignal<(n: number, s: string) => Promise<void> | void, 'testSignal'>>(signal);
+//   });
+
+//   it('should allow sync handlers on async signal', () => {
+//     const signal = asyncSignal<[number, string], 'testSignal'>();
+//     signal.add((n, s) => {
+//       expectType<number>(n);
+//       expectType<string>(s);
+//     });
+//   });
+
+//   it('should not allow async handlers on sync signal', () => {
+//     const signal = syncSignal<[number, string], 'testSignal'>();
+//     expectError(
+//       signal.add(async (n, s) => {
+//         expectType<number>(n);
+//         expectType<string>(s);
+//       })
+//     );
+//   });
+// });

@@ -1,10 +1,13 @@
 import type { MiniSignal } from './mini-signals.ts';
 import type { MiniSignalMap } from './mini-signals-types.d.ts';
 
-export type SyncHandler<T extends any[]> = (...args: T) => void;
-export type AsyncHandler<T extends any[]> = (...args: T) => Promise<void>;
+type NotPromise<T> = T extends Promise<unknown> ? never : T;
+
+export type SyncHandler<T extends any[]> = (...args: T) => NotPromise<void>;
+export type AsyncHandler<T extends any[]> = (...args: T) => Promise<void> | void;
 
 export type EventHandler<T extends any[]> = SyncHandler<T> | AsyncHandler<T>;
+
 export type EventKey<T extends MiniSignalMap<any>> = keyof T;
 export type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<
   infer THandler,
