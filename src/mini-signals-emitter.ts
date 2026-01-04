@@ -1,28 +1,14 @@
-import type { MiniSignal } from './mini-signals.ts';
-import type { MiniSignalMap, MiniSignalBinding, IsAsync } from './types.d.js';
+/**
+ * @document __docs__/mini-signal-emitter.md
+ */
 
-type EventKey<T extends MiniSignalMap<any>> = keyof T;
-type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<
-  infer THandler,
-  any
->
-  ? THandler
-  : never;
-
-type IsAsyncSignal<T, K extends keyof T> = T[K] extends MiniSignal<
-  infer THandler,
-  any
->
-  ? IsAsync<THandler>
-  : false;
-
-type OnlySync<T, K extends keyof T> = IsAsyncSignal<T, K> extends true
-  ? 'Cannot dispatch async handlers using this method'
-  : K;
-
-type OnlyAsync<T, K extends keyof T> = IsAsyncSignal<T, K> extends false
-  ? 'Cannot dispatch sync handlers using this method'
-  : K;
+import type { MiniSignalMap, MiniSignalBinding } from './mini-signals-types.js';
+import type {
+  EventKey,
+  ExtractHandler,
+  OnlyAsyncSignal,
+  OnlySyncSignal,
+} from './private-types.d.ts';
 
 export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   protected readonly signals: T;
@@ -77,7 +63,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    * Emit an event with data
    */
   emit<K extends EventKey<T>>(
-    event: OnlySync<T, K>,
+    event: OnlySyncSignal<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): boolean {
     const signal = this.getSignal(event as K);
@@ -85,7 +71,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   }
 
   async emitParallel<K extends EventKey<T>>(
-    event: OnlyAsync<T, K>,
+    event: OnlyAsyncSignal<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
     const signal = this.getSignal(event as K);
@@ -93,7 +79,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   }
 
   async emitSerial<K extends EventKey<T>>(
-    event: OnlyAsync<T, K>,
+    event: OnlyAsyncSignal<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
     const signal = this.getSignal(event as K);

@@ -1,6 +1,11 @@
 {
     "$schema": "https://typedoc.org/schema.json",
-    "entryPoints": ["./src/mini-signals.ts", "./src/types.d.ts"],
+    "entryPoints": [
+      "./src/mini-signals.ts",
+      "./src/mini-signals-emitter.ts",
+      "./src/mini-signals-utils.ts",
+      "./src/types.d.ts"
+    ],
     "out": "docs",
     "plugin": ["typedoc-plugin-markdown"],
     "excludeProtected": true,

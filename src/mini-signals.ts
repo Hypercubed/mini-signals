@@ -1,4 +1,9 @@
-import type { EventHandler, IsAsync, MiniSignalBinding } from './types.d.ts';
+import type { MiniSignalBinding } from './mini-signals-types.js';
+import {
+  type EventHandler,
+  type OnlyAsyncEventHandler,
+  type OnlySyncEventHandler,
+} from './private-types.js';
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
@@ -8,18 +13,13 @@ export interface MiniSignalNode<T extends EventHandler<any[]>> {
   prev?: MiniSignalNode<T>;
 }
 
-type OnlySync<T, R> = IsAsync<T> extends true
-  ? 'Cannot dispatch async handlers using this method' & [never]
-  : R;
-
-type OnlyAsync<T, R> = IsAsync<T> extends false
-  ? 'Cannot dispatch sync handlers using this method' & [never]
-  : R;
-
 function isBinding(obj: any): obj is MiniSignalBinding<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
 }
 
+/**
+ * @document __docs__/mini-signal.md
+ */
 export class MiniSignal<
   T extends EventHandler<any[]> = EventHandler<any[]>,
   S = symbol | string
@@ -54,7 +54,7 @@ export class MiniSignal<
   /**
    * Dispatches a signal to all registered listeners.
    */
-  dispatch(...args: OnlySync<T, Parameters<T>>): boolean {
+  dispatch(...args: OnlySyncEventHandler<T, Parameters<T>>): boolean {
     if (this._dispatching)
       throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
 
@@ -79,7 +79,9 @@ export class MiniSignal<
    * Dispatches listeners serially, waiting for each to complete if they return a Promise.
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
-  async dispatchSerial(...args: OnlyAsync<T, Parameters<T>>): Promise<boolean> {
+  async dispatchSerial(
+    ...args: OnlyAsyncEventHandler<T, Parameters<T>>
+  ): Promise<boolean> {
     if (this._dispatching)
       throw new Error(
         'MiniSignal#dispatchSerial(): Signal already dispatching.'
@@ -108,7 +110,7 @@ export class MiniSignal<
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
   async dispatchParallel(
-    ...args: OnlyAsync<T, Parameters<T>>
+    ...args: OnlyAsyncEventHandler<T, Parameters<T>>
   ): Promise<boolean> {
     if (this._dispatching) {
       throw new Error(

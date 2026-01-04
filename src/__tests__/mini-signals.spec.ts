@@ -717,12 +717,6 @@ describe('MiniSignal', () => {
   });
 
   describe('#dispatchSerial', () => {
-    let e: MiniSignal<(s: string) => Promise<void>>;
-
-    beforeEach(() => {
-      e = new MiniSignal();
-    });
-
     it('emits to all event listeners in correct order', async () => {
       const e = new MiniSignal<() => Promise<void>>();
       const pattern: string[] = [];
@@ -750,6 +744,8 @@ describe('MiniSignal', () => {
     });
 
     it('cannot dispatchSerial while dispatching', async () => {
+      const e = new MiniSignal<(x: string) => Promise<void>>();
+
       const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');
         expect(arguments).has.length(1);
@@ -765,12 +761,6 @@ describe('MiniSignal', () => {
   });
 
   describe('#dispatchParallel', () => {
-    let e: MiniSignal<(s: string) => Promise<void>>;
-
-    beforeEach(() => {
-      e = new MiniSignal();
-    });
-
     it('emits to all event listeners in correct order', async () => {
       const e = new MiniSignal<() => Promise<void>>();
       const pattern: string[] = [];
@@ -796,6 +786,8 @@ describe('MiniSignal', () => {
     });
 
     it('cannot dispatchParallel while dispatching', async () => {
+      const e = new MiniSignal<(s: string) => Promise<void>>();
+
       const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');
         expect(arguments).has.length(1);

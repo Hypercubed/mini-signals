@@ -3,15 +3,16 @@
 A strongly-typed event emitter wrapper around MiniSignals.
 
 ## Basic Usage
+
 ```typescript
 import { MiniSignal } from 'mini-signals';
 import { MiniSignalEmitter, type SignalMap } from './mini-signal-emitter';
 
 // Create signals
 const signals = {
-  'user:login': new MiniSignal(),
-  'user:logout': new MiniSignal(),
-  'data:update': new MiniSignal(),
+  'user:login': new MiniSignal<(string, number) => void>(),
+  'user:logout': new MiniSignal<(string, number) => void>(),
+  'data:update': new MiniSignal<() => Promise<void>>(),
 } as const;
 
 // Create emitter (type is inferred!)
@@ -25,6 +26,9 @@ const cleanup = emitter.on('user:login', (userId, timestamp) => {
 // Emit events
 emitter.emit('user:login', 'user123', Date.now());
 
+// Emit async event
+await emitter.emitParallel('data:update');
+
 // Cleanup
 cleanup();
 ```
@@ -34,11 +38,13 @@ cleanup();
 ### Composition (Recommended)
 
 Add event capabilities to any class by including an emitter instance:
+
 ```typescript
 class UserManager {
   private readonly signals = {
-    'login': new MiniSignal<[string]>(),
-    'logout': new MiniSignal<[string]>(),
+    login: new MiniSignal<(string) => void>(),
+    logout: new MiniSignal<(string) => void>(),
+    update: new MiniSignal<() => Promise<void>>(),
   } as const;
 
   private readonly events = new MiniSignalEmitter(this.signals);
@@ -56,11 +62,19 @@ class UserManager {
     // ... logout logic
     this.events.emit('logout', userId);
   }
+
+  async update() {
+    // ... update logic
+    await this.events.emitParallel('update');
+  }
 }
 
 // Usage
 const manager = new UserManager();
 manager.on('login', (userId) => console.log(`${userId} logged in`));
+manager.on('update', async () => {
+  await doSomethingAsync();
+});
 ```
 
 ### Inheritance
@@ -69,17 +83,19 @@ Extend `MiniSignalEmitter` directly for classes that are fundamentally event-dri
 
 ```typescript
 type ConnectionEvents = {
-  'open': [];
-  'close': [reason: string];
-  'error': [error: Error];
+  open: () => void;
+  close: (reason: string) => void;
+  error: (error: Error) => void;
 };
 
-class WebSocketConnection extends MiniSignalEmitter<SignalMap<ConnectionEvents>> {
+class WebSocketConnection extends MiniSignalEmitter<
+  SignalMap<ConnectionEvents>
+> {
   constructor() {
     super({
-      'open': new MiniSignal(),
-      'close': new MiniSignal(),
-      'error': new MiniSignal(),
+      open: new MiniSignal(),
+      close: new MiniSignal(),
+      error: new MiniSignal(),
     });
   }
 
@@ -102,6 +118,7 @@ ws.connect();
 ```
 
 ## Async Event Handlers
+
 ```typescript
 // Wait for all handlers in parallel
 await emitter.emitParallel('data:save', id, data);
@@ -116,7 +133,7 @@ Multiple emitters can share the same signal instances for coordinated event hand
 
 ```typescript
 const sharedSignals = {
-  'sync': new MiniSignal<[string]>(),
+  sync: new MiniSignal<() => void>(),
 };
 
 const emitter1 = new MiniSignalEmitter(sharedSignals);

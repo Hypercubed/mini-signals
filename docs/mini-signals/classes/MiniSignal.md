@@ -6,7 +6,7 @@
 
 # Class: MiniSignal\<T, S\>
 
-Defined in: [mini-signals.ts:23](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L23)
+Defined in: [mini-signals.ts:26](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L26)
 
 ## Type Parameters
 
@@ -17,6 +17,10 @@ Defined in: [mini-signals.ts:23](https://github.com/Hypercubed/mini-signals/blob
 ### S
 
 `S` = `symbol` \| `string`
+
+## Documents
+
+- [mini-signal](documents/mini-signal.md)
 
 ## Constructors
 
@@ -34,7 +38,7 @@ Defined in: [mini-signals.ts:23](https://github.com/Hypercubed/mini-signals/blob
 
 > **add**(`fn`): [`MiniSignalBinding`](../../types/interfaces/MiniSignalBinding.md)\<`T`, `S`\>
 
-Defined in: [mini-signals.ts:47](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L47)
+Defined in: [mini-signals.ts:50](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L50)
 
 Register a new listener.
 
@@ -54,7 +58,7 @@ Register a new listener.
 
 > **detach**(`sym`): `this`
 
-Defined in: [mini-signals.ts:152](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L152)
+Defined in: [mini-signals.ts:155](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L155)
 
 Remove binding object.
 
@@ -74,7 +78,7 @@ Remove binding object.
 
 > **detachAll**(): `this`
 
-Defined in: [mini-signals.ts:179](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L179)
+Defined in: [mini-signals.ts:182](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L182)
 
 Detach all listeners.
 
@@ -88,7 +92,7 @@ Detach all listeners.
 
 > **dispatch**(...`args`): `boolean`
 
-Defined in: [mini-signals.ts:57](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L57)
+Defined in: [mini-signals.ts:60](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L60)
 
 Dispatches a signal to all registered listeners.
 
@@ -108,7 +112,7 @@ Dispatches a signal to all registered listeners.
 
 > **dispatchParallel**(...`args`): `Promise`\<`boolean`\>
 
-Defined in: [mini-signals.ts:110](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L110)
+Defined in: [mini-signals.ts:113](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L113)
 
 Dispatches listeners in parallel, waiting for all to complete if they return Promises.
 Returns a Promise that resolves to true if listeners were called, false otherwise.
@@ -129,7 +133,7 @@ Returns a Promise that resolves to true if listeners were called, false otherwis
 
 > **dispatchSerial**(...`args`): `Promise`\<`boolean`\>
 
-Defined in: [mini-signals.ts:82](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L82)
+Defined in: [mini-signals.ts:85](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L85)
 
 Dispatches listeners serially, waiting for each to complete if they return a Promise.
 Returns a Promise that resolves to true if listeners were called, false otherwise.
@@ -150,7 +154,7 @@ Returns a Promise that resolves to true if listeners were called, false otherwis
 
 > **hasListeners**(): `boolean`
 
-Defined in: [mini-signals.ts:40](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L40)
+Defined in: [mini-signals.ts:43](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals.ts#L43)
 
 Check if there are any listeners attached.
 

@@ -3,26 +3,35 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
 import { MiniSignal } from '../mini-signals.ts';
 import { createSignalMap } from '../mini-signals-utils.ts';
-import type { EventHandler, MiniSignalMap } from '../types.d.ts';
+import type { MiniSignalMap } from '../mini-signals-types.d.ts';
 
 type TestEvents = {
-  'user:login': [userId: string, timestamp: number];
-  'user:logout': [userId: string];
-  'data:update': [id: string, value: any];
-  'no-args': [];
+  'user:login': (userId: string, timestamp: number) => void;
+  'user:logout': (userId: string) => void;
+  'data:update': (id: string, value: any) => void;
+  'no-args': () => void;
+};
+
+type TestEventsAsync = {
+  'user:login': (userId: string, timestamp: number) => Promise<void>;
+  'user:logout': (userId: string) => Promise<void>;
+  'data:update': (id: string, value: any) => Promise<void>;
+  'no-args': () => Promise<void>;
 };
 
 const LOGIN = Symbol('login');
 const LOGOUT = Symbol('logout');
 
 describe('MiniSignalEmitter', () => {
+  vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
   describe('constructor', () => {
     it('should create an emitter with provided signals', () => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
 
       const emitter = new MiniSignalEmitter(signals);
@@ -31,16 +40,16 @@ describe('MiniSignalEmitter', () => {
 
     it('should create a shallow copy of the signals map', () => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
 
       const emitter = new MiniSignalEmitter(signals);
 
       // Mutating the original shouldn't affect the emitter
-      const newSignal = new MiniSignal<[string, number]>();
+      const newSignal = new MiniSignal<(s: string, n: number) => void>();
       signals['user:login'] = newSignal;
 
       const handler = vi.fn();
@@ -52,8 +61,8 @@ describe('MiniSignalEmitter', () => {
 
     it('should handle symbol keys', () => {
       const signals = {
-        [LOGIN]: new MiniSignal<[string]>(),
-        [LOGOUT]: new MiniSignal<[string]>(),
+        [LOGIN]: new MiniSignal<(s: string) => void>(),
+        [LOGOUT]: new MiniSignal<(s: string) => void>(),
       };
 
       const emitter = new MiniSignalEmitter(signals);
@@ -84,10 +93,10 @@ describe('MiniSignalEmitter', () => {
 
     beforeEach(() => {
       signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
       emitter = new MiniSignalEmitter(signals);
     });
@@ -134,10 +143,10 @@ describe('MiniSignalEmitter', () => {
 
     it('should throw for missing signal', () => {
       const emptyEmitter = new MiniSignalEmitter({
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       });
 
       // TypeScript won't let us pass wrong keys, but at runtime:
@@ -152,10 +161,7 @@ describe('MiniSignalEmitter', () => {
         return userId;
       });
 
-      emitter.on(
-        'user:logout',
-        handler as unknown as EventHandler<[userId: string]>
-      );
+      emitter.on('user:logout', handler);
       emitter.emit('user:logout', 'user123');
 
       expect(handler).toHaveBeenCalledWith('user123');
@@ -167,10 +173,10 @@ describe('MiniSignalEmitter', () => {
 
     beforeEach(() => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
       emitter = new MiniSignalEmitter(signals);
     });
@@ -222,10 +228,10 @@ describe('MiniSignalEmitter', () => {
 
     beforeEach(() => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
       emitter = new MiniSignalEmitter(signals);
     });
@@ -278,16 +284,15 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitSerial', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEventsAsync>>;
 
     beforeEach(() => {
-      const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
-      };
-      emitter = new MiniSignalEmitter(signals);
+      emitter = new MiniSignalEmitter({
+        'user:login': new MiniSignal<(s: string, n: number) => Promise<void>>(),
+        'user:logout': new MiniSignal<(s: string) => Promise<void>>(),
+        'data:update': new MiniSignal<(s: string, a: any) => Promise<void>>(),
+        'no-args': new MiniSignal<() => Promise<void>>(),
+      });
     });
 
     it('should emit events and wait for async handlers to complete', async () => {
@@ -338,14 +343,13 @@ describe('MiniSignalEmitter', () => {
     });
 
     it('should handle sync handlers in emitSerial', async () => {
-      const handler1 = vi.fn((userId: string) => {
-        return 'sync';
-      }) as unknown as EventHandler<[string]>;
+      const handler1 = vi.fn(async (userId: string) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
 
       const handler2 = vi.fn(async (userId: string) => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        return 'async';
-      }) as unknown as EventHandler<[string]>;
+        console.log('handler2 called');
+      });
 
       emitter.on('user:logout', handler1);
       emitter.on('user:logout', handler2);
@@ -376,16 +380,15 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitParallel', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEventsAsync>>;
 
     beforeEach(() => {
-      const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
-      };
-      emitter = new MiniSignalEmitter(signals);
+      emitter = new MiniSignalEmitter({
+        'user:login': new MiniSignal<(s: string, n: number) => Promise<void>>(),
+        'user:logout': new MiniSignal<(s: string) => Promise<void>>(),
+        'data:update': new MiniSignal<(s: string, a: any) => Promise<void>>(),
+        'no-args': new MiniSignal<() => Promise<void>>(),
+      });
     });
 
     it('should emit events and wait for all async handlers to complete', async () => {
@@ -462,14 +465,14 @@ describe('MiniSignalEmitter', () => {
     });
 
     it('should handle sync handlers in emitParallel', async () => {
-      const handler1 = vi.fn((userId: string) => {
-        return 'sync';
-      }) as unknown as EventHandler<[string]>;
+      const handler1 = vi.fn(async (userId: string) => {
+        console.log('sync');
+      });
 
       const handler2 = vi.fn(async (userId: string) => {
         await new Promise((resolve) => setTimeout(resolve, 10));
-        return 'async';
-      }) as unknown as EventHandler<[string]>;
+        console.log('async');
+      });
 
       emitter.on('user:logout', handler1);
       emitter.on('user:logout', handler2);
@@ -509,10 +512,10 @@ describe('MiniSignalEmitter', () => {
     let signals: MiniSignalMap<TestEvents>;
     beforeEach(() => {
       signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(x: string, y: number) => void>(),
+        'user:logout': new MiniSignal<(x: string) => void>(),
+        'data:update': new MiniSignal<(x: string, y: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
       emitter = new MiniSignalEmitter(signals);
     });
@@ -557,10 +560,10 @@ describe('MiniSignalEmitter', () => {
 
     beforeEach(() => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(x: string, y: number) => void>(),
+        'user:logout': new MiniSignal<(x: string) => void>(),
+        'data:update': new MiniSignal<(x: string, y: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
       emitter = new MiniSignalEmitter(signals);
     });
@@ -603,8 +606,8 @@ describe('MiniSignalEmitter', () => {
 
     it('should clear all symbol listeners when no event specified', () => {
       const signals = {
-        [LOGIN]: new MiniSignal<[string]>(),
-        [LOGOUT]: new MiniSignal<[string]>(),
+        [LOGIN]: new MiniSignal<(x: string) => void>(),
+        [LOGOUT]: new MiniSignal<(x: string) => void>(),
       };
       const symbolEmitter = new MiniSignalEmitter(signals);
 
@@ -625,8 +628,8 @@ describe('MiniSignalEmitter', () => {
 
     it('should clear symbol event listeners', () => {
       const signals = {
-        [LOGIN]: new MiniSignal<[string]>(),
-        [LOGOUT]: new MiniSignal<[string]>(),
+        [LOGIN]: new MiniSignal<(x: string) => void>(),
+        [LOGOUT]: new MiniSignal<(x: string) => void>(),
       };
       const symbolEmitter = new MiniSignalEmitter(signals);
 
@@ -661,10 +664,10 @@ describe('MiniSignalEmitter', () => {
   describe('shared signals between emitters', () => {
     it('should allow multiple emitters to share the same signals', () => {
       const sharedSignals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(x: string, y: number) => void>(),
+        'user:logout': new MiniSignal<(x: string) => void>(),
+        'data:update': new MiniSignal<(x: string, y: any) => void>(),
+        'no-args': new MiniSignal<() => void>(),
       };
 
       const emitter1 = new MiniSignalEmitter(sharedSignals);
@@ -685,10 +688,10 @@ describe('MiniSignalEmitter', () => {
 
     it('should work with emitSerial on shared signals', async () => {
       const sharedSignals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(x: string, y: number) => void>(),
+        'user:logout': new MiniSignal<(x: string) => void>(),
+        'data:update': new MiniSignal<(x: string, y: any) => void>(),
+        'no-args': new MiniSignal<() => Promise<void>>(),
       };
 
       const emitter1 = new MiniSignalEmitter(sharedSignals);
@@ -712,10 +715,10 @@ describe('MiniSignalEmitter', () => {
 
     it('should work with emitParallel on shared signals', async () => {
       const sharedSignals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => Promise<void>>(),
       };
 
       const emitter1 = new MiniSignalEmitter(sharedSignals);
@@ -741,10 +744,10 @@ describe('MiniSignalEmitter', () => {
   describe('type safety', () => {
     it('should enforce correct argument types at compile time', () => {
       const signals = {
-        'user:login': new MiniSignal<[string, number]>(),
-        'user:logout': new MiniSignal<[string]>(),
-        'data:update': new MiniSignal<[string, any]>(),
-        'no-args': new MiniSignal<[]>(),
+        'user:login': new MiniSignal<(s: string, n: number) => void>(),
+        'user:logout': new MiniSignal<(s: string) => void>(),
+        'data:update': new MiniSignal<(s: string, a: any) => void>(),
+        'no-args': new MiniSignal<() => Promise<void>>(),
       };
       const emitter = new MiniSignalEmitter(signals);
 

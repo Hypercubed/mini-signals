@@ -1,5 +1,5 @@
 import { expectError, expectType } from 'tsd';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { MiniSignal } from '../mini-signals.ts';
 import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
@@ -25,7 +25,6 @@ describe('MiniSignal Typing', () => {
         /* noop */
       })
     );
-
     expectError(e1.dispatch(5));
   });
 
@@ -38,12 +37,14 @@ describe('MiniSignal Typing', () => {
 
     expectType<typeof e1>(e1.detach(l1));
 
-    expectError(e1.detach(l2));
+    expect(() => {
+      expectError(e1.detach(l2));
+    }).toThrow();
 
     expectType<boolean>(e1.dispatch('foo'));
   });
 
-  it('should show ts error on incorrect branded types using flavors', () => {
+  it('should show TS error on incorrect branded types using flavors', () => {
     const e1 = new MiniSignal<(s: string) => void, 'e1'>();
     const e2 = new MiniSignal<(s: string) => void, 'e2'>();
 
@@ -52,12 +53,14 @@ describe('MiniSignal Typing', () => {
 
     expectType<typeof e1>(e1.detach(l1));
 
-    expectError(e1.detach(l2));
+    expect(() => {
+      expectError(e1.detach(l2));
+    }).toThrow();
 
     expectType<boolean>(e1.dispatch('foo'));
   });
 
-  it('should show ts error on incorrect branded types using symbols', () => {
+  it('should show TS error on incorrect branded types using symbols', () => {
     const e1s = Symbol('e1');
     const e2s = Symbol('e2');
 
@@ -69,39 +72,46 @@ describe('MiniSignal Typing', () => {
 
     expectType<typeof e1>(e1.detach(l1));
 
-    expectError(e1.detach(l2));
+    expect(() => {
+      expectError(e1.detach(l2));
+    }).toThrow();
 
     expectType<boolean>(e1.dispatch('foo'));
   });
 
-  it('should show ts error tring to dispatch when async', () => {
+  it('should show TS error trying to dispatch when async', () => {
     const e1 = new MiniSignal<() => Promise<void>>();
     expectError(e1.dispatch());
+
+    const e2 = new MiniSignal<(x: string) => Promise<void>>();
+    expectError(e2.dispatch('test'));
   });
 
-  it('should show ts error tring to dispatch when async', () => {
-    const e1 = new MiniSignal<(x: string) => Promise<void>>();
-    expectError(e1.dispatch('test'));
-  });
-
-  it('should show ts error tring to dispatchSerial when sync', () => {
+  it('should show TS error trying to dispatchSerial when sync', () => {
     const e1 = new MiniSignal<() => void>();
     expectError(e1.dispatchSerial());
   });
 
-  it('should show ts error tring to dispatchSerial when sync', () => {
+  it('should show TS error trying to dispatchSerial when sync', () => {
     const e1 = new MiniSignal<(x: string) => void>();
     expectError(e1.dispatchSerial('string'));
   });
 
-  it('should show ts error tring to dispatchParallel when sync', () => {
+  it('should show TS error trying to dispatchParallel when sync', () => {
     const e1 = new MiniSignal<() => void>();
     expectError(e1.dispatchParallel());
   });
 
-  it('should show ts error tring to dispatchParallel when sync', () => {
+  it('should show TS error trying to dispatchParallel when sync', () => {
     const e1 = new MiniSignal<(x: string) => void>();
     expectError(e1.dispatchParallel('test'));
+  });
+
+  it('should not show TS errors on dispatch on untyped signals', async () => {
+    const e1 = new MiniSignal();
+    expectType<boolean>(e1.dispatch());
+    expectType<Promise<boolean>>(e1.dispatchParallel());
+    expectType<Promise<boolean>>(e1.dispatchSerial());
   });
 });
 
@@ -155,20 +165,21 @@ describe('MiniSignalEmitter Typing', () => {
       logout: new MiniSignal<(s: string) => void>(),
     });
 
-    expectError(
-      emitter.on('login', (userId: number) => {
-        expectType<string>(userId);
-      })
-    );
+    expect(() => {
+      expectError(
+        emitter.on('login', (userId: number) => {
+          expectType<string>(userId);
+        })
+      );
+      expectError(
+        emitter.once('logouts', (reason) => {
+          expectType<string>(reason);
+        })
+      );
 
-    expectError(
-      emitter.once('logouts', (reason) => {
-        expectType<string>(reason);
-      })
-    );
-
-    expectError(emitter.emit('login', 123));
-    expectError(emitter.emit('logouts', 'timeout'));
+      expectError(emitter.emit('login', 123));
+      expectError(emitter.emit('logouts', 'timeout'));
+    }).toThrow();
   });
 
   it('should show TS error on incorrect event names', () => {
@@ -177,12 +188,14 @@ describe('MiniSignalEmitter Typing', () => {
       logout: new MiniSignal<(s: string) => void>(),
     });
 
-    expectError(
-      emitter.on('signout', (reason) => {
-        expectType<string>(reason);
-      })
-    );
-    expectError(emitter.emit('signout', 'user123'));
+    expect(() => {
+      expectError(
+        emitter.on('signout', (reason) => {
+          expectType<string>(reason);
+        })
+      );
+      expectError(emitter.emit('signout', 'user123'));
+    }).toThrow();
   });
 
   it('should show TS error on incorrect event names (symbols)', () => {
@@ -196,12 +209,14 @@ describe('MiniSignalEmitter Typing', () => {
 
     const SIGNOUT = Symbol('signout');
 
-    expectError(
-      emitter.on(SIGNOUT, (reason) => {
-        expectType<string>(reason);
-      })
-    );
-    expectError(emitter.emit(SIGNOUT, 'user123'));
+    expect(() => {
+      expectError(
+        emitter.on(SIGNOUT, (reason) => {
+          expectType<string>(reason);
+        })
+      );
+      expectError(emitter.emit(SIGNOUT, 'user123'));
+    }).toThrow();
   });
 
   it('should show TS error on removing listener with incorrect event name', () => {
@@ -213,7 +228,9 @@ describe('MiniSignalEmitter Typing', () => {
     const offLogin = emitter.on('login', (userId) => {
       expectType<string>(userId);
     });
-    expectError(emitter.removeListener('signout', offLogin));
+    expect(() => {
+      expectError(emitter.removeListener('signout', offLogin));
+    }).toThrow();
   });
 
   it('should show TS error on removing listener with incorrect event name (symbols)', () => {
@@ -228,7 +245,9 @@ describe('MiniSignalEmitter Typing', () => {
       expectType<string>(userId);
     });
     const SIGNOUT = Symbol('signout');
-    expectError(emitter.removeListener(SIGNOUT, offLogin));
+    expect(() => {
+      expectError(emitter.removeListener(SIGNOUT, offLogin));
+    }).toThrow();
   });
 
   it('should show TS error on incorrect listener type when removing', () => {
@@ -245,7 +264,9 @@ describe('MiniSignalEmitter Typing', () => {
       expectType<string>(userId);
     });
 
-    expectError(emitter.removeListener('login', offLogout));
+    expect(() => {
+      expectError(emitter.removeListener('login', offLogout));
+    }).toThrow();
   });
 
   it('should show TS error on sync/async dispatch mismatch', () => {
@@ -255,9 +276,18 @@ describe('MiniSignalEmitter Typing', () => {
     });
 
     expectError(emitter.emit('asyncEvent', 'test'));
-
     expectError(emitter.emitParallel('syncEvent', 'test'));
-
     expectError(emitter.emitSerial('syncEvent', 'test'));
+  });
+
+  it('should not show TS error on untyped signals', () => {
+    const emitter = new MiniSignalEmitter({
+      syncEvent: new MiniSignal(),
+      asyncEvent: new MiniSignal(),
+    });
+
+    emitter.emit('asyncEvent', 'test');
+    emitter.emitParallel('syncEvent', 'test');
+    emitter.emitSerial('syncEvent', 'test');
   });
 });

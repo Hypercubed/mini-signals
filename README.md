@@ -1,6 +1,6 @@
 # mini-signals
 
-signals, in JavaScript, fast
+signals, in TypeScript, strongly typed, fast
 
 [![NPM](https://img.shields.io/npm/v/mini-signals.svg)](https://www.npmjs.com/package/mini-signals) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Hypercubed/mini-signals/blob/master/LICENSE)
 
@@ -12,12 +12,20 @@ There are several advantages to signals over event-emitters (see [Comparison bet
 
 > Note: Signals here are the type defined by Miller Medeiros in [js-signals](https://github.com/millermedeiros/js-signals) inspired by AS3-Signals.  They should not to be confused with [SolidJS](https://www.solidjs.com/tutorial/introduction_signals) or [Angular signals](https://github.com/angular/angular/discussions/49090).
 
-## mini-signals 2.1.0
+## mini-signals 3.0.0
+
+Breaking Changes:
+
+`MiniSignal<T>` type argument `T` must now be a function type representing the listener signature. For example, use `MiniSignal<(arg1: string, arg2: number) => void>` instead of `MiniSignal<[string, number]>`.  If you prefer the previous syntax, you can use the `syncSignal` and `asyncSignal` utility functions to create signals with the old syntax.
+
+> Why? This change allows for better type inference and compatibility with functions that return Promises, enabling the new dispatch methods.
 
 New features:
 
+- `MiniSignalEmitter` class to manage multiple named signals.
 - `.dispatchSerial` - Dispatches listeners serially, waiting for each to complete if they return a Promise.
 - `.dispatchParallel` - Dispatches listeners in parallel, waiting for all to complete if they return Promises.
+- `syncSignal` and `asyncSignal` utility functions to create MiniSignals with the previous syntax.
 
 ## Install
 
@@ -29,53 +37,117 @@ npm install mini-signals
 
 ## Examples
 
-```ts
-import { MiniSignal } from 'mini-signals';
+### Basic Usage
 
-const mySignal = new MiniSignal<[string, string]>();  // the type variable optionally and defines the parameters to be dispatched
+```typescript
+import { syncSignal } from 'mini-signals';
 
-const binding = mySignal.add((foo: string, bar: string) => { // add listener, note the parameter types match the type variable in the constructor
+// Define a mini-signal
+// The optional type argument specifies the listener parameter types
+const mySignal = syncSignal<[string, string]>();
+
+// Add a listener
+// The listener parameter types must match the type argument specified in the MiniSignal constructor
+// The returned binding can be used to remove the listener later
+const binding = mySignal.add((foo: string, bar: string) => {
   console.log('signal dispatched');
   assert(foo === 'foo');
   assert(bar === 'bar');
 });
 
-mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
-mySignal.detach(binding); // remove a single listener
+// Dispatch the signal, passing parameters to the listeners
+mySignal.dispatch('foo', 'bar');
+
+// Remove the listener using the binding
+mySignal.detach(binding);
 ```
 
-### Another Example
+### Basic Async Usage
 
-```ts
-const myObject = {
-  foo: "bar",
-  updated: new MiniSignal<[]>(); // in this case the type variable is empty, since we are not passing any parameters
-};
+```typescript
+import { asyncSignal } from 'mini-signals';
 
-myObject.updated.add(() => {
+// Define a mini-signal
+// The optional type argument specifies the listener parameter types
+const mySignal = asyncSignal<[string, string]>();
+
+// Add a listener
+// The listener parameter types must match the type argument specified in the MiniSignal constructor
+// The returned binding can be used to remove the listener later
+const binding = mySignal.add(async (foo: string, bar: string) => {
+  await somethingAsync();
   console.log('signal dispatched');
-  assert(myObject.foo === 'baz');
+  assert(foo === 'foo');
+  assert(bar === 'bar');
 });
 
-myObject.foo = 'baz';
-myObject.updated.dispatch(); // dispatch signal
+// Dispatch the signal, passing parameters to each listener in series
+// Wait for all listeners to complete
+await mySignal.dispatchSerial('foo', 'bar');
+
+// Dispatch the signal, passing parameters to each listener in parallel
+// Wait for all listeners to complete
+await mySignal.dispatchParallel('foo', 'bar');
+
+// Remove the listener using the binding
+mySignal.detach(binding);
 ```
 
-### Flavoring the signal
+### Basic Usage with MiniSignal constructor
 
-Flavoring (or branding) a signal ensures that only bindings created by that specific signal can be used to detach listeners from it. This prevents accidentally attempting to detach a binding from a different signal; which would result in a runtime error.
-
-```ts
+```typescript
 import { MiniSignal } from 'mini-signals';
 
-const mySignal = new MiniSignal<[string, string], 'mySignal'>();
-const myOtherSignal = new MiniSignal<[string, string], 'myOtherSignal'>();
+// Define a mini-signal
+// The optional type argument specifies the listener parameter types
+const mySignal = new MiniSignal<(x: string, y: string) => void>();
 
+// Add a listener
+// The listener parameter types must match the type argument specified in the MiniSignal constructor
+// The returned binding can be used to remove the listener later
 const binding = mySignal.add((foo: string, bar: string) => {
-  // ...
+  console.log('signal dispatched');
+  assert(foo === 'foo');
+  assert(bar === 'bar');
 });
 
-myOtherSignal.detach(binding); // TypeScript error: Argument of type 'MiniSignalBinding<[string, string], "mySignal">' is not assignable to parameter of type 'MiniSignalBinding<[string, string], "myOtherSignal">'.
+// Dispatch the signal, passing parameters to the listeners
+mySignal.dispatch('foo', 'bar');
+// Remove the listener using the binding
+mySignal.detach(binding);
+```
+
+See [MiniSignal Documentation](docs/mini-signals/classes/documents/mini-signal.md) for more examples.
+
+### MiniSignalEmitter Usage
+
+```typescript
+import { MiniSignal } from 'mini-signals';
+import { MiniSignalEmitter, type SignalMap } from './mini-signal-emitter';
+
+// Create signals
+const signals = {
+  'user:login': new MiniSignal<(string, number) => void>(),
+  'user:logout': new MiniSignal<(string, number) => void>(),
+  'data:update': new MiniSignal<() => Promise<void>>(),
+} as const;
+
+// Create emitter (type is inferred!)
+const emitter = new MiniSignalEmitter(signals);
+
+// Listen to events
+const cleanup = emitter.on('user:login', (userId, timestamp) => {
+  console.log(`User ${userId} logged in at ${timestamp}`);
+});
+
+// Emit events
+emitter.emit('user:login', 'user123', Date.now());
+
+// Emit async event
+await emitter.emitParallel('data:update');
+
+// Cleanup
+cleanup();
 ```
 
 ## API
