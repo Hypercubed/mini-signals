@@ -6,21 +6,21 @@
 
 # Interface: MiniSignalNode\<T\>
 
-Defined in: [mini-signals.ts:5](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/mini-signals.ts#L5)
+Defined in: [mini-signals.ts:5](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L5)
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* `any`[]
+`T` *extends* `EventHandler`\<`any`[]\>
 
 ## Properties
 
 ### fn
 
-> **fn**: `EventHandler`\<`T`\>
+> **fn**: `T`
 
-Defined in: [mini-signals.ts:6](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/mini-signals.ts#L6)
+Defined in: [mini-signals.ts:6](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L6)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [mini-signals.ts:6](https://github.com/Hypercubed/mini-signals/blob/
 
 > `optional` **next**: `MiniSignalNode`\<`T`\>
 
-Defined in: [mini-signals.ts:7](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/mini-signals.ts#L7)
+Defined in: [mini-signals.ts:7](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L7)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [mini-signals.ts:7](https://github.com/Hypercubed/mini-signals/blob/
 
 > `optional` **prev**: `MiniSignalNode`\<`T`\>
 
-Defined in: [mini-signals.ts:8](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/mini-signals.ts#L8)
+Defined in: [mini-signals.ts:8](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/mini-signals.ts#L8)

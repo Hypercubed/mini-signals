@@ -6,7 +6,7 @@
 
 # Interface: MiniSignalBinding\<T, S\>
 
-Defined in: [types.d.ts:13](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L13)
+Defined in: [types.d.ts:22](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/types.d.ts#L22)
 
 ## Type Parameters
 
@@ -28,7 +28,7 @@ Defined in: [types.d.ts:13](https://github.com/Hypercubed/mini-signals/blob/bb93
 
 > `optional` **\_\_brand**: `S`
 
-Defined in: [types.d.ts:15](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L15)
+Defined in: [types.d.ts:24](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/types.d.ts#L24)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [types.d.ts:15](https://github.com/Hypercubed/mini-signals/blob/bb93
 
 > `optional` **\_\_type**: `T`
 
-Defined in: [types.d.ts:16](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L16)
+Defined in: [types.d.ts:25](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/types.d.ts#L25)

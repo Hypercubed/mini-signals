@@ -17,7 +17,7 @@ describe('MiniSignal', () => {
   });
 
   it('quick test', () => {
-    const e = new MiniSignal<[string]>();
+    const e = new MiniSignal<(s: string) => void>();
 
     const foo = e.add(writer);
     e.add(writer);
@@ -44,7 +44,7 @@ describe('MiniSignal', () => {
 
   describe('Readme Examples', () => {
     it('Example Usage', () => {
-      const mySignal = new MiniSignal<[string, string]>();
+      const mySignal = new MiniSignal<(s: string, t: string) => void>();
 
       const binding = mySignal.add(onSignal); // add listener
       mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
@@ -57,7 +57,7 @@ describe('MiniSignal', () => {
     });
 
     it('Function#bind example', () => {
-      const mySignal = new MiniSignal<[string]>();
+      const mySignal = new MiniSignal<(s: string) => void>();
       const context = {};
 
       const cb = function (this: any, bar: string) {
@@ -72,7 +72,7 @@ describe('MiniSignal', () => {
     });
 
     it('Function#bind example with parameters', () => {
-      const mySignal = new MiniSignal<[]>();
+      const mySignal = new MiniSignal<() => void>();
       const context = {};
       const cb = function (this: any, bar: string) {
         expect(arguments).has.length(1);
@@ -87,10 +87,10 @@ describe('MiniSignal', () => {
   });
 
   describe('#add', () => {
-    let e: MiniSignal;
+    let e: MiniSignal<(s: string) => void>;
 
     beforeEach(() => {
-      e = new MiniSignal<[string]>();
+      e = new MiniSignal<(s: string) => void>();
     });
 
     it('should throw error for incorrect types', () => {
@@ -130,7 +130,7 @@ describe('MiniSignal', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
-      e = new MiniSignal<[string]>();
+      e = new MiniSignal<(s: string) => void>();
     });
 
     it('should return false when there are not events to dispatch', () => {
@@ -154,7 +154,7 @@ describe('MiniSignal', () => {
 
     it('can dispatch the function with multiple arguments', () => {
       for (let i = 0; i < 100; i++) {
-        const e = new MiniSignal<number[]>();
+        const e = new MiniSignal<(...args: number[]) => void>();
         (function (j) {
           const args: number[] = [];
 
@@ -173,7 +173,7 @@ describe('MiniSignal', () => {
 
     it('can dispatch the function with multiple arguments, multiple listeners', () => {
       for (let i = 0; i < 100; i++) {
-        const e = new MiniSignal<number[]>();
+        const e = new MiniSignal<(...args: number[]) => void>();
         (function (j) {
           const args: number[] = [];
 
@@ -717,14 +717,14 @@ describe('MiniSignal', () => {
   });
 
   describe('#dispatchSerial', () => {
-    let e: MiniSignal;
+    let e: MiniSignal<(s: string) => Promise<void>>;
 
     beforeEach(() => {
-      e = new MiniSignal<[string]>();
+      e = new MiniSignal();
     });
 
     it('emits to all event listeners in correct order', async () => {
-      const e = new MiniSignal();
+      const e = new MiniSignal<() => Promise<void>>();
       const pattern: string[] = [];
 
       e.add(async () => {
@@ -743,14 +743,14 @@ describe('MiniSignal', () => {
     });
 
     it('returns false when no listeners are registered', async () => {
-      const e = new MiniSignal();
+      const e = new MiniSignal<() => Promise<void>>();
       const pattern: string[] = [];
 
       expect(await e.dispatchSerial()).toBe(false);
     });
 
     it('cannot dispatchSerial while dispatching', async () => {
-      const cb = function (bar: string): void {
+      const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');
         expect(arguments).has.length(1);
       };
@@ -765,14 +765,14 @@ describe('MiniSignal', () => {
   });
 
   describe('#dispatchParallel', () => {
-    let e: MiniSignal;
+    let e: MiniSignal<(s: string) => Promise<void>>;
 
     beforeEach(() => {
-      e = new MiniSignal<[string]>();
+      e = new MiniSignal();
     });
 
     it('emits to all event listeners in correct order', async () => {
-      const e = new MiniSignal();
+      const e = new MiniSignal<() => Promise<void>>();
       const pattern: string[] = [];
 
       e.add(async () => {
@@ -791,12 +791,12 @@ describe('MiniSignal', () => {
     });
 
     it('returns false when no listeners are registered', async () => {
-      const e = new MiniSignal();
+      const e = new MiniSignal<() => Promise<void>>();
       expect(await e.dispatchParallel()).toBe(false);
     });
 
     it('cannot dispatchParallel while dispatching', async () => {
-      const cb = function (bar: string): void {
+      const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');
         expect(arguments).has.length(1);
       };

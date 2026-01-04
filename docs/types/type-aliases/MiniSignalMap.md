@@ -8,7 +8,7 @@
 
 > **MiniSignalMap**\<`T`\> = `{ [K in keyof T]: MiniSignal<T[K], any> }`
 
-Defined in: [types.d.ts:9](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L9)
+Defined in: [types.d.ts:18](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/types.d.ts#L18)
 
 ## Type Parameters
 

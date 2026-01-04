@@ -1,14 +1,28 @@
 import type { MiniSignal } from './mini-signals.ts';
-import type {
-  MiniSignalMap,
-  EventHandler,
-  MiniSignalBinding,
-} from './types.d.js';
+import type { MiniSignalMap, MiniSignalBinding, IsAsync } from './types.d.js';
 
 type EventKey<T extends MiniSignalMap<any>> = keyof T;
-type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<infer Args>
-  ? EventHandler<Args>
+type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<
+  infer THandler,
+  any
+>
+  ? THandler
   : never;
+
+type IsAsyncSignal<T, K extends keyof T> = T[K] extends MiniSignal<
+  infer THandler,
+  any
+>
+  ? IsAsync<THandler>
+  : false;
+
+type OnlySync<T, K extends keyof T> = IsAsyncSignal<T, K> extends true
+  ? 'Cannot dispatch async handlers using this method'
+  : K;
+
+type OnlyAsync<T, K extends keyof T> = IsAsyncSignal<T, K> extends false
+  ? 'Cannot dispatch sync handlers using this method'
+  : K;
 
 export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   protected readonly signals: T;
@@ -63,26 +77,26 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    * Emit an event with data
    */
   emit<K extends EventKey<T>>(
-    event: K,
+    event: OnlySync<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): boolean {
-    const signal = this.getSignal(event);
+    const signal = this.getSignal(event as K);
     return signal.dispatch(...args);
   }
 
   async emitParallel<K extends EventKey<T>>(
-    event: K,
+    event: OnlyAsync<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
-    const signal = this.getSignal(event);
+    const signal = this.getSignal(event as K);
     return await signal.dispatchParallel(...args);
   }
 
   async emitSerial<K extends EventKey<T>>(
-    event: K,
+    event: OnlyAsync<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
-    const signal = this.getSignal(event);
+    const signal = this.getSignal(event as K);
     return await signal.dispatchSerial(...args);
   }
 

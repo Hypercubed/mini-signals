@@ -6,6 +6,6 @@
 
 # Type Alias: EventMap
 
-> **EventMap** = `Record`\<`string` \| `symbol`, `any`[]\>
+> **EventMap** = `Record`\<`string` \| `symbol`, `EventHandler`\<`any`[]\>\>
 
-Defined in: [types.d.ts:8](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L8)
+Defined in: [types.d.ts:17](https://github.com/Hypercubed/mini-signals/blob/59a7232128e02abfd4d45f3b40b292bdb81023d5/src/types.d.ts#L17)

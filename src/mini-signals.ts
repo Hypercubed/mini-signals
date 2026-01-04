@@ -1,18 +1,29 @@
-import type { EventHandler, MiniSignalBinding } from './types.d.ts';
+import type { EventHandler, IsAsync, MiniSignalBinding } from './types.d.ts';
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
 
-export interface MiniSignalNode<T extends any[]> {
-  fn: EventHandler<T>;
+export interface MiniSignalNode<T extends EventHandler<any[]>> {
+  fn: T;
   next?: MiniSignalNode<T>;
   prev?: MiniSignalNode<T>;
 }
+
+type OnlySync<T, R> = IsAsync<T> extends true
+  ? 'Cannot dispatch async handlers using this method' & [never]
+  : R;
+
+type OnlyAsync<T, R> = IsAsync<T> extends false
+  ? 'Cannot dispatch sync handlers using this method' & [never]
+  : R;
 
 function isBinding(obj: any): obj is MiniSignalBinding<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
 }
 
-export class MiniSignal<T extends any[] = any[], S = symbol | string> {
+export class MiniSignal<
+  T extends EventHandler<any[]> = EventHandler<any[]>,
+  S = symbol | string
+> {
   /**
    * A Symbol that is used to guarantee the uniqueness of the MiniSignal instance.
    */
@@ -33,7 +44,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * Register a new listener.
    */
-  add(fn: EventHandler<T>): MiniSignalBinding<T, S> {
+  add(fn: T): MiniSignalBinding<T, S> {
     if (typeof fn !== 'function') {
       throw new Error('MiniSignal#add(): First arg must be a Function.');
     }
@@ -43,7 +54,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
    * Dispatches a signal to all registered listeners.
    */
-  dispatch(...args: T): boolean {
+  dispatch(...args: OnlySync<T, Parameters<T>>): boolean {
     if (this._dispatching)
       throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
 
@@ -68,7 +79,7 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
    * Dispatches listeners serially, waiting for each to complete if they return a Promise.
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
-  async dispatchSerial(...args: T): Promise<boolean> {
+  async dispatchSerial(...args: OnlyAsync<T, Parameters<T>>): Promise<boolean> {
     if (this._dispatching)
       throw new Error(
         'MiniSignal#dispatchSerial(): Signal already dispatching.'
@@ -96,7 +107,9 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
    * Dispatches listeners in parallel, waiting for all to complete if they return Promises.
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
-  async dispatchParallel(...args: T): Promise<boolean> {
+  async dispatchParallel(
+    ...args: OnlyAsync<T, Parameters<T>>
+  ): Promise<boolean> {
     if (this._dispatching) {
       throw new Error(
         'MiniSignal#dispatchParallel(): Signal already dispatching.'
