@@ -8,8 +8,7 @@ function isBinding(obj: any): obj is Binding<any, any> {
 
 export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   /**
-   * A Symbol that is used to guarantee the uniqueness of the MiniSignal
-   * instance.
+   * A Symbol that is used to guarantee the uniqueness of the MiniSignal instance.
    */
   private readonly _symbol = Symbol('MiniSignal');
   private _refMap = new WeakMap<Binding<T, S>, Node<T>>();
@@ -18,8 +17,21 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   private _tail?: Node<T> = undefined;
   private _dispatching = false;
 
+  /**
+   * Check if there are any listeners attached.
+   */
   hasListeners(): boolean {
     return this._head != null;
+  }
+
+  /**
+   * Register a new listener.
+   */
+  add(fn: EventHandler<T>): Binding<T, S> {
+    if (typeof fn !== 'function') {
+      throw new Error('MiniSignal#add(): First arg must be a Function.');
+    }
+    return this._createRef(this._addNode({ fn }));
   }
 
   /**
@@ -116,16 +128,6 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
   }
 
   /**
-   * Register a new listener.
-   */
-  add(fn: EventHandler<T>): Binding<T, S> {
-    if (typeof fn !== 'function') {
-      throw new Error('MiniSignal#add(): First arg must be a Function.');
-    }
-    return this._createRef(this._addNode({ fn }));
-  }
-
-  /**
    * Remove binding object.
    */
   detach(sym: Binding<T, S>): this {
@@ -218,9 +220,5 @@ export class MiniSignal<T extends any[] = any[], S = symbol | string> {
     } as unknown as Binding<T, S>;
     this._refMap.set(sym, node);
     return sym;
-  }
-
-  protected _getRef(sym: Binding<T, S>): Node<T> | undefined {
-    return this._refMap.get(sym);
   }
 }

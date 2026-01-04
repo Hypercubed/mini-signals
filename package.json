@@ -21,7 +21,7 @@
     "test:check": "npm-run-all check:*",
     "test:unit": "vitest run",
     "test:deopt": "node --trace_opt --trace_deopt ./bench/test-deopt.js | grep \"disabled optimization\" || true",
-    "test:types": "tsd -f ./src/mini-signals.test-d.ts",
+    "test:types": "tsd -f ./src/__tests__/mini-signals.test-d.ts",
     "watch": "vitest watch",
     "build": "npm-run-all fix:* && npm-run-all build:*",
     "build:tsc": "tsdown",

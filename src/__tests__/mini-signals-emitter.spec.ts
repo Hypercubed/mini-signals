@@ -1,8 +1,9 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import { MiniSignalEmitter } from './mini-signals-emitter.ts';
-import { MiniSignal } from './mini-signals.ts';
-import type { EventHandler, SignalMap } from './types.d.ts';
+import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
+import { MiniSignal } from '../mini-signals.ts';
+import { createSignalMap } from '../mini-signals-utils.ts';
+import type { EventHandler, SignalMap } from '../types.d.ts';
 
 type TestEvents = {
   'user:login': [userId: string, timestamp: number];
@@ -63,6 +64,18 @@ describe('MiniSignalEmitter', () => {
 
       expect(handler).toHaveBeenCalledWith('user123');
     });
+
+    it('should create from a createSignalMap output', () => {
+      const emitter = new MiniSignalEmitter(
+        createSignalMap<TestEvents>([
+          'user:login',
+          'user:logout',
+          'data:update',
+          'no-args',
+        ])
+      );
+      expect(emitter).toBeDefined();
+    });
   });
 
   describe('on', () => {
@@ -101,12 +114,12 @@ describe('MiniSignalEmitter', () => {
 
     it('should return a cleanup function', () => {
       const handler = vi.fn();
-      const cleanup = emitter.on('user:login', handler);
+      const binding = emitter.on('user:login', handler);
 
       emitter.emit('user:login', 'user123', 1234567890);
       expect(handler).toHaveBeenCalledTimes(1);
 
-      cleanup();
+      emitter.removeListener('user:login', binding);
       emitter.emit('user:login', 'user456', 9876543210);
       expect(handler).toHaveBeenCalledTimes(1); // Should not be called again
     });
@@ -175,9 +188,9 @@ describe('MiniSignalEmitter', () => {
 
     it('should return a cleanup function', () => {
       const handler = vi.fn();
-      const cleanup = emitter.once('user:login', handler);
+      const binding = emitter.once('user:login', handler);
 
-      cleanup(); // Remove before it fires
+      emitter.removeListener('user:login', binding);
       emitter.emit('user:login', 'user123', 1234567890);
 
       expect(handler).not.toHaveBeenCalled();
@@ -491,6 +504,54 @@ describe('MiniSignalEmitter', () => {
     });
   });
 
+  describe('removeListener', () => {
+    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let signals: SignalMap<TestEvents>;
+    beforeEach(() => {
+      signals = {
+        'user:login': new MiniSignal<[string, number]>(),
+        'user:logout': new MiniSignal<[string]>(),
+        'data:update': new MiniSignal<[string, any]>(),
+        'no-args': new MiniSignal<[]>(),
+      };
+      emitter = new MiniSignalEmitter(signals);
+    });
+
+    it('should remove a previously registered listener', () => {
+      const handler = vi.fn();
+      const binding = emitter.on('user:login', handler);
+      emitter.emit('user:login', 'user123', 1234567890);
+      expect(handler).toHaveBeenCalledTimes(1);
+      emitter.removeListener('user:login', binding);
+      emitter.emit('user:login', 'user456', 9876543210);
+      expect(handler).toHaveBeenCalledTimes(1); // Should not be called again
+    });
+
+    it('should throw for missing signal', () => {
+      const handler = vi.fn();
+      const binding = emitter.on('user:login', handler);
+      expect(() => {
+        // @ts-ignore
+        emitter.removeListener('invalid-event', binding);
+      }).toThrow("Signal for event 'invalid-event' not found");
+    });
+
+    it('should throw when removing a binding that was not registered', () => {
+      const handler = vi.fn();
+      const correctBinding = emitter.on('user:login', handler);
+      const incorrectBinding = emitter.on('user:logout', handler);
+      expect(() => {
+        // @ts-ignore
+        emitter.removeListener('user:login', incorrectBinding);
+      }).toThrow(
+        'MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.'
+      );
+      // Original handler should still be called
+      emitter.emit('user:login', 'user123', 1234567890);
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('clear', () => {
     let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
 
@@ -538,6 +599,28 @@ describe('MiniSignalEmitter', () => {
       expect(handler1).not.toHaveBeenCalled();
       expect(handler2).not.toHaveBeenCalled();
       expect(handler3).not.toHaveBeenCalled();
+    });
+
+    it('should clear all symbol listeners when no event specified', () => {
+      const signals = {
+        [LOGIN]: new MiniSignal<[string]>(),
+        [LOGOUT]: new MiniSignal<[string]>(),
+      };
+      const symbolEmitter = new MiniSignalEmitter(signals);
+
+      const loginHandler = vi.fn();
+      const logoutHandler = vi.fn();
+
+      symbolEmitter.on(LOGIN, loginHandler);
+      symbolEmitter.on(LOGOUT, logoutHandler);
+
+      symbolEmitter.clear();
+
+      symbolEmitter.emit(LOGIN, 'user123');
+      symbolEmitter.emit(LOGOUT, 'user123');
+
+      expect(loginHandler).not.toHaveBeenCalled();
+      expect(logoutHandler).not.toHaveBeenCalled();
     });
 
     it('should clear symbol event listeners', () => {

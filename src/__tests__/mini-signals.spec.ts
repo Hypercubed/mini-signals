@@ -1,4 +1,4 @@
-import { MiniSignal } from '../src/mini-signals';
+import { MiniSignal } from '../mini-signals';
 
 import { beforeEach, describe, it, expect } from 'vitest';
 
@@ -60,7 +60,7 @@ describe('MiniSignal', () => {
       const mySignal = new MiniSignal<[string]>();
       const context = {};
 
-      const cb = function (bar: string) {
+      const cb = function (this: any, bar: string) {
         expect(arguments).has.length(1);
         expect(bar).equals('bar');
         expect(this).equals(context);
@@ -74,7 +74,7 @@ describe('MiniSignal', () => {
     it('Function#bind example with parameters', () => {
       const mySignal = new MiniSignal<[]>();
       const context = {};
-      const cb = function (bar: string) {
+      const cb = function (this: any, bar: string) {
         expect(arguments).has.length(1);
         expect(bar).equals('bar');
         expect(this).equals(context);
@@ -86,7 +86,7 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#add', () => {
+  describe('#add', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
@@ -126,7 +126,7 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#dispatch', () => {
+  describe('#dispatch', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
@@ -141,7 +141,7 @@ describe('MiniSignal', () => {
     it('emits with context when function is bound function', () => {
       const context = {};
 
-      const cb = function (bar: string): void {
+      const cb = function (this: any, bar: string): void {
         expect(bar).toBe('bar');
         expect(this).toBe(context);
         expect(arguments).toHaveLength(1);
@@ -329,7 +329,7 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#detach', () => {
+  describe('#detach', () => {
     /* istanbul ignore next */
     function foo(): void {
       pattern.push('foo');
@@ -522,7 +522,7 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#detachAll', () => {
+  describe('#detachAll', () => {
     /* istanbul ignore next */
     function oops(): void {
       throw new Error('oops');
@@ -716,7 +716,7 @@ describe('MiniSignal', () => {
     });
   });
 
-  describe('MiniSignal#dispatchSerial', () => {
+  describe('#dispatchSerial', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
@@ -741,9 +741,30 @@ describe('MiniSignal', () => {
 
       expect(pattern.join(';')).equals('foo1;foo2');
     });
+
+    it('returns false when no listeners are registered', async () => {
+      const e = new MiniSignal();
+      const pattern: string[] = [];
+
+      expect(await e.dispatchSerial()).toBe(false);
+    });
+
+    it('cannot dispatchSerial while dispatching', async () => {
+      const cb = function (bar: string): void {
+        expect(bar).equals('bar');
+        expect(arguments).has.length(1);
+      };
+
+      e.add(cb);
+
+      e.dispatchSerial('bar');
+      await expect(e.dispatchSerial('bar')).rejects.toThrow(
+        'MiniSignal#dispatchSerial(): Signal already dispatching.'
+      );
+    });
   });
 
-  describe('MiniSignal#dispatchParallel', () => {
+  describe('#dispatchParallel', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
@@ -767,6 +788,25 @@ describe('MiniSignal', () => {
       await e.dispatchParallel();
 
       expect(pattern.join(';')).equals('foo2;foo1');
+    });
+
+    it('returns false when no listeners are registered', async () => {
+      const e = new MiniSignal();
+      expect(await e.dispatchParallel()).toBe(false);
+    });
+
+    it('cannot dispatchParallel while dispatching', async () => {
+      const cb = function (bar: string): void {
+        expect(bar).equals('bar');
+        expect(arguments).has.length(1);
+      };
+
+      e.add(cb);
+
+      e.dispatchParallel('bar');
+      await expect(e.dispatchParallel('bar')).rejects.toThrow(
+        'MiniSignal#dispatchParallel(): Signal already dispatching.'
+      );
     });
   });
 });

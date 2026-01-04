@@ -1,8 +1,8 @@
 import { expectError, expectType } from 'tsd';
 import { describe, it } from 'vitest';
 
-import { MiniSignal } from './mini-signals.ts';
-import { MiniSignalEmitter } from './mini-signals-emitter.ts';
+import { MiniSignal } from '../mini-signals.ts';
+import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
 
 describe('MiniSignal Typing', () => {
   it('should have correct types', () => {
@@ -91,8 +91,9 @@ describe('MiniSignalEmitter Typing', () => {
     });
     expectType<boolean>(emitter.emit('login', 'user123'));
     expectType<boolean>(emitter.emit('logout', 'timeout'));
-    offLogin();
-    offLogout();
+
+    emitter.removeListener('login', offLogin);
+    emitter.removeListener('logout', offLogout);
   });
 
   it('should have correct types (symbols)', () => {
@@ -114,8 +115,8 @@ describe('MiniSignalEmitter Typing', () => {
     expectType<boolean>(emitter.emit(LOGIN, 'user123'));
     expectType<boolean>(emitter.emit(LOGOUT, 'timeout'));
 
-    offLogin();
-    offLogout();
+    emitter.removeListener(LOGIN, offLogin);
+    emitter.removeListener(LOGOUT, offLogout);
   });
 
   it('should show TS error on incorrect listeners and dispatch', () => {
@@ -138,5 +139,82 @@ describe('MiniSignalEmitter Typing', () => {
 
     expectError(emitter.emit('login', 123));
     expectError(emitter.emit('logouts', 'timeout'));
+  });
+
+  it('should show TS error on incorrect event names', () => {
+    const emitter = new MiniSignalEmitter({
+      login: new MiniSignal<[string]>(),
+      logout: new MiniSignal<[string]>(),
+    });
+
+    expectError(
+      emitter.on('signout', (reason) => {
+        expectType<string>(reason);
+      })
+    );
+    expectError(emitter.emit('signout', 'user123'));
+  });
+
+  it('should show TS error on incorrect event names (symbols)', () => {
+    const LOGIN = Symbol('login');
+    const LOGOUT = Symbol('logout');
+
+    const emitter = new MiniSignalEmitter({
+      [LOGIN]: new MiniSignal<[string]>(),
+      [LOGOUT]: new MiniSignal<[string]>(),
+    });
+
+    const SIGNOUT = Symbol('signout');
+
+    expectError(
+      emitter.on(SIGNOUT, (reason) => {
+        expectType<string>(reason);
+      })
+    );
+    expectError(emitter.emit(SIGNOUT, 'user123'));
+  });
+
+  it('should show TS error on removing listener with incorrect event name', () => {
+    const emitter = new MiniSignalEmitter({
+      login: new MiniSignal<[string]>(),
+      logout: new MiniSignal<[string]>(),
+    });
+
+    const offLogin = emitter.on('login', (userId) => {
+      expectType<string>(userId);
+    });
+    expectError(emitter.removeListener('signout', offLogin));
+  });
+
+  it('should show TS error on removing listener with incorrect event name (symbols)', () => {
+    const LOGIN = Symbol('login');
+    const LOGOUT = Symbol('logout');
+
+    const emitter = new MiniSignalEmitter({
+      [LOGIN]: new MiniSignal<[string]>(),
+      [LOGOUT]: new MiniSignal<[string]>(),
+    });
+    const offLogin = emitter.on(LOGIN, (userId) => {
+      expectType<string>(userId);
+    });
+    const SIGNOUT = Symbol('signout');
+    expectError(emitter.removeListener(SIGNOUT, offLogin));
+  });
+
+  it('should show TS error on incorrect listener type when removing', () => {
+    const emitter = new MiniSignalEmitter({
+      login: new MiniSignal<[string]>(),
+      logout: new MiniSignal<[string]>(),
+    });
+
+    const offLogin = emitter.on('login', (userId) => {
+      expectType<string>(userId);
+    });
+
+    const offLogout = emitter.on('logout', (userId) => {
+      expectType<string>(userId);
+    });
+
+    expectError(emitter.removeListener('login', offLogout));
   });
 });

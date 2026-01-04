@@ -5,7 +5,7 @@ export type EventHandler<T extends any[]> = (
 ) => void | Promise<void>;
 export type EventMap = Record<string | symbol, any[]>;
 export type SignalMap<T extends EventMap = EventMap> = {
-  [K in keyof T]: MiniSignal<T[K]>;
+  [K in keyof T]: MiniSignal<T[K], any>;
 };
 
 export interface Binding<T, S> {

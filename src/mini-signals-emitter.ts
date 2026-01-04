@@ -1,5 +1,5 @@
 import type { MiniSignal } from './mini-signals.ts';
-import { type SignalMap, type EventHandler } from './types.js';
+import type { SignalMap, EventHandler, Binding } from './types.d.js';
 
 type EventKey<T extends SignalMap<any>> = keyof T;
 type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<infer Args>
@@ -32,12 +32,9 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
   on<K extends EventKey<T>>(
     event: K,
     handler: ExtractHandler<T, K>
-  ): () => void {
+  ): Binding<Parameters<ExtractHandler<T, K>>, K> {
     const signal = this.getSignal(event);
-    const binding = signal.add(handler);
-    return (): void => {
-      signal.detach(binding);
-    };
+    return signal.add(handler);
   }
 
   /**
@@ -46,7 +43,7 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
   once<K extends EventKey<T>>(
     event: K,
     handler: ExtractHandler<T, K>
-  ): () => void {
+  ): Binding<Parameters<ExtractHandler<T, K>>, K> {
     const signal = this.getSignal(event);
     const binding = signal.add(
       (...args: Parameters<ExtractHandler<T, K>>): void => {
@@ -55,9 +52,7 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
         signal.detach(binding);
       }
     );
-    return (): void => {
-      signal.detach(binding);
-    };
+    return binding;
   }
 
   /**
@@ -85,6 +80,14 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
   ): Promise<boolean> {
     const signal = this.getSignal(event);
     return await signal.dispatchSerial(...args);
+  }
+
+  removeListener<
+    K extends EventKey<T>,
+    B extends Binding<Parameters<ExtractHandler<T, K>>, K>
+  >(event: K, binding: B): void {
+    const signal = this.getSignal(event);
+    signal.detach(binding);
   }
 
   clear<K extends EventKey<T>>(event?: K): void {
