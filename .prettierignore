@@ -1,3 +1,2 @@
 dist
 bench/**/mini-signals@*.js
-src/private-types.d.ts

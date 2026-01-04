@@ -4,9 +4,10 @@ export type EventHandler<T extends any[]> = (
   ...args: T
 ) => Promise<unknown> | unknown;
 
-export type EventMap = Record<string | symbol, any[]>;
+// Same as node's EventMap
+export type EventMap<T> = Record<keyof T, any[]>;
 
-export type MiniSignalMap<T extends EventMap = EventMap> = {
+export type MiniSignalMap<T extends EventMap<any> = EventMap<any>> = {
   [K in keyof T]: MiniSignal<T[K], any>;
 };
 

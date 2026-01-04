@@ -88,9 +88,7 @@ describe('MiniSignalEmitter', () => {
         error: [error: Error];
       };
 
-      class WebSocketConnection extends MiniSignalEmitter<
-        MiniSignalMap<ConnectionEvents>
-      > {
+      class WebSocketConnection extends MiniSignalEmitter<ConnectionEvents> {
         constructor() {
           super({
             open: new MiniSignal(),
@@ -192,7 +190,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('on', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
     let signals: MiniSignalMap<TestEvents>;
 
     beforeEach(() => {
@@ -273,7 +271,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('once', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
 
     beforeEach(() => {
       const signals = {
@@ -328,7 +326,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emit', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
 
     beforeEach(() => {
       const signals = {
@@ -388,7 +386,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitSerial', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
 
     beforeEach(() => {
       emitter = new MiniSignalEmitter({
@@ -484,7 +482,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitParallel', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
 
     beforeEach(() => {
       emitter = new MiniSignalEmitter({
@@ -612,7 +610,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('removeListener', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
     let signals: MiniSignalMap<TestEvents>;
     beforeEach(() => {
       signals = {
@@ -660,7 +658,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('clear', () => {
-    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<TestEvents>;
 
     beforeEach(() => {
       const signals = {

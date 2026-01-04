@@ -4,7 +4,7 @@ import type { EventMap, MiniSignalMap } from './mini-signals-types.js';
 /**
  * Helper to create a signal map for SignalEmitter
  */
-export function createSignalMap<T extends EventMap>(
+export function createSignalMap<T extends EventMap<any>>(
   events: Array<keyof T>
 ): MiniSignalMap<T> {
   const map: Partial<MiniSignalMap<T>> = {};

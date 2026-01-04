@@ -1,22 +1,20 @@
 import type {
-  MiniSignalMap,
   MiniSignalBinding,
   EventHandler,
+  EventMap,
+  MiniSignalMap,
 } from './mini-signals-types.js';
 import type { MiniSignal } from './mini-signals.ts';
 
-type EventKey<T extends MiniSignalMap<any>> = keyof T;
-type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<infer Args>
-  ? EventHandler<Args>
-  : never;
+export type EventKey<T extends EventMap<any>> = keyof T;
 
 /**
  * @document __docs__/mini-signal-emitter.md
  */
-export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
-  protected readonly signals: T;
+export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
+  protected readonly signals: MiniSignalMap<T>;
 
-  constructor(signals: T) {
+  constructor(signals: MiniSignalMap<T>) {
     this.signals = { ...signals };
     // Copy symbol keys
     for (const key of Object.getOwnPropertySymbols(signals)) {
@@ -24,7 +22,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
     }
   }
 
-  protected getSignal<K extends EventKey<T>>(event: K): T[K] {
+  protected getSignal<K extends EventKey<T>>(event: K): MiniSignal<T[K], K> {
     const signal = this.signals[event];
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!signal) {
@@ -38,8 +36,8 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    */
   on<K extends EventKey<T>>(
     event: K,
-    handler: ExtractHandler<T, K>
-  ): MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K> {
+    handler: EventHandler<T[K]>
+  ): MiniSignalBinding<T[K], K> {
     const signal = this.getSignal(event);
     return signal.add(handler);
   }
@@ -49,11 +47,11 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    */
   once<K extends EventKey<T>>(
     event: K,
-    handler: ExtractHandler<T, K>
-  ): MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K> {
+    handler: EventHandler<T[K]>
+  ): MiniSignalBinding<T[K], K> {
     const signal = this.getSignal(event);
     const binding = signal.add(
-      (...args: Parameters<ExtractHandler<T, K>>): void => {
+      (...args: Parameters<EventHandler<T[K]>>): void => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         handler(...args);
         signal.detach(binding);
@@ -67,7 +65,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    */
   emit<K extends EventKey<T>>(
     event: K,
-    ...args: Parameters<ExtractHandler<T, K>>
+    ...args: Parameters<EventHandler<T[K]>>
   ): boolean {
     const signal = this.getSignal(event);
     return signal.dispatch(...args);
@@ -75,7 +73,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
 
   async emitParallel<K extends EventKey<T>>(
     event: K,
-    ...args: Parameters<ExtractHandler<T, K>>
+    ...args: Parameters<EventHandler<T[K]>>
   ): Promise<boolean> {
     const signal = this.getSignal(event);
     return await signal.dispatchParallel(...args);
@@ -83,16 +81,16 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
 
   async emitSerial<K extends EventKey<T>>(
     event: K,
-    ...args: Parameters<ExtractHandler<T, K>>
+    ...args: Parameters<EventHandler<T[K]>>
   ): Promise<boolean> {
     const signal = this.getSignal(event);
     return await signal.dispatchSerial(...args);
   }
 
-  off<
-    K extends EventKey<T>,
-    B extends MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K>
-  >(event: K, binding: B): void {
+  off<K extends EventKey<T>, B extends MiniSignalBinding<T[K], K>>(
+    event: K,
+    binding: B
+  ): void {
     const signal = this.getSignal(event);
     signal.detach(binding);
   }
