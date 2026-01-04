@@ -6,8 +6,8 @@ import type { MiniSignalMap, MiniSignalBinding } from './mini-signals-types.js';
 import type {
   EventKey,
   ExtractHandler,
-  OnlyAsyncSignal,
-  OnlySyncSignal,
+  OnlyAsyncEvent,
+  OnlySyncEvent,
 } from './private-types.d.ts';
 
 export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
@@ -63,7 +63,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    * Emit an event with data
    */
   emit<K extends EventKey<T>>(
-    event: OnlySyncSignal<T, K>,
+    event: OnlySyncEvent<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): boolean {
     const signal = this.getSignal(event as K);
@@ -71,7 +71,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   }
 
   async emitParallel<K extends EventKey<T>>(
-    event: OnlyAsyncSignal<T, K>,
+    event: OnlyAsyncEvent<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
     const signal = this.getSignal(event as K);
@@ -79,7 +79,7 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   }
 
   async emitSerial<K extends EventKey<T>>(
-    event: OnlyAsyncSignal<T, K>,
+    event: OnlyAsyncEvent<T, K>,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
     const signal = this.getSignal(event as K);

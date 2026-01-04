@@ -130,7 +130,7 @@ describe('MiniSignal', () => {
     let e: MiniSignal;
 
     beforeEach(() => {
-      e = new MiniSignal<(s: string) => void>();
+      e = new MiniSignal();
     });
 
     it('should return false when there are not events to dispatch', () => {

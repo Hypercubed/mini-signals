@@ -1,8 +1,8 @@
 import type { MiniSignalBinding } from './mini-signals-types.js';
 import {
   type EventHandler,
-  type OnlyAsyncEventHandler,
-  type OnlySyncEventHandler,
+  type OnlyAsyncHandler,
+  type OnlySyncHandler,
 } from './private-types.js';
 
 const MINI_SIGNAL_KEY = Symbol('SIGNAL');
@@ -54,7 +54,7 @@ export class MiniSignal<
   /**
    * Dispatches a signal to all registered listeners.
    */
-  dispatch(...args: OnlySyncEventHandler<T, Parameters<T>>): boolean {
+  dispatch(...args: OnlySyncHandler<T, Parameters<T>>): boolean {
     if (this._dispatching)
       throw new Error('MiniSignal#dispatch(): Signal already dispatching.');
 
@@ -80,7 +80,7 @@ export class MiniSignal<
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
   async dispatchSerial(
-    ...args: OnlyAsyncEventHandler<T, Parameters<T>>
+    ...args: OnlyAsyncHandler<T, Parameters<T>>
   ): Promise<boolean> {
     if (this._dispatching)
       throw new Error(
@@ -110,7 +110,7 @@ export class MiniSignal<
    * Returns a Promise that resolves to true if listeners were called, false otherwise.
    */
   async dispatchParallel(
-    ...args: OnlyAsyncEventHandler<T, Parameters<T>>
+    ...args: OnlyAsyncHandler<T, Parameters<T>>
   ): Promise<boolean> {
     if (this._dispatching) {
       throw new Error(
