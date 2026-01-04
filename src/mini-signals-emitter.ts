@@ -1,12 +1,16 @@
 import type { MiniSignal } from './mini-signals.ts';
-import type { SignalMap, EventHandler, Binding } from './types.d.js';
+import type {
+  MiniSignalMap,
+  EventHandler,
+  MiniSignalBinding,
+} from './types.d.js';
 
-type EventKey<T extends SignalMap<any>> = keyof T;
+type EventKey<T extends MiniSignalMap<any>> = keyof T;
 type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<infer Args>
   ? EventHandler<Args>
   : never;
 
-export class MiniSignalEmitter<T extends SignalMap<any>> {
+export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   protected readonly signals: T;
 
   constructor(signals: T) {
@@ -32,7 +36,7 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
   on<K extends EventKey<T>>(
     event: K,
     handler: ExtractHandler<T, K>
-  ): Binding<Parameters<ExtractHandler<T, K>>, K> {
+  ): MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K> {
     const signal = this.getSignal(event);
     return signal.add(handler);
   }
@@ -43,7 +47,7 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
   once<K extends EventKey<T>>(
     event: K,
     handler: ExtractHandler<T, K>
-  ): Binding<Parameters<ExtractHandler<T, K>>, K> {
+  ): MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K> {
     const signal = this.getSignal(event);
     const binding = signal.add(
       (...args: Parameters<ExtractHandler<T, K>>): void => {
@@ -84,7 +88,7 @@ export class MiniSignalEmitter<T extends SignalMap<any>> {
 
   removeListener<
     K extends EventKey<T>,
-    B extends Binding<Parameters<ExtractHandler<T, K>>, K>
+    B extends MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K>
   >(event: K, binding: B): void {
     const signal = this.getSignal(event);
     signal.detach(binding);

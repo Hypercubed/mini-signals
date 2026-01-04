@@ -9,3 +9,7 @@
 ## Classes
 
 - [MiniSignal](classes/MiniSignal.md)
+
+## Interfaces
+
+- [MiniSignalNode](interfaces/MiniSignalNode.md)

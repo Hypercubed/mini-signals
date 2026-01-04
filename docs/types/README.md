@@ -8,11 +8,9 @@
 
 ## Interfaces
 
-- [Binding](interfaces/Binding.md)
-- [Node](interfaces/Node.md)
+- [MiniSignalBinding](interfaces/MiniSignalBinding.md)
 
 ## Type Aliases
 
-- [EventHandler](type-aliases/EventHandler.md)
 - [EventMap](type-aliases/EventMap.md)
-- [SignalMap](type-aliases/SignalMap.md)
+- [MiniSignalMap](type-aliases/MiniSignalMap.md)

@@ -8,4 +8,4 @@
 
 > **EventMap** = `Record`\<`string` \| `symbol`, `any`[]\>
 
-Defined in: [types.d.ts:6](https://github.com/Hypercubed/mini-signals/blob/a7fac082839dff42d89c8f6da1674c2dfa7f96ca/src/types.d.ts#L6)
+Defined in: [types.d.ts:8](https://github.com/Hypercubed/mini-signals/blob/bb93e2d9b625c0b069f1644b26c86bf27045ef7d/src/types.d.ts#L8)

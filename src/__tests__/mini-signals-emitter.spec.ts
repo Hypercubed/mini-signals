@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
 import { MiniSignal } from '../mini-signals.ts';
 import { createSignalMap } from '../mini-signals-utils.ts';
-import type { EventHandler, SignalMap } from '../types.d.ts';
+import type { EventHandler, MiniSignalMap } from '../types.d.ts';
 
 type TestEvents = {
   'user:login': [userId: string, timestamp: number];
@@ -79,8 +79,8 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('on', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
-    let signals: SignalMap<TestEvents>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let signals: MiniSignalMap<TestEvents>;
 
     beforeEach(() => {
       signals = {
@@ -163,7 +163,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('once', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -218,7 +218,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emit', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -278,7 +278,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitSerial', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -376,7 +376,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('emitParallel', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
@@ -505,8 +505,8 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('removeListener', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
-    let signals: SignalMap<TestEvents>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
+    let signals: MiniSignalMap<TestEvents>;
     beforeEach(() => {
       signals = {
         'user:login': new MiniSignal<[string, number]>(),
@@ -553,7 +553,7 @@ describe('MiniSignalEmitter', () => {
   });
 
   describe('clear', () => {
-    let emitter: MiniSignalEmitter<SignalMap<TestEvents>>;
+    let emitter: MiniSignalEmitter<MiniSignalMap<TestEvents>>;
 
     beforeEach(() => {
       const signals = {
