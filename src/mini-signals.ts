@@ -17,6 +17,10 @@ function isBinding(obj: any): obj is MiniSignalBinding<any, any> {
   return typeof obj === 'object' && MINI_SIGNAL_KEY in obj;
 }
 
+type EnsureNotPromiseIfVoid<R, T> = R extends void 
+  ? (T extends Promise<unknown> ? never : T)
+  : T;
+
 /**
  * @document __docs__/mini-signal.md
  */

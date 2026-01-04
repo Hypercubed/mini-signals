@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { MiniSignal } from '../mini-signals.ts';
 import { MiniSignalEmitter } from '../mini-signals-emitter.ts';
-// import { asyncSignal, syncSignal } from '../mini-signals-utils.ts';
+import { asyncSignal, syncSignal } from '../mini-signals-utils.ts';
 
 describe('MiniSignal Typing', () => {
   it('should have correct types', () => {
@@ -158,9 +158,7 @@ describe('MiniSignal Typing', () => {
   });
 
   // it('should show TS error adding async handlers to sync signals', () => {
-  //   type NotPromise<T> = T extends Promise<unknown> ? never : T;
-
-  //   const e1 = new MiniSignal<() => NotPromise<void>>();
+  //   const e1 = new MiniSignal<() => void>();
 
   //   const handler = async () => {
   //     /* async handler */
@@ -350,32 +348,32 @@ describe('MiniSignalEmitter Typing', () => {
   });
 });
 
-// describe('syncSignal/asyncSignal utilities', () => {
-//   it('should create sync signals', () => {
-//     const signal = syncSignal<[number, string], 'testSignal'>();
-//     expectType<MiniSignal<(n: number, s: string) => void, 'testSignal'>>(signal);
-//   });
+describe('syncSignal/asyncSignal utilities', () => {
+  it('should create sync signals', () => {
+    const signal = syncSignal<[number, string], 'testSignal'>();
+    expectType<MiniSignal<(n: number, s: string) => void, 'testSignal'>>(signal);
+  });
 
-//   it('should create async signals', () => {
-//     const signal = asyncSignal<[number, string], 'testSignal'>();
-//     expectType<MiniSignal<(n: number, s: string) => Promise<void> | void, 'testSignal'>>(signal);
-//   });
+  it('should create async signals', () => {
+    const signal = asyncSignal<[number, string], 'testSignal'>();
+    expectType<MiniSignal<(n: number, s: string) => Promise<void> | void, 'testSignal'>>(signal);
+  });
 
-//   it('should allow sync handlers on async signal', () => {
-//     const signal = asyncSignal<[number, string], 'testSignal'>();
-//     signal.add((n, s) => {
-//       expectType<number>(n);
-//       expectType<string>(s);
-//     });
-//   });
+  it('should allow sync handlers on async signal', () => {
+    const signal = asyncSignal<[number, string]>();
+    signal.add((n, s) => {
+      expectType<number>(n);
+      expectType<string>(s);
+    });
+  });
 
-//   it('should not allow async handlers on sync signal', () => {
-//     const signal = syncSignal<[number, string], 'testSignal'>();
-//     expectError(
-//       signal.add(async (n, s) => {
-//         expectType<number>(n);
-//         expectType<string>(s);
-//       })
-//     );
-//   });
-// });
+  // it('should not allow async handlers on sync signal', () => {
+  //   const signal = syncSignal<[number, string]>();
+  //   expectError(
+  //     signal.add(async (n, s) => {
+  //       expectType<number>(n);
+  //       expectType<string>(s);
+  //     })
+  //   );
+  // });
+});
