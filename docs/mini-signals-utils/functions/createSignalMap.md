@@ -6,9 +6,9 @@
 
 # Function: createSignalMap()
 
-> **createSignalMap**\<`T`\>(`events`): [`MiniSignalMap`](../../types/type-aliases/MiniSignalMap.md)\<`T`\>
+> **createSignalMap**\<`T`\>(`events`): `MiniSignalMap`\<`T`\>
 
-Defined in: [mini-signals-utils.ts:25](https://github.com/Hypercubed/mini-signals/blob/7f3303b5adbfd4cff0e235bc0bb1b765b79a6452/src/mini-signals-utils.ts#L25)
+Defined in: [mini-signals-utils.ts:7](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-utils.ts#L7)
 
 Helper to create a signal map for SignalEmitter
 
@@ -16,7 +16,7 @@ Helper to create a signal map for SignalEmitter
 
 ### T
 
-`T` *extends* [`EventMap`](../../types/type-aliases/EventMap.md)
+`T` *extends* `EventMap`
 
 ## Parameters
 
@@ -26,4 +26,4 @@ keyof `T`[]
 
 ## Returns
 
-[`MiniSignalMap`](../../types/type-aliases/MiniSignalMap.md)\<`T`\>
+`MiniSignalMap`\<`T`\>

@@ -1,12 +1,16 @@
 import { MiniSignal } from '../mini-signals';
 
-import { beforeEach, describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect, assert, test } from 'vitest';
 
 const delay = async (ms: number) =>
   await new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('MiniSignal', () => {
   const pattern: string[] = [];
+
+  const doSomethingAsync = async (): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, 10));
+  };
 
   const writer = (a: string): void => {
     pattern.push(a);
@@ -17,7 +21,7 @@ describe('MiniSignal', () => {
   });
 
   it('quick test', () => {
-    const e = new MiniSignal<(s: string) => void>();
+    const e = new MiniSignal<[string]>();
 
     const foo = e.add(writer);
     e.add(writer);
@@ -43,21 +47,87 @@ describe('MiniSignal', () => {
   });
 
   describe('Readme Examples', () => {
-    it('Example Usage', () => {
-      const mySignal = new MiniSignal<(s: string, t: string) => void>();
+    test('Basic Usage', () => {
+      // Define a mini-signal
+      // The optional type argument specifies the listener parameter types
+      const mySignal = new MiniSignal<[string, string]>();
 
-      const binding = mySignal.add(onSignal); // add listener
-      mySignal.dispatch('foo', 'bar'); // dispatch signal passing custom parameters
-      mySignal.detach(binding); // remove a single listener
+      // Add a listener
+      // The listener parameter types must match the type argument specified in the MiniSignal constructor
+      // The returned binding can be used to remove the listener later
+      const binding = mySignal.add((foo: string, bar: string) => {
+        console.log('signal dispatched');
+        expect(foo).toBe('foo');
+        expect(bar).toBe('bar');
+      });
 
-      function onSignal(foo: string, bar: string): void {
-        expect(foo).to.equal('foo');
-        expect(bar).to.equal('bar');
-      }
+      // Dispatch the signal, passing parameters to the listeners
+      mySignal.dispatch('foo', 'bar');
+
+      // Remove the listener using the binding
+      mySignal.detach(binding);
     });
 
-    it('Function#bind example', () => {
-      const mySignal = new MiniSignal<(s: string) => void>();
+    test('Adding MiniSignal to Objects', () => {
+      const myObject = {
+        foo: 'bar',
+        updated: new MiniSignal<[]>(),
+      };
+
+      myObject.updated.add(() => {
+        console.log('signal dispatched');
+        expect(myObject.foo).toBe('baz');
+      });
+
+      myObject.foo = 'baz';
+      myObject.updated.dispatch(); // dispatch signal
+    });
+
+    test('Flavoring the signal', () => {
+      const mySignal = new MiniSignal<[string, string], 'mySignal'>();
+      const myOtherSignal = new MiniSignal<[string, string], 'myOtherSignal'>();
+
+      const binding = mySignal.add((foo: string, bar: string) => {
+        // ...
+      });
+
+      expect(() => {
+        // @ts-ignore
+        myOtherSignal.detach(binding); // `TypeScript error: Argument of type 'MiniSignalBinding<[string, string], "mySignal">' is not assignable to parameter of type 'MiniSignalBinding<[string, string], "myOtherSignal">'.`
+      }).toThrow(
+        'MiniSignal#detach(): MiniSignal listener does not belong to this MiniSignal.'
+      );
+    });
+
+    test('Async Listeners', async () => {
+      // Define a mini-signal
+      // The optional type argument specifies the listener parameter types
+      const mySignal = new MiniSignal<[string, string]>();
+
+      // Add a listener
+      // The listener parameter types must match the type argument specified in the MiniSignal constructor
+      // The returned binding can be used to remove the listener later
+      const binding = mySignal.add(async (foo: string, bar: string) => {
+        await doSomethingAsync();
+        console.log('signal dispatched');
+        expect(foo).toBe('foo');
+        expect(bar).toBe('bar');
+      });
+
+      // Dispatch the signal, passing parameters to each listener in series
+      // Wait for all listeners to complete
+      await mySignal.dispatchSerial('foo', 'bar');
+
+      // Dispatch the signal, passing parameters to each listener in parallel
+      // Wait for all listeners to complete
+      await mySignal.dispatchParallel('foo', 'bar');
+
+      // Remove the listener using the binding
+      mySignal.detach(binding);
+    });
+
+    test('Function#bind example', () => {
+      const mySignal = new MiniSignal<[string]>();
       const context = {};
 
       const cb = function (this: any, bar: string) {
@@ -72,7 +142,7 @@ describe('MiniSignal', () => {
     });
 
     it('Function#bind example with parameters', () => {
-      const mySignal = new MiniSignal<() => void>();
+      const mySignal = new MiniSignal<[]>();
       const context = {};
       const cb = function (this: any, bar: string) {
         expect(arguments).has.length(1);
@@ -87,10 +157,10 @@ describe('MiniSignal', () => {
   });
 
   describe('#add', () => {
-    let e: MiniSignal<(s: string) => void>;
+    let e: MiniSignal<[string]>;
 
     beforeEach(() => {
-      e = new MiniSignal<(s: string) => void>();
+      e = new MiniSignal();
     });
 
     it('should throw error for incorrect types', () => {
@@ -154,7 +224,7 @@ describe('MiniSignal', () => {
 
     it('can dispatch the function with multiple arguments', () => {
       for (let i = 0; i < 100; i++) {
-        const e = new MiniSignal<(...args: number[]) => void>();
+        const e = new MiniSignal<number[]>();
         (function (j) {
           const args: number[] = [];
 
@@ -173,7 +243,7 @@ describe('MiniSignal', () => {
 
     it('can dispatch the function with multiple arguments, multiple listeners', () => {
       for (let i = 0; i < 100; i++) {
-        const e = new MiniSignal<(...args: number[]) => void>();
+        const e = new MiniSignal<number[]>();
         (function (j) {
           const args: number[] = [];
 
@@ -718,7 +788,7 @@ describe('MiniSignal', () => {
 
   describe('#dispatchSerial', () => {
     it('emits to all event listeners in correct order', async () => {
-      const e = new MiniSignal<() => Promise<void>>();
+      const e = new MiniSignal<[]>();
       const pattern: string[] = [];
 
       e.add(async () => {
@@ -737,14 +807,14 @@ describe('MiniSignal', () => {
     });
 
     it('returns false when no listeners are registered', async () => {
-      const e = new MiniSignal<() => Promise<void>>();
+      const e = new MiniSignal<[]>();
       const pattern: string[] = [];
 
       expect(await e.dispatchSerial()).toBe(false);
     });
 
     it('cannot dispatchSerial while dispatching', async () => {
-      const e = new MiniSignal<(x: string) => Promise<void>>();
+      const e = new MiniSignal<[string]>();
 
       const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');
@@ -762,7 +832,7 @@ describe('MiniSignal', () => {
 
   describe('#dispatchParallel', () => {
     it('emits to all event listeners in correct order', async () => {
-      const e = new MiniSignal<() => Promise<void>>();
+      const e = new MiniSignal<[]>();
       const pattern: string[] = [];
 
       e.add(async () => {
@@ -781,12 +851,12 @@ describe('MiniSignal', () => {
     });
 
     it('returns false when no listeners are registered', async () => {
-      const e = new MiniSignal<() => Promise<void>>();
+      const e = new MiniSignal<[]>();
       expect(await e.dispatchParallel()).toBe(false);
     });
 
     it('cannot dispatchParallel while dispatching', async () => {
-      const e = new MiniSignal<(s: string) => Promise<void>>();
+      const e = new MiniSignal<[string]>();
 
       const cb = async function (bar: string): Promise<void> {
         expect(bar).equals('bar');

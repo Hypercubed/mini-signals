@@ -1,3 +1,9 @@
+[**mini-signals**](../../../README.md)
+
+***
+
+[mini-signals](../../../modules.md) / [mini-signals-emitter](../../README.md) / [MiniSignalEmitter](../MiniSignalEmitter.md) / mini-signal-emitter
+
 # MiniSignalEmitter
 
 A strongly-typed event emitter wrapper around MiniSignals.

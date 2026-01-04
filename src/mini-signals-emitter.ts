@@ -1,15 +1,18 @@
+import type {
+  MiniSignalMap,
+  MiniSignalBinding,
+  EventHandler,
+} from './mini-signals-types.js';
+import type { MiniSignal } from './mini-signals.ts';
+
+type EventKey<T extends MiniSignalMap<any>> = keyof T;
+type ExtractHandler<T, K extends keyof T> = T[K] extends MiniSignal<infer Args>
+  ? EventHandler<Args>
+  : never;
+
 /**
  * @document __docs__/mini-signal-emitter.md
  */
-
-import type { MiniSignalMap, MiniSignalBinding } from './mini-signals-types.js';
-import type {
-  EventKey,
-  ExtractHandler,
-  OnlyAsyncEvent,
-  OnlySyncEvent,
-} from './private-types.d.ts';
-
 export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
   protected readonly signals: T;
 
@@ -63,30 +66,30 @@ export class MiniSignalEmitter<T extends MiniSignalMap<any>> {
    * Emit an event with data
    */
   emit<K extends EventKey<T>>(
-    event: OnlySyncEvent<T, K>,
+    event: K,
     ...args: Parameters<ExtractHandler<T, K>>
   ): boolean {
-    const signal = this.getSignal(event as K);
+    const signal = this.getSignal(event);
     return signal.dispatch(...args);
   }
 
   async emitParallel<K extends EventKey<T>>(
-    event: OnlyAsyncEvent<T, K>,
+    event: K,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
-    const signal = this.getSignal(event as K);
+    const signal = this.getSignal(event);
     return await signal.dispatchParallel(...args);
   }
 
   async emitSerial<K extends EventKey<T>>(
-    event: OnlyAsyncEvent<T, K>,
+    event: K,
     ...args: Parameters<ExtractHandler<T, K>>
   ): Promise<boolean> {
-    const signal = this.getSignal(event as K);
+    const signal = this.getSignal(event);
     return await signal.dispatchSerial(...args);
   }
 
-  removeListener<
+  off<
     K extends EventKey<T>,
     B extends MiniSignalBinding<Parameters<ExtractHandler<T, K>>, K>
   >(event: K, binding: B): void {

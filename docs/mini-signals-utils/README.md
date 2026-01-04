@@ -8,6 +8,4 @@
 
 ## Functions
 
-- [asyncSignal](functions/asyncSignal.md)
 - [createSignalMap](functions/createSignalMap.md)
-- [syncSignal](functions/syncSignal.md)
