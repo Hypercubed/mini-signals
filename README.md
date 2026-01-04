@@ -38,7 +38,7 @@ MiniSignals (since version 3.0.0) can be used either as a single-channel broadca
 
 > Flavoring (or branding) a signal ensures that only bindings  created by that specific signal (the object returned when adding a listener) can only be used to detach listeners from that signal. This prevents accidentally attempting to detach a binding from a different signal; which would result in a runtime error.
 
-Both `MiniSignal` and `MiniSignalEmitter` support asynchronous listeners that return Promises.  Dispatch methods can be used to wait for all listeners to complete eather in series or in parallel.
+Both `MiniSignal` and `MiniSignalEmitter` support asynchronous listeners that return Promises.  Dispatch methods can be used to wait for all listeners to complete either in series or in parallel.
 
 ### MiniSignal Usage
 
