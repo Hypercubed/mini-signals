@@ -1,6 +1,6 @@
 {
   "name": "mini-signals",
-  "version": "2.1.0",
+  "version": "2.1.1-0",
   "description": "signals, in TypeScript, fast",
   "type": "module",
   "main": "dist/index.cjs",
