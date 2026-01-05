@@ -6,13 +6,13 @@
 
 # Class: MiniSignalEmitter\<T\>
 
-Defined in: [mini-signals-emitter.ts:16](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L16)
+Defined in: [mini-signals-emitter.ts:14](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L14)
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* `MiniSignalMap`\<`any`\>
+`T` *extends* `EventMap`\<`any`\> = `EventMap`\<`any`\>
 
 ## Documents
 
@@ -24,13 +24,13 @@ Defined in: [mini-signals-emitter.ts:16](https://github.com/Hypercubed/mini-sign
 
 > **new MiniSignalEmitter**\<`T`\>(`signals`): `MiniSignalEmitter`\<`T`\>
 
-Defined in: [mini-signals-emitter.ts:19](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L19)
+Defined in: [mini-signals-emitter.ts:17](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L17)
 
 #### Parameters
 
 ##### signals
 
-`T`
+`MiniSignalMap`\<`T`\>
 
 #### Returns
 
@@ -42,7 +42,7 @@ Defined in: [mini-signals-emitter.ts:19](https://github.com/Hypercubed/mini-sign
 
 > **clear**\<`K`\>(`event?`): `void`
 
-Defined in: [mini-signals-emitter.ts:100](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L100)
+Defined in: [mini-signals-emitter.ts:98](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L98)
 
 #### Type Parameters
 
@@ -66,7 +66,7 @@ Defined in: [mini-signals-emitter.ts:100](https://github.com/Hypercubed/mini-sig
 
 > **emit**\<`K`\>(`event`, ...`args`): `boolean`
 
-Defined in: [mini-signals-emitter.ts:68](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L68)
+Defined in: [mini-signals-emitter.ts:66](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L66)
 
 Emit an event with data
 
@@ -84,7 +84,7 @@ Emit an event with data
 
 ##### args
 
-...`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>
+...`T`\[`K`\]
 
 #### Returns
 
@@ -96,7 +96,7 @@ Emit an event with data
 
 > **emitParallel**\<`K`\>(`event`, ...`args`): `Promise`\<`boolean`\>
 
-Defined in: [mini-signals-emitter.ts:76](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L76)
+Defined in: [mini-signals-emitter.ts:74](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L74)
 
 #### Type Parameters
 
@@ -112,7 +112,7 @@ Defined in: [mini-signals-emitter.ts:76](https://github.com/Hypercubed/mini-sign
 
 ##### args
 
-...`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>
+...`T`\[`K`\]
 
 #### Returns
 
@@ -124,7 +124,7 @@ Defined in: [mini-signals-emitter.ts:76](https://github.com/Hypercubed/mini-sign
 
 > **emitSerial**\<`K`\>(`event`, ...`args`): `Promise`\<`boolean`\>
 
-Defined in: [mini-signals-emitter.ts:84](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L84)
+Defined in: [mini-signals-emitter.ts:82](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L82)
 
 #### Type Parameters
 
@@ -140,7 +140,7 @@ Defined in: [mini-signals-emitter.ts:84](https://github.com/Hypercubed/mini-sign
 
 ##### args
 
-...`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>
+...`T`\[`K`\]
 
 #### Returns
 
@@ -152,7 +152,7 @@ Defined in: [mini-signals-emitter.ts:84](https://github.com/Hypercubed/mini-sign
 
 > **off**\<`K`, `B`\>(`event`, `binding`): `void`
 
-Defined in: [mini-signals-emitter.ts:92](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L92)
+Defined in: [mini-signals-emitter.ts:90](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L90)
 
 #### Type Parameters
 
@@ -162,7 +162,7 @@ Defined in: [mini-signals-emitter.ts:92](https://github.com/Hypercubed/mini-sign
 
 ##### B
 
-`B` *extends* `MiniSignalBinding`\<`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>, `K`\>
+`B` *extends* `MiniSignalBinding`\<`T`\[`K`\], `K`\>
 
 #### Parameters
 
@@ -182,9 +182,9 @@ Defined in: [mini-signals-emitter.ts:92](https://github.com/Hypercubed/mini-sign
 
 ### on()
 
-> **on**\<`K`\>(`event`, `handler`): `MiniSignalBinding`\<`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>, `K`\>
+> **on**\<`K`\>(`event`, `handler`): `MiniSignalBinding`\<`T`\[`K`\], `K`\>
 
-Defined in: [mini-signals-emitter.ts:39](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L39)
+Defined in: [mini-signals-emitter.ts:37](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L37)
 
 Register a listener for a specific event
 
@@ -202,19 +202,19 @@ Register a listener for a specific event
 
 ##### handler
 
-`ExtractHandler`\<`T`, `K`\>
+`EventHandler`\<`T`\[`K`\]\>
 
 #### Returns
 
-`MiniSignalBinding`\<`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>, `K`\>
+`MiniSignalBinding`\<`T`\[`K`\], `K`\>
 
 ***
 
 ### once()
 
-> **once**\<`K`\>(`event`, `handler`): `MiniSignalBinding`\<`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>, `K`\>
+> **once**\<`K`\>(`event`, `handler`): `MiniSignalBinding`\<`T`\[`K`\], `K`\>
 
-Defined in: [mini-signals-emitter.ts:50](https://github.com/Hypercubed/mini-signals/blob/31b86fc9e63ab0aae58887a1f4573f42c984749e/src/mini-signals-emitter.ts#L50)
+Defined in: [mini-signals-emitter.ts:48](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-emitter.ts#L48)
 
 Register a one-time listener for a specific event
 
@@ -232,8 +232,8 @@ Register a one-time listener for a specific event
 
 ##### handler
 
-`ExtractHandler`\<`T`, `K`\>
+`EventHandler`\<`T`\[`K`\]\>
 
 #### Returns
 
-`MiniSignalBinding`\<`Parameters`\<`ExtractHandler`\<`T`, `K`\>\>, `K`\>
+`MiniSignalBinding`\<`T`\[`K`\], `K`\>

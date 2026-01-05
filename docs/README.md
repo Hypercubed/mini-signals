@@ -14,19 +14,21 @@ Custom event/messaging system for TypeScript/JavaScript inspired by [js-signals]
 
 There are several advantages to signals over event-emitters (see [Comparison between different Observer Pattern implementations](https://github.com/millermedeiros/js-signals/wiki/Comparison-between-different-Observer-Pattern-implementations)). However, the current implementation of [js-signals](https://github.com/millermedeiros/js-signals) is (arguably) slow compared to other implementations (see [EventsSpeedTests](https://github.com/Hypercubed/EventsSpeedTests)). `mini-signals` is a fast, minimal emitter, with an API similar to [js-signals](https://github.com/millermedeiros/js-signals).
 
-> Note: Signals here are the type defined by Miller Medeiros in [js-signals](https://github.com/millermedeiros/js-signals) inspired by AS3-Signals.  They should not to be confused with [SolidJS](https://www.solidjs.com/tutorial/introduction_signals) or [Angular signals](https://github.com/angular/angular/discussions/49090).
+> Note: Signals here are the type defined by Miller Medeiros in [js-signals](https://github.com/millermedeiros/js-signals) inspired by AS3-Signals.  They should not be confused with [SolidJS](https://www.solidjs.com/tutorial/introduction_signals) or [Angular signals](https://github.com/angular/angular/discussions/49090).
 
 ## mini-signals 3.0.0
 
 Breaking Changes:
 
-- 
+- Possible breaking change on imports, now exports `index.cjs` and `index.mjs`
 
 New features:
 
 - `MiniSignalEmitter` class to manage multiple named signals.
 - `.dispatchSerial` - Dispatches listeners serially, waiting for each to complete if they return a Promise.
 - `.dispatchParallel` - Dispatches listeners in parallel, waiting for all to complete if they return Promises.
+
+[See CHANGELOG.md for details.](_media/CHANGELOG.md)
 
 ## Install
 
@@ -36,9 +38,15 @@ New features:
 npm install mini-signals
 ```
 
-## Examples
+## Usage
 
-### Basic Usage
+MiniSignals (since version 3.0.0) can be used either as a single-channel broadcast system using `MiniSignal`, or as a multi-channel event emitter using `MiniSignalEmitter`.  `MiniSignal` has a slight performance advantage, while multi-channel event emitters provide better organization for many events.  `MiniSignalEmitter` is built on top of `MiniSignal`. `MiniSignalEmitter` API is similar to Node.js `EventEmitter` API and has the convenience that each event is "flavored" with its own `MiniSignal` instance.
+
+> Flavoring (or branding) a signal ensures that only bindings  created by that specific signal (the object returned when adding a listener) can only be used to detach listeners from that signal. This prevents accidentally attempting to detach a binding from a different signal; which would result in a runtime error.
+
+Both `MiniSignal` and `MiniSignalEmitter` support asynchronous listeners that return Promises.  Dispatch methods can be used to wait for all listeners to complete either in series or in parallel.
+
+### MiniSignal Usage
 
 ```typescript
 import { MiniSignal } from 'mini-signals';
@@ -63,7 +71,7 @@ mySignal.dispatch('foo', 'bar');
 mySignal.detach(binding);
 ```
 
-### Basic Async Usage
+### MiniSignal Async Usage
 
 ```typescript
 import { MiniSignal } from 'mini-signals';
@@ -127,7 +135,7 @@ See [MiniSignal Documentation](mini-signals-emitter/classes/documents/mini-signa
 
 ## API
 
-See [API.md](docs/modules.md)
+See [API.md](_media/modules.md)
 
 ## License
 

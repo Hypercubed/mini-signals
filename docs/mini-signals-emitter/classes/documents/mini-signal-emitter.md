@@ -88,9 +88,7 @@ type ConnectionEvents = {
   error: [error: Error];
 };
 
-class WebSocketConnection extends MiniSignalEmitter<
-  MiniSignalMap<ConnectionEvents>
-> {
+class WebSocketConnection extends MiniSignalEmitter<ConnectionEvents> {
   constructor() {
     super({
       open: new MiniSignal(),
