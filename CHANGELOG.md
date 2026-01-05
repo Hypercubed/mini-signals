@@ -6,9 +6,6 @@ _(none)_
 ---
 
 ## 3.0.0-0 (2026-01-04)
-_(none)_
-
-## 2.1.1-0 (2026-01-04)
 * Breaking: possible breaking change on imports, now exports `index.cjs` and `index.mjs`
 * Feature: Added `MiniSignalEmitter`
 
