@@ -8,7 +8,7 @@
 
 > **createSignalMap**\<`T`\>(`events`): `MiniSignalMap`\<`T`\>
 
-Defined in: [mini-signals-utils.ts:7](https://github.com/Hypercubed/mini-signals/blob/9ce8629a10eac3a85dfe24449edbdf9c087442be/src/mini-signals-utils.ts#L7)
+Defined in: [mini-signals-utils.ts:7](https://github.com/Hypercubed/mini-signals/blob/d6690855a661706c82068b0f219c2c42c86a6a35/src/mini-signals-utils.ts#L7)
 
 Helper to create a signal map for SignalEmitter
 

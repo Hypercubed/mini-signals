@@ -1,6 +1,6 @@
 import type { EventHandler, MiniSignalBinding } from './mini-signals-types.js';
 
-const MINI_SIGNAL_KEY = Symbol('SIGNAL');
+const MINI_SIGNAL_KEY: unique symbol = Symbol('SIGNAL');
 
 export interface MiniSignalNode<T extends any[]> {
   fn: EventHandler<T>;
@@ -15,7 +15,7 @@ function isBinding(obj: any): obj is MiniSignalBinding<any, any> {
 /**
  * @document __docs__/mini-signal.md
  */
-export class MiniSignal<T extends any[] = any[], S = symbol | string> {
+export class MiniSignal<T extends any[] = any[], S = never> {
   /**
    * A Symbol that is used to guarantee the uniqueness of the MiniSignal instance.
    */

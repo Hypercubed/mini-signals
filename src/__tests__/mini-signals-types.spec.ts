@@ -100,6 +100,63 @@ describe('MiniSignalEmitter Typing', () => {
     emitter.off('logout', offLogout);
   });
 
+  it('has correct types when using generic event map', () => {
+    type Events = {
+      login: [string];
+      logout: [string];
+      error: [Error, number];
+    };
+
+    const emitter = new MiniSignalEmitter<Events>({
+      login: new MiniSignal(),
+      logout: new MiniSignal(),
+      error: new MiniSignal(),
+    });
+
+    const offLogin = emitter.on('login', (userId) => {
+      expectType<string>(userId);
+    });
+    const offLogout = emitter.once('logout', (reason) => {
+      expectType<string>(reason);
+    });
+    const offError = emitter.on('error', (err, code) => {
+      expectType<Error>(err);
+      expectType<number>(code);
+    });
+
+    expectType<boolean>(emitter.emit('login', 'user123'));
+    expectType<boolean>(emitter.emit('logout', 'timeout'));
+    expectType<boolean>(emitter.emit('error', new Error('fail'), 500));
+    emitter.off('login', offLogin);
+    emitter.off('logout', offLogout);
+    emitter.off('error', offError);
+  });
+
+  it('should have the correct types with signals map', () => {
+    type SignalsMap = {
+      login: MiniSignal<[string]>;
+      logout: MiniSignal<[string]>;
+    };
+
+    const emitter = new MiniSignalEmitter<SignalsMap>({
+      login: new MiniSignal(),
+      logout: new MiniSignal(),
+    });
+
+    const offLogin = emitter.on('login', (userId) => {
+      expectType<string>(userId);
+    });
+    const offLogout = emitter.once('logout', (reason) => {
+      expectType<string>(reason);
+    });
+
+    expectType<boolean>(emitter.emit('login', 'user123'));
+    expectType<boolean>(emitter.emit('logout', 'timeout'));
+
+    emitter.off('login', offLogin);
+    emitter.off('logout', offLogout);
+  });
+
   it('should have correct types (symbols)', () => {
     const LOGIN = Symbol('login');
     const LOGOUT = Symbol('logout');
@@ -231,6 +288,37 @@ describe('MiniSignalEmitter Typing', () => {
     expect(() => {
       expectError(emitter.off('login', offLogout));
     }).toThrow();
+  });
+
+  it('should not show TS error on untyped signals', () => {
+    const emitter = new MiniSignalEmitter({
+      syncEvent: new MiniSignal(),
+      asyncEvent: new MiniSignal(),
+    });
+
+    emitter.emit('asyncEvent', 'test');
+    emitter.emitParallel('syncEvent', 'test');
+    emitter.emitSerial('syncEvent', 'test');
+  });
+
+  it('should show TS error on incorrect listener type when removing', () => {
+    const signals = {
+      login: new MiniSignal<[string], '__login__'>(),
+      logout: new MiniSignal<[string]>(),
+    };
+
+    const emitter = new MiniSignalEmitter(signals);
+
+    const offLogin = signals.login.add((userId) => {
+      expectType<string>(userId);
+    });
+
+    const offLogout = emitter.on('logout', (userId) => {
+      expectType<string>(userId);
+    });
+
+    emitter.off('login', offLogin);
+    emitter.off('logout', offLogout);
   });
 
   it('should not show TS error on untyped signals', () => {

@@ -1,10 +1,13 @@
 # CHANGELOG
 
 ## HEAD (Unreleased)
-* Breaking: possible breaking change on imports, now exports `index.cjs` and `index.mjs`
-* Feature: Added `MiniSignalEmitter`
+_(none)_
 
 ---
+
+## 3.0.0-0 (2026-01-04)
+* Breaking: possible breaking change on imports, now exports `index.cjs` and `index.mjs`
+* Feature: Added `MiniSignalEmitter`
 
 ## 2.1.0 (2026-01-01)
 * Feature: adding `.dispatchSerial` and `.dispatchParallel`

@@ -9,7 +9,3 @@
 ## Classes
 
 - [MiniSignalEmitter](classes/MiniSignalEmitter.md)
-
-## Type Aliases
-
-- [EventKey](type-aliases/EventKey.md)

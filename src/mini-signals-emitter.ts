@@ -3,18 +3,49 @@ import type {
   EventHandler,
   EventMap,
   MiniSignalMap,
-} from './mini-signals-types.js';
+  EventKey,
+} from './mini-signals-types.d.ts';
 import type { MiniSignal } from './mini-signals.ts';
 
-export type EventKey<T extends EventMap<any>> = keyof T;
+type SignalMap<T> = T extends EventMap<any>
+  ? MiniSignalMap<T>
+  : T extends MiniSignalMap<any>
+  ? T
+  : never;
+
+type Listener<T> = T extends any[]
+  ? EventHandler<T>
+  : T extends MiniSignal<infer U, any>
+  ? EventHandler<U>
+  : never;
+type Args<T> = T extends any[]
+  ? T
+  : T extends MiniSignal<infer U, any>
+  ? U
+  : never;
+
+type _B<S, K> = [S] extends [never] ? K : S;
+type Brand<T, K> = T extends any[]
+  ? K
+  : T extends MiniSignal<any, infer S>
+  ? _B<S, K>
+  : never;
+
+type Signal<T, K> = MiniSignal<Args<T>, Brand<T, K>>;
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Binding<T, K> = MiniSignalBinding<Args<T>, Brand<T, K>>;
 
 /**
  * @document __docs__/mini-signal-emitter.md
  */
-export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
-  protected readonly signals: MiniSignalMap<T>;
+export class MiniSignalEmitter<
+  T extends EventMap<any> | MiniSignalMap<EventMap<any>> = any
+> {
+  protected readonly signals: SignalMap<T>;
 
-  constructor(signals: MiniSignalMap<T>) {
+  // Note: signals must be provided from outside
+  // but are not required to be branded
+  constructor(signals: SignalMap<T>) {
     this.signals = { ...signals };
     // Copy symbol keys
     for (const key of Object.getOwnPropertySymbols(signals)) {
@@ -22,13 +53,15 @@ export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
     }
   }
 
-  protected getSignal<K extends EventKey<T>>(event: K): MiniSignal<T[K], K> {
+  // TODO: Can we extact the branding from the original signal here?
+  protected getSignal<K extends EventKey<T>>(event: K): Signal<T[K], K> {
     const signal = this.signals[event];
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!signal) {
       throw new Error(`Signal for event '${String(event)}' not found`);
     }
-    return signal;
+    // Returns the signal with implied branding
+    return signal as unknown as Signal<T[K], K>;
   }
 
   /**
@@ -36,8 +69,8 @@ export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
    */
   on<K extends EventKey<T>>(
     event: K,
-    handler: EventHandler<T[K]>
-  ): MiniSignalBinding<T[K], K> {
+    handler: Listener<T[K]>
+  ): Binding<T[K], K> {
     const signal = this.getSignal(event);
     return signal.add(handler);
   }
@@ -47,33 +80,27 @@ export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
    */
   once<K extends EventKey<T>>(
     event: K,
-    handler: EventHandler<T[K]>
-  ): MiniSignalBinding<T[K], K> {
+    handler: Listener<T[K]>
+  ): Binding<T[K], K> {
     const signal = this.getSignal(event);
-    const binding = signal.add(
-      (...args: Parameters<EventHandler<T[K]>>): void => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        handler(...args);
-        signal.detach(binding);
-      }
-    );
+    const binding = signal.add((...args: Args<T[K]>): void => {
+      handler(...args);
+      signal.detach(binding);
+    });
     return binding;
   }
 
   /**
    * Emit an event with data
    */
-  emit<K extends EventKey<T>>(
-    event: K,
-    ...args: Parameters<EventHandler<T[K]>>
-  ): boolean {
+  emit<K extends EventKey<T>>(event: K, ...args: Args<T[K]>): boolean {
     const signal = this.getSignal(event);
     return signal.dispatch(...args);
   }
 
   async emitParallel<K extends EventKey<T>>(
     event: K,
-    ...args: Parameters<EventHandler<T[K]>>
+    ...args: Args<T[K]>
   ): Promise<boolean> {
     const signal = this.getSignal(event);
     return await signal.dispatchParallel(...args);
@@ -81,13 +108,13 @@ export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
 
   async emitSerial<K extends EventKey<T>>(
     event: K,
-    ...args: Parameters<EventHandler<T[K]>>
+    ...args: Args<T[K]>
   ): Promise<boolean> {
     const signal = this.getSignal(event);
     return await signal.dispatchSerial(...args);
   }
 
-  off<K extends EventKey<T>, B extends MiniSignalBinding<T[K], K>>(
+  off<K extends EventKey<T>, B extends Binding<T[K], K>>(
     event: K,
     binding: B
   ): void {
@@ -100,10 +127,10 @@ export class MiniSignalEmitter<T extends EventMap<any> = EventMap<any>> {
       this.getSignal(event).detachAll();
     } else {
       for (const key of Object.keys(this.signals)) {
-        this.signals[key as K]?.detachAll();
+        this.getSignal(key as K)?.detachAll();
       }
       for (const key of Object.getOwnPropertySymbols(this.signals)) {
-        this.signals[key as K]?.detachAll();
+        this.getSignal(key as K)?.detachAll();
       }
     }
   }
